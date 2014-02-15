@@ -1,0 +1,607 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="LowLevel.ATTRIBUTE_RECORD_HEADER" Collapsed="true">
+    <Position X="20.75" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>gQgAJAAAAAQAACFEAQAQCAGoEgAMACBQBBAtBIEgBgY=</HashCode>
+      <FileName>Attributes.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="LowLevel.ATTRIBUTE_DATA" Collapsed="true">
+    <Position X="32" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAI=</HashCode>
+      <FileName>Attributes.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LowLevel.RESIDENT" Collapsed="true">
+    <Position X="41" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAEAAAAAAAIAMAAAAAAAAABBAAIAQQAAAAAAAAAA=</HashCode>
+      <FileName>Attributes.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LowLevel.NONRESIDENT" Collapsed="true">
+    <Position X="54.5" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>EhAAAGAAAABgAKAEAIBAAACCAAAQAqAEAAIAAkAAAAA=</HashCode>
+      <FileName>Attributes.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LowLevel.MAPPING_PAIR" Collapsed="true">
+    <Position X="61.25" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAgAAAEIAAAAAAAAAAAAAAAAYAEABAAAAA=</HashCode>
+      <FileName>Attributes.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LowLevel.BITMAP" Collapsed="true">
+    <Position X="70.25" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Attributes.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LowLevel.EA" Collapsed="true">
+    <Position X="77" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Attributes.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LowLevel.EA_INFORMATION" Collapsed="true">
+    <Position X="86" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Attributes.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LowLevel.INDX" Collapsed="true">
+    <Position X="0.5" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>BIAAAAQAAAAAgKAEAAAgAAAAAAAAAAAAAAAAAAABAAA=</HashCode>
+      <FileName>Attributes.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LowLevel.FILE_NAME" Collapsed="true">
+    <Position X="9.5" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAgwIUAIAEEAAEBkAEhEgDBSAACAUAiRgEAIgBBAYAA=</HashCode>
+      <FileName>Attributes.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LowLevel.INDEX_ALLOCATION" Collapsed="true">
+    <Position X="23" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAABQAAIAAAAAAEAAAAAAAAIAAAAAABIAAAACAAAAQ=</HashCode>
+      <FileName>Attributes.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LowLevel.INDEX_ROOT" Collapsed="true">
+    <Position X="34.25" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AABAAACAwAAAAIAEIACgAAABAAEAAAAAIIIAAACCAAA=</HashCode>
+      <FileName>Attributes.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LowLevel.INDEX_HEADER" Collapsed="true">
+    <Position X="43.25" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAABAAAAACAAEAEgAAAAAAEIAAAgAAAAIAAAAACAAQ=</HashCode>
+      <FileName>Attributes.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LowLevel.INDEX_ENTRY" Collapsed="true">
+    <Position X="56.75" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>gACABAAAAAAAAAAEgEAAAABIIAAAAAAAgAAAAAACgAQ=</HashCode>
+      <FileName>Attributes.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LowLevel.INDEX_ENTRY_DATA" Collapsed="true">
+    <Position X="63.5" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAgBgAAAEIAAAAkBAEEIAARIAAAUAiAAMAIgADAIAQ=</HashCode>
+      <FileName>Attributes.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LowLevel.LOGGED_UTILITY_STREAM" Collapsed="true">
+    <Position X="79.25" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Attributes.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LowLevel.OBJECT_ID" Collapsed="true">
+    <Position X="88.25" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>QAAAAAAAAgAAgAAEAAAAAAAAAkBAgAAAAAAAAAAAAEA=</HashCode>
+      <FileName>Attributes.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LowLevel.REPARSE_POINT" Collapsed="true">
+    <Position X="2.75" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Attributes.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LowLevel.STANDARD_INFORMATION" Collapsed="true">
+    <Position X="11.75" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAgwKEAsAAkAJEAkAEhEADBSAACEUACQBAEAgBARYAA=</HashCode>
+      <FileName>Attributes.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LowLevel.VOLUME_NAME" Collapsed="true">
+    <Position X="25.25" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAIAAAAAAAEAAAAAAAAAAAAAAAAAAgAAAAAAAA=</HashCode>
+      <FileName>Attributes.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LowLevel.VOLUME_INFORMATION" Collapsed="true">
+    <Position X="36.5" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAABAAAAAAAAAQIQAAEBAAAAAAAAAAAAAAAAAAAAAQ=</HashCode>
+      <FileName>Attributes.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LowLevel.Form1" Collapsed="true">
+    <Position X="98.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>EkgoAJkOCGAhSAFIIGaApARyAAwABQAAEAQAAAIAAAA=</HashCode>
+      <FileName>Form1.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LowLevel.Win32_BIOS" Collapsed="true">
+    <Position X="97" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>IAkBAAAUQAAowAIEAAEQIASQAAEECBIgCAIAQAAAAAA=</HashCode>
+      <FileName>HardWare.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LowLevel.Win32_BootConfiguration" Collapsed="true">
+    <Position X="98.75" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAgAAAAEAAAAAQAAAABAAAACAAAACAAEEg=</HashCode>
+      <FileName>HardWare.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LowLevel.Win32_DiskPartition" Collapsed="true">
+    <Position X="97" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>EAAUACAEEEAghEAEAAABYARAUAAQAAUAqwMFECAEAAA=</HashCode>
+      <FileName>HardWare.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LowLevel.Win32_Fan" Collapsed="true">
+    <Position X="98.75" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>EAAcAAAEAEAgBAAECAABIAQAQAAAAAUACgIEEAAEAAA=</HashCode>
+      <FileName>HardWare.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LowLevel.Win32_MotherboardDevice" Collapsed="true">
+    <Position X="97" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>EAAUAAAEAEggBAAEIAgBIAQAQAAAAAUACgIEEAAEAAA=</HashCode>
+      <FileName>HardWare.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LowLevel.Win32_Processor" Collapsed="true">
+    <Position X="104" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>MAiUQIAEAEIghAAVEBIBpAQAQMQAQAUJjgIEMAAERAQ=</HashCode>
+      <FileName>HardWare.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LowLevel.Win32_DiskDrive" Collapsed="true">
+    <Position X="65.75" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>MBpUAQAEYFmkpBgsqKABJhRgQUQDACUACguEECgGgAE=</HashCode>
+      <FileName>HardWare.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LowLevel.Win32_Battery" Collapsed="true">
+    <Position X="95.25" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>EAAUACAEAEAgDEAEBCABIAQASAQAACUQigIEERAEAAA=</HashCode>
+      <FileName>HardWare.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LowLevel.Win32_CDROMDrive" Collapsed="true">
+    <Position X="100.5" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>EAoWAAAEcEikhAg8IAABIBRAQAkBgCUACgoEEACEAIA=</HashCode>
+      <FileName>HardWare.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LowLevel.Win32_ComputerSystem" Collapsed="true">
+    <Position X="104" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>IOgMjCBUAAAgCAAFAAACZQwENgRIGiUALQoCAADgaDA=</HashCode>
+      <FileName>HardWare.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LowLevel.Win32_Volume" Collapsed="true">
+    <Position X="98.75" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>EAAUQACNEGkgBEEEAAAhIARCUAEAAAUAKgMEECAEAEA=</HashCode>
+      <FileName>HardWare.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LowLevel.Win32_LogicalDisk" Collapsed="true">
+    <Position X="102.25" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>EAAUQACPAEEghEkEAAABIARAUAAAAAUAKgtEECCUAIA=</HashCode>
+      <FileName>HardWare.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LowLevel.Win32_MemoryArray" Collapsed="true">
+    <Position X="104" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>EACcAABMAUIgFEAEAAEBIARA0AAAAAUAKgIEECAEACA=</HashCode>
+      <FileName>HardWare.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LowLevel.Win32_MemoryDevice" Collapsed="true">
+    <Position X="95.25" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>EACcAABMAUIgFEAEAAEBIARA0AAAAAUAKgIEECAEACA=</HashCode>
+      <FileName>HardWare.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LowLevel.Win32_Keyboard" Collapsed="true">
+    <Position X="100.5" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>EAAUCAAEEEAgBAAEAAABIAQAQAAAAAUKCgIEEAAEAAA=</HashCode>
+      <FileName>HardWare.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LowLevel.Win32_NetworkAdapter" Collapsed="true">
+    <Position X="98.75" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>EAhUQAAkAEQgBAAECAAFIAQBQAEAEAWACwckEAQMBAA=</HashCode>
+      <FileName>HardWare.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LowLevel.Win32_OperatingSystem" Collapsed="true">
+    <Position X="100.5" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>YCkQBQjUkgUgQIAEAyQQJJSAEmFABAAMDAYBAFiAMig=</HashCode>
+      <FileName>HardWare.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LowLevel.Win32_VideoController" Collapsed="true">
+    <Position X="97" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>MKgUAJBkAEgwDAAOQEAnogRMQAEAmAUBCgIMGAQGEAE=</HashCode>
+      <FileName>HardWare.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LowLevel.Win32_DesktopMonitor" Collapsed="true">
+    <Position X="95.25" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>EAAUCBAEDEAgBAAEAAABIAQEQABAAAUAKgIEEAAEAAA=</HashCode>
+      <FileName>HardWare.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LowLevel.Win32_PointingDevice" Collapsed="true">
+    <Position X="102.25" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>FAgUCAEEAEAhBAAAAAABIASAQAGggAUBjgKEEAAEAAA=</HashCode>
+      <FileName>HardWare.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LowLevel.Win32_BaseBoard" Collapsed="true">
+    <Position X="104" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>IBgCAAAEBACgAACARAAAYEQAACEQAACgCAoAEBAAIAI=</HashCode>
+      <FileName>HardWare.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LowLevel.Win32_USBHub" Collapsed="true">
+    <Position X="95.25" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>EAAUAAAEAEAkBAAAAAABoAQIQAAIAAVACwIGEAAEAQA=</HashCode>
+      <FileName>HardWare.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LowLevel.Win32_CodecFile" Collapsed="true">
+    <Position X="102.25" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>YAoAAkBEKIAgAAJAAAAEoAQDIAQAgQAICAMAAMBEAAA=</HashCode>
+      <FileName>HardWare.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LowLevel.HardwareViewer" Collapsed="true">
+    <Position X="100.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AgAAAAAAACAAAAAAAACAAAACAAAAAQAAAAACAAAAAAA=</HashCode>
+      <FileName>HardwareViewer.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LowLevel.MFT" Collapsed="true">
+    <Position X="45.5" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAACCAEAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>MFT.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LowLevel.FILE_RECORD_SEGMENT" Collapsed="true">
+    <Position X="59" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAACAAAEAiAAgARQAAAEFCABoAEAAABAACA=</HashCode>
+      <FileName>MFT.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LowLevel.FILE_RECORD_SEGMENT_HEADER" Collapsed="true">
+    <Position X="68" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ACAAhAAAAAACCAAEiAAAEQIAAAAgCABAEAAABAAAgmQ=</HashCode>
+      <FileName>MFT.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LowLevel.MULTI_SECTOR_HEADER" Collapsed="true">
+    <Position X="74.75" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAwAAAAACAACEIAAAAIAAAAAAAAAAAAAAAAAAAAk=</HashCode>
+      <FileName>MFT.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LowLevel.MFT_SEGMENT_REFERENCE" Collapsed="true">
+    <Position X="81.5" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>QAAAAEAAAAAACAAECAgAAAgAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>MFT.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LowLevel.ATTRIBUTE_DEFINITION_DATA" Collapsed="true">
+    <Position X="90.5" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AgAAAIAAgAAAQAAEAEAAAAQAAAAHAAAAAQAEAAAAAAQ=</HashCode>
+      <FileName>MFT.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LowLevel.RawAccess" Collapsed="true">
+    <Position X="102.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAgAAAAAIAAAAAQAgCgAAAAAAAAAAAACAACAAAA=</HashCode>
+      <FileName>RawAccess.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LowLevel.RawDiskAccess" Collapsed="true">
+    <Position X="18.5" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>EEgAABEGCGJASACAADQEYQBgAEQQAAAAQIQCQEEAgEA=</HashCode>
+      <FileName>RawDiskAccess.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LowLevel.DiskAccess" Collapsed="true">
+    <Position X="95.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>EASAATAEFAAAAAMAgEQAACAAACAAgBIgDAEAAAAAAAA=</HashCode>
+      <FileName>System.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LowLevel.MasterBootRecord" Collapsed="true">
+    <Position X="5" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>IAAAACAAAAAAAAAEAAAAAAAAAAAAAAABAAAAAQAgAAA=</HashCode>
+      <FileName>Partition.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LowLevel.Partition" Collapsed="true">
+    <Position X="14" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>IGjAAiEAAAAiAgAEACAiACAoAwAAAAAAAAAAAGECABA=</HashCode>
+      <FileName>Partition.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LowLevel.ChsSector" Collapsed="true">
+    <Position X="27.5" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAIAAAAgAAAAAAEAAAAAAAAAAAABAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Partition.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LowLevel.BootRecord_Fat16" Collapsed="true">
+    <Position X="47.75" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAQAAAAgCgAAMAgAAAAQAAgAAAAAAAgACACAgAgA=</HashCode>
+      <FileName>Partition.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LowLevel.BootRecord_Fat32" Collapsed="true">
+    <Position X="50" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>IAAABGAYAQQIAAAEAAIAAAAQCwAABgEAAEgAKABAAAg=</HashCode>
+      <FileName>Partition.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LowLevel.BootRecord_Dell" Collapsed="true">
+    <Position X="52.25" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAIAAAAAAAEAAAAAAAAAQAAAAEAAAgAAAAAAAA=</HashCode>
+      <FileName>Partition.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LowLevel.BootRecord_NTFS" Collapsed="true">
+    <Position X="83.75" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAgAGhAAAAAAAEAUAAACAgAQIAAEACAAAAAAAQAAE=</HashCode>
+      <FileName>Partition.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LowLevel.FSInformationSector" Collapsed="true">
+    <Position X="92.75" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>gAAAAAAAAAAAAAAIAAAAAAAAAgAAAABAAAIAAAAAAAA=</HashCode>
+      <FileName>Partition.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LowLevel.Root16Entry" Collapsed="true">
+    <Position X="29.75" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>IAAAMgQAAClEARA9JBgRIAwSAAEEk0ADBANBAQBCEAA=</HashCode>
+      <FileName>FAT.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LowLevel.Directory" Collapsed="true">
+    <Position X="38.75" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAIAAAACAAAACAEAAAgAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>FAT.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Struct Name="LowLevel._PARTITION_INFORMATION_EX" Collapsed="true">
+    <Position X="95.25" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AABAAAAAAAAEIAAAAAAAAAAAAEAQAAAAgAAAAAAAAAA=</HashCode>
+      <FileName>RawAccess.cs</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="LowLevel.Partition_Information" Collapsed="true">
+    <Position X="97" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAIAAA=</HashCode>
+      <FileName>RawAccess.cs</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="LowLevel.PARTITION_INFORMATION_MBR" Collapsed="true">
+    <Position X="100.5" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AQAAAAAAEAQAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>RawAccess.cs</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="LowLevel.PARTITION_INFORMATION_GPT" Collapsed="true">
+    <Position X="98.75" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AQAAAAAAAAAAAAAAAAAAAAQQAAAAAAAAAAAAAAAAAIA=</HashCode>
+      <FileName>RawAccess.cs</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Interface Name="LowLevel.IATTRIBUTE_RECORD_HEADER" Collapsed="true">
+    <Position X="95.25" Y="7" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAgABAAAAAQAAAAEAAAAAACAAAAEAABAAAABAAAAAAA=</HashCode>
+      <FileName>Attributes.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="LowLevel.IBootRecord" Collapsed="true">
+    <Position X="97" Y="7" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AABAAAACAAAABAAACAAAAQABAAAAAQAAAAAAAAAAAgA=</HashCode>
+      <FileName>Partition.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Enum Name="LowLevel.MediaType" Collapsed="true">
+    <Position X="102.25" Y="8.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAADgHgEAAQAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Enumerations.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="LowLevel.PartitionType" Collapsed="true">
+    <Position X="95.25" Y="9.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>swKoBUSPma0gcDwIgRQDGiqgSqjKkCSQBABsIsBgZEk=</HashCode>
+      <FileName>Enumerations.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="LowLevel.ATTR_DEF_FLAGS" Collapsed="true">
+    <Position X="95.25" Y="8" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAEAAAAAAgAAAA=</HashCode>
+      <FileName>Enumerations.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="LowLevel.FileFlags" Collapsed="true">
+    <Position X="104" Y="8" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAgAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Enumerations.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="LowLevel.ATTRIBUTE_TYPE_CODE" Collapsed="true">
+    <Position X="98.75" Y="8" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAACAIAAAAAAAEAAADEAAAAAQAACAAABAAEAgACAQ=</HashCode>
+      <FileName>Enumerations.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="LowLevel.FORM_CODE" Collapsed="true">
+    <Position X="97" Y="8.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAQAAAAAAAA=</HashCode>
+      <FileName>Enumerations.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="LowLevel.ATTRIBUTE_FLAGS" Collapsed="true">
+    <Position X="97" Y="8" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAIAAAAA=</HashCode>
+      <FileName>Enumerations.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="LowLevel.VOLUME_INFORMATION_FLAGS" Collapsed="true">
+    <Position X="100.5" Y="9.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AABAAAAAAAAAAABAAAAAAAAACAAAAAAABIIAAAAgAAA=</HashCode>
+      <FileName>Enumerations.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="LowLevel.STANDARD_INFORMATION_FLAGS" Collapsed="true">
+    <Position X="97" Y="9.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAEAAAAIAAAgAAAAgAgAACAQAIAAIAAAEIAIAEAAA=</HashCode>
+      <FileName>Enumerations.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="LowLevel.INDEX_FLAGS" Collapsed="true">
+    <Position X="100.5" Y="8.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAgAAAAAAAA=</HashCode>
+      <FileName>Enumerations.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="LowLevel.INDEX_ENTRY_FLAGS" Collapsed="true">
+    <Position X="98.75" Y="8.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAEAQAAAACAA=</HashCode>
+      <FileName>Enumerations.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="LowLevel.COLLATION_RULE" Collapsed="true">
+    <Position X="100.5" Y="8" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ECAAAAAAAAAAQAAAAAAAEAAAAAAAAAAAAAAAAAhAAAA=</HashCode>
+      <FileName>Enumerations.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="LowLevel.SYSTEM_FILE_NUMBER" Collapsed="true">
+    <Position X="98.75" Y="9.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAKAIAAACAQAAgAAAgIAFIAAAAAAAAAAACAAAAQAAAA=</HashCode>
+      <FileName>Enumerations.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="LowLevel.FILENAME_NAMESPACE" Collapsed="true">
+    <Position X="95.25" Y="8.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>QAAAAAAECAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Enumerations.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="LowLevel.PARTITION_STYLE" Collapsed="true">
+    <Position X="104" Y="8.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAIAAAAAAIAAAAAAAAAAACAAAA=</HashCode>
+      <FileName>RawAccess.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

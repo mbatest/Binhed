@@ -1,0 +1,95 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="ExifLibrary.EXIFTag" Collapsed="true">
+    <Position X="5.25" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAQGAAAAAAQgEAIAAIABACBkAAAAAAIAQACBACAQ=</HashCode>
+      <FileName>ExifData.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ExifLibrary.XMPPerson" Collapsed="true">
+    <Position X="8.75" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAACQAAAAkAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>ExifData.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ExifLibrary.JPEGSegment" Collapsed="true">
+    <Position X="8.75" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAFAEAAAABAAAAAAIIAAACAAIAAAAA=</HashCode>
+      <FileName>ExifLibrary.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ExifLibrary.JPGFileData" Collapsed="true">
+    <Position X="10.5" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>CgOJpACGVUAgEABIIVALGAVaCYEBGeEBAArAAExLgiA=</HashCode>
+      <FileName>ExifLibrary.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Enum Name="ExifLibrary.EXIFType" Collapsed="true">
+    <Position X="10.5" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAIAAAAAAABAIIAAAAAIIAAAABAIAAQAA=</HashCode>
+      <FileName>ExifData.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="ExifLibrary.EXIFDataType" Collapsed="true">
+    <Position X="7" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>gAWACAIAAAEAAAAACAAAAAAAAIAAAAAAAAAAAAAAECQ=</HashCode>
+      <FileName>ExifData.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="ExifLibrary.EXIFFujiCode" Collapsed="true">
+    <Position X="10.5" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>YAAQAEJDgAAAAABJgEgAAAAIUgAXAIIgAAwAAAkCgIg=</HashCode>
+      <FileName>ExifData.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="ExifLibrary.EXIFDimageX" Collapsed="true">
+    <Position X="8.75" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>NAAAjlnAAoAgkCCSAEokGACC1KKBAAJg4ABIAIIBMbA=</HashCode>
+      <FileName>ExifData.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="ExifLibrary.EXIFOlympusCode" Collapsed="true">
+    <Position X="7" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>fQlODVJBQAEQoAhdhMYNCIKJRikLEQYhyoNFKQwCAAA=</HashCode>
+      <FileName>ExifData.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="ExifLibrary.EXIFSONYCode" Collapsed="true">
+    <Position X="8.75" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>IgBRLEhAAAAEAADQEHgACCEAUyAoBAAIjAIAogsJApE=</HashCode>
+      <FileName>ExifData.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="ExifLibrary.EXIFGPSCode" Collapsed="true">
+    <Position X="5.25" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>IAECEAAAEkCgoIAAQBUQABAAAAABBRBCDAKgCAAAIBA=</HashCode>
+      <FileName>ExifData.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="ExifLibrary.EXIFCode" Collapsed="true">
+    <Position X="5.25" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>LB7cskBViwGEBOExgJAAKkCYEmEGAg1Fgx8GDFnOAhQ=</HashCode>
+      <FileName>ExifData.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="ExifLibrary.JPEGMarker" Collapsed="true">
+    <Position X="5.25" Y="5.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>YQIAAABIhEEAgQIgFAgAEAAIBIH/EQQAAADsDwLCP/4=</HashCode>
+      <FileName>ExifData.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
