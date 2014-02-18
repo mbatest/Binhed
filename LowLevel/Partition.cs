@@ -57,7 +57,6 @@ namespace LowLevel
         private MasterBootRecord mbr_ext;
         private long startPartition;
         protected FAT fat;
-
         MFT mft;
         #region Properties
         public IBootRecord Boot_Sector
@@ -481,7 +480,6 @@ namespace LowLevel
     {
         string volLabel32;//0x2b
         string fileSystem32;//0x36
-
         public string VolLabel32
         {
             get { return volLabel32; }
@@ -514,11 +512,9 @@ namespace LowLevel
         ELEMENTARY_TYPE mftStart;//0x30
         ELEMENTARY_TYPE mftMirrStart;//0x38
         ELEMENTARY_TYPE clusterPerFileRecordSegment;//0x40
-
         ELEMENTARY_TYPE clusterPerIndex;//0x44
         ELEMENTARY_TYPE volSerialNumber;//0x48
         ELEMENTARY_TYPE crc;//0x50
-
         public ELEMENTARY_TYPE Total_Sectors
         {
             get { return totalSectors; }

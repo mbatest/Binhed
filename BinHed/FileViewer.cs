@@ -23,16 +23,16 @@ namespace BinHed
         }
         public void Init(ILOCALIZED_DATA im)
         {
-            treeView1.Nodes.Clear();
+            Propriétés.Nodes.Clear();
             this.im = im;
-            TreeNode root = new TreeNode("File data");
+            TreeNode root = new TreeNode("File data", 0, 1);
             Bitmap b = new Bitmap(20, 20);
             iml = new ImageList();
             iml.Images.Add(b);
             iml.ImageSize = new System.Drawing.Size(20, 20);
             FillTreeNode(root, im);
             root.Tag = im;
-            treeView1.Nodes.Add(root);
+            Propriétés.Nodes.Add(root);
         }
         private bool FillTreeNode(TreeNode root, ILOCALIZED_DATA currentNode)
         {
@@ -45,10 +45,10 @@ namespace BinHed
                 try
                 {
                     object[] att = v.GetCustomAttributes(typeof(DescriptionAttribute), false);
-                    string s = v.Name.Replace("_", " ") + " : ";
+                    string s = v.Name.Replace("_", " ") + " ";
                     if (att.Length > 0)
                     {
-                        s = ((DescriptionAttribute)att[0]).Description + " : ";
+                        s = ((DescriptionAttribute)att[0]).Description + " ";
                     }
                     PropertyDescriptorCollection col = TypeDescriptor.GetProperties(t);
                     if (currentNode.GetType().GetProperty(v.Name).GetValue(currentNode, null) != null)
@@ -59,7 +59,7 @@ namespace BinHed
                             Array a = (Array)currentNode.GetType().GetProperty(v.Name).GetValue(currentNode, null);
                             if (a.Length > 0)
                             {
-                                TreeNode ts = new TreeNode(s);
+                                TreeNode ts = new TreeNode(s, 0, 1);
                                 ts.Tag = currentNode.GetType().GetProperty(v.Name).GetValue(currentNode, null);
                                 root.Nodes.Add(ts);
 
@@ -67,7 +67,7 @@ namespace BinHed
                                 {
                                     if (element != null)
                                     {
-                                        TreeNode ta = new TreeNode(element.ToString());
+                                        TreeNode ta = new TreeNode(element.ToString(), 0, 1);
                                         ta.Tag = element;
                                         ts.Nodes.Add(ta);
                                     }
@@ -85,7 +85,7 @@ namespace BinHed
                                     IList a = (IList)currentNode.GetType().GetProperty(v.Name).GetValue(currentNode, null);
                                     if (a.Count > 0)
                                     {
-                                        TreeNode ts = new TreeNode(s);
+                                        TreeNode ts = new TreeNode("List "+ s, 0, 1);
                                         ts.Tag = currentNode.GetType().GetProperty(v.Name).GetValue(currentNode, null);
                                         root.Nodes.Add(ts);
 
@@ -93,7 +93,7 @@ namespace BinHed
                                         {
                                             if (x.GetType().IsGenericType)
                                             {
-                                                TreeNode ta = new TreeNode("List");
+                                                TreeNode ta = new TreeNode("List", 0, 1);
                                                 ta.Tag = x;
                                                 ts.Nodes.Add(ta);
                                                 if (x.GetType().Name.Contains("List"))
@@ -103,7 +103,7 @@ namespace BinHed
                                                     {
                                                         foreach (var xk in an)
                                                         {
-                                                            TreeNode tan = new TreeNode(xk.ToString());
+                                                            TreeNode tan = new TreeNode(xk.ToString(), 0, 1);
                                                             tan.Tag = xk;
                                                             ta.Nodes.Add(tan);
 
@@ -114,7 +114,14 @@ namespace BinHed
                                             }
                                             else
                                             {
-                                                TreeNode ta = new TreeNode(x.ToString());
+                                                string details = "";
+                                                if (x.GetType().Name == "String")
+
+                                                    details = x.ToString();
+                                                else
+                                                    details = x.GetType().Name;
+
+                                                TreeNode ta = new TreeNode(details, 0, 1);
                                                 ta.Tag = x;
                                                 ts.Nodes.Add(ta);
                                             }
@@ -167,10 +174,17 @@ namespace BinHed
                                         s = "";
                                         iml.Images.Add((Bitmap)currentNode.GetType().GetProperty(v.Name).GetValue(currentNode, null));
                                         TreeNode tal = new TreeNode("Album Art", iml.Images.Count - 1, iml.Images.Count - 1);
-                                        treeView1.ImageList = iml;
+                                        Propriétés.ImageList = iml;
                                         root.Nodes.Add(tal);
                                         break;
                                     case "Bool":
+                                        break;
+                                    case "Byte[]":
+                                        byte[] ubs = (byte[])currentNode.GetType().GetProperty(v.Name).GetValue(currentNode, null);
+                                        s += "0x";
+                                        foreach (byte uby in ubs)
+                                            s += uby.ToString("x2");
+
                                         break;
                                     default:
                                         //   if (currentNode.GetType().GetProperty(v.nameAddr).GetValue(currentNode, null).ToString() == "")
@@ -181,7 +195,7 @@ namespace BinHed
                                 }
                                 if (s != "")
                                 {
-                                    TreeNode ts = new TreeNode(s);
+                                    TreeNode ts = new TreeNode(s, 0, 1);
                                     ts.Tag = currentNode.GetType().GetProperty(v.Name).GetValue(currentNode, null);
                                     root.Nodes.Add(ts);
                                 }
@@ -198,7 +212,8 @@ namespace BinHed
         }
         private void treeView1_AfterSelect(object sender, TreeViewEventArgs e)
         {
-            TreeNode tn = treeView1.SelectedNode;
+            TreeNode tn = Propriétés.SelectedNode;
+            Type t = tn.Tag.GetType();
             if (tn.Tag != null)
             {
                 try
@@ -215,7 +230,7 @@ namespace BinHed
                     if ((tn.Text.Contains("Data Start Sector"))||(tn.Text.Contains("DataStartSector")))
                         if (dataSelected != null)
                             dataSelected(this, new DataSelectedEventArgs((long)tn.Tag * 0x200, 0x200, null));
-                   if(tn.Text.Contains("StartCluster"))
+                    if(tn.Text.Contains("StartCluster"))
                        if (dataSelected != null)
                            dataSelected(this, new DataSelectedEventArgs((long)tn.Tag * 0x200*8, 0x200, null));
                 }

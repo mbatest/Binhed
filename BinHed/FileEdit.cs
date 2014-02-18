@@ -18,6 +18,7 @@ using Code;
 using LowLevel;
 using Utils;
 using BinaryViewer;
+using System.Diagnostics;
 
 namespace BinHed
 {
@@ -60,6 +61,7 @@ namespace BinHed
             this.parseBlock.Visible = false;
             this.FileName = FileName;
             FileInfo fi = new FileInfo(FileName);
+            
             fileNameLabel.Text = FileName + " : Length = " + fi.Length.ToString();
             binaryView.Init(FileName);
             Analyse(FileName);
@@ -190,7 +192,7 @@ namespace BinHed
                     break;
                 case ".ifo":
                 case ".bup":
-                    Ifo ifo = new Ifo(FileName);
+                    IFO ifo = new IFO(FileName);
                     exv.Init(ifo);
                     break;
                 #endregion
@@ -291,7 +293,7 @@ namespace BinHed
                             break;
                         case "44564456":
                             //DVD IFO (or BUP)
-                            ifo = new Ifo(FileName);
+                            ifo = new IFO(FileName);
                             break;
                         case "47494638"://Gif
                             break;
@@ -367,7 +369,7 @@ namespace BinHed
                                     {
                                         case "DVDV":
                                             //DVD IFO (or BUP)
-                                            ifo = new Ifo(FileName);
+                                            ifo = new IFO(FileName);
                                             break;
                                         case "ITSF":
                                             BinDecoder bid = new BinDecoder(FileName);
@@ -568,7 +570,7 @@ namespace BinHed
         private bool rawDiskAccess = false;
         public void RawDiskAccess()
         {
-            rawDiskAccess = true;
+             rawDiskAccess = true;
             da = new RawDiskAccess();
             binaryView.SetScrollMode(ScrollMode.Sector);
             reAnalyse.Visible = false;

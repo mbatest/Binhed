@@ -113,7 +113,7 @@ namespace BookReader
                         i++;
                     }
                 }
-                catch (Exception ex) { }
+                catch (Exception ex) { break; }
             }
             #endregion
             return t;

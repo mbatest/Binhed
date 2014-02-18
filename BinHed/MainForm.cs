@@ -11,6 +11,7 @@ using Navigateur;
 using LowLevel;
 using Utils;
 using Microsoft.Win32;
+using System.Diagnostics;
 
 namespace BinHed
 {
@@ -38,22 +39,19 @@ namespace BinHed
             ShowExplorer();
             tabs.TabPages.Clear();
         }
+        private void refresh_Click(object sender, EventArgs e)
+        {
+            navigator.Init();
+        }
 
         private void navigator_NavIndexChanged(Navigue.SelectedIndexEventArg ev)
         {
             splitContainer4.Panel1Collapsed = true;
             if (Array.IndexOf(FileList.ToArray(), ev.FileName) < 0)
             {
-                FileList.Add(ev.FileName);
-                TabPage tp = new TabPage();
-                FileEdit fileEdit = new FileEdit();
-                fileEdit.DataEvent += new DataEventHandler(fileEdit_DataEvent);
-                tp.Controls.Add(fileEdit);
-                fileEdit.Dock = DockStyle.Fill;
-                fileEdit.OpenFile(ev.FileName);
-                tp.Text = Path.GetFileName(ev.FileName);
-                tabs.TabPages.Add(tp);
-                tabs.SelectedTab = tp;
+                string f = ev.FileName;
+                FileList.Add(f);
+                OpenFile(f);
             }
             else
             {
@@ -80,6 +78,19 @@ namespace BinHed
                     tabs.SelectedTab = tp;
                 }
             }
+        }
+
+        private void OpenFile(string f)
+        {
+            TabPage tp = new TabPage();
+            FileEdit fileEdit = new FileEdit();
+            fileEdit.DataEvent += new DataEventHandler(fileEdit_DataEvent);
+            tp.Controls.Add(fileEdit);
+            fileEdit.Dock = DockStyle.Fill;
+            fileEdit.OpenFile(f);
+            tp.Text = Path.GetFileName(f);
+            tabs.TabPages.Add(tp);
+            tabs.SelectedTab = tp;
         }
         private void ouvrirToolStripButton_Click(object sender, EventArgs e)
         {
@@ -121,17 +132,59 @@ namespace BinHed
         }
         private void rawDiskAccessToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            splitContainer4.Panel1Collapsed = true;
-            TabPage tp = new TabPage();
-            FileEdit f = new FileEdit();
-            f.DataEvent += new DataEventHandler(fileEdit_DataEvent);
-            tp.Controls.Add(f);
-            f.Dock = DockStyle.Fill;
-            tp.Text = "Raw disk access";
-            tabs.TabPages.Add(tp);
-            tabs.SelectedTab = tp;
-            f.RawDiskAccess();
+            #region elevation
+            // Elevate the process if it is not run as administrator. 
+            if (!Helpers.IsRunAsAdmin())
+            {
+                // Launch itself as administrator 
+                ProcessStartInfo proc = new ProcessStartInfo();
+                proc.UseShellExecute = true;
+                proc.WorkingDirectory = Environment.CurrentDirectory;
+                proc.FileName = Application.ExecutablePath;
+                proc.Verb = "runas";
+
+
+                try
+                {
+                    Process.Start(proc);
+                }
+                catch
+                {
+                    // The user refused the elevation. 
+                    // Do nothing and return directly ... 
+                    return;
+                }
+                Application.Exit();  // Quit itself 
+            }
+            else
+            {
+                MessageBox.Show("The process is running as administrator", "UAC");
+                splitContainer4.Panel1Collapsed = true;
+                TabPage tp = new TabPage();
+                FileEdit f = new FileEdit();
+                f.DataEvent += new DataEventHandler(fileEdit_DataEvent);
+                tp.Controls.Add(f);
+                f.Dock = DockStyle.Fill;
+                tp.Text = "Raw disk access";
+                tabs.TabPages.Add(tp);
+                tabs.SelectedTab = tp;
+                f.RawDiskAccess();
+            }
+
+            #endregion
+
         }
 
+        private void nouveauToolStripButton_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog opfd = new OpenFileDialog();
+            if(opfd.ShowDialog()== System.Windows.Forms.DialogResult.OK)
+            {
+                OpenFile(opfd.FileName);
+            }
+
+        }
+
+ 
     }
 }

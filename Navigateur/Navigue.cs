@@ -35,6 +35,7 @@ namespace Navigateur
         }
         public bool Init()
         {
+            repertoire.Nodes.Clear();
             string[] drives = Environment.GetLogicalDrives();
             foreach (string strDrive in drives)
             {
@@ -61,6 +62,7 @@ namespace Navigateur
             string[] files = Directory.GetFiles(path);
             foreach (string d in files)
             {
+                string name = Path.GetFileName(d);
                 TreeNode tn = new TreeNode(Path.GetFileName(d), 2, 2);
                 tn.Tag = d;
                 T.Nodes.Add(tn);
@@ -92,7 +94,8 @@ namespace Navigateur
                         string[] files = Directory.GetFiles(path);
                         foreach (string s in files)
                         {
-                            TreeNode ttn = new TreeNode(s, 2, 2);
+                            string a = Path.GetFileName(s);
+                            TreeNode ttn = new TreeNode(a, 2, 2);
                             ttn.Tag = s;
                             if (tn.Checked)
                                 ttn.Checked = true;
@@ -101,7 +104,8 @@ namespace Navigateur
                         string[] nodes = Directory.GetDirectories(path);
                         foreach (string s in nodes)
                         {
-                            TreeNode ttn = new TreeNode(s, 0, 1);
+                            string a = Path.GetFileName(s);
+                            TreeNode ttn = new TreeNode(a, 0, 1);
                             ttn.Tag = s;
                             if (tn.Checked)
                                 ttn.Checked = true;

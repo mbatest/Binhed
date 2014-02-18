@@ -27,7 +27,7 @@ namespace BinHed
             lv = new ListViewItem("Byte");
             lv.SubItems.Add(b[0].ToString("x2"));
             listView1.Items.Add(lv);
-           if (b.Length < 2) return;
+            if (b.Length < 2) return;
              short s = BitConverter.ToInt16(b, 0);
             lv = new ListViewItem("Short");
             lv.SubItems.Add(s.ToString());

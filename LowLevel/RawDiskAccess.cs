@@ -203,8 +203,7 @@ namespace LowLevel
         }
         #endregion
         #region Private Methods
-        private void ParseIndexAllocation(BootRecord_NTFS boot, FILE_RECORD_SEGMENT fs, 
-            ATTRIBUTE_RECORD_HEADER att, Partition p)
+        private void ParseIndexAllocation(BootRecord_NTFS boot, FILE_RECORD_SEGMENT fs, ATTRIBUTE_RECORD_HEADER att, Partition p)
         {
             long st = (long)(att.Nonresident.Startcluster * (byte)boot.Sectors_Per_Cluster.Value + (uint)boot.Hidden_Sectors.Value + p.Start_Partition);
             int nb = att.Nonresident.Numbercluster / (int)boot.Cluster_Per_Index.Value;
@@ -231,6 +230,8 @@ namespace LowLevel
         private MasterBootRecord ReadMasterBoot(long startPartition)
         {
             SectorBuffer = ReadSectors(startPartition, SizeBuffer);
+            if (SectorBuffer == null)
+                return null;
             MasterBootRecord mbr = new MasterBootRecord(new BitStreamReader(SectorBuffer, false), Offset);
             foreach (Partition p in mbr.Partitions)
             {

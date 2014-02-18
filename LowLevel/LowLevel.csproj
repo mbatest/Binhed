@@ -46,7 +46,6 @@
     <Compile Include="Attributes.cs" />
     <Compile Include="Enumerations.cs" />
     <Compile Include="FAT.cs" />
-    <Compile Include="IBootRecord.cs" />
     <Compile Include="LogFile.cs" />
     <Compile Include="MFT.cs" />
     <Compile Include="Partition.cs">
@@ -59,7 +58,6 @@
     <Compile Include="Form1.designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
-    <Compile Include="Hardware2.cs" />
     <Compile Include="HardwareViewer.cs">
       <SubType>UserControl</SubType>
     </Compile>

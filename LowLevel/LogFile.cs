@@ -4,12 +4,13 @@ using System.Text;
 
 namespace LowLevel
 {
+    //http://stderr.org/doc/ntfsdoc/files/
     class NTFS_RECORD { }
     struct RESTART_PAGE_HEADER
     {
         NTFS_RECORD ntfs;        //        The magic is "RSTR".
         ulong chkdsk_lsn;  //      The check disk log file sequence number for  this restart page. Only used when the  magic is changed to "CHKD". = 0
-        uint system_page_size;   //     Byte length of system pages, has to be >= 512  and a power of 2. Use this to calculate the  required length of the usa and add this to the                                    ntfs.usa_offset value. Then verify that the  result is less than the value of the    restart_offset. = 0x1000
+        uint system_page_size;   //     Byte length of system pages, has to be >= 512  and a power of 2. Use this to calculate the  required length of the usa and add this to the ntfs.usa_offset value. Then verify that the  result is less than the value of the    restart_offset. = 0x1000
         uint log_page_size; //       Byte length of log file records, has to be   >= 512 and a power of 2. = 0x1000
         ushort restart_offset;//        Byte Offset from the start of the record to the restart record. Value has to be aligned  to 8-byte boundary. = 0x30
         short minor_ver; //       Log file minor version. Only check if major version is 1. (=1 but >=1 is treated the same and <=0 is also ok)
@@ -70,7 +71,7 @@ namespace LowLevel
 
     struct RESTART_CLIENT
     {
-        ulong oldest_lsn;  //      Oldest log file sequence number for this                                        client record. = 0xbd16951d
+        ulong oldest_lsn;  //      Oldest log file sequence number for this   client record. = 0xbd16951d
         ulong client_restart_lsn;//??? = 0x700000, 0x700827, 0x700d07
         ushort prev_client;   //     ??? = 0x808, 0xd07, 0xd5d
         ushort next_client;  //      ??? = 0x70

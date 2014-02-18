@@ -108,6 +108,7 @@
     <Compile Include="FileViewer.Designer.cs">
       <DependentUpon>FileViewer.cs</DependentUpon>
     </Compile>
+    <Compile Include="Helpers.cs" />
     <Compile Include="LowLevel.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
@@ -115,6 +116,7 @@
     <Compile Include="MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="NativeMethods.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="DataInspector.resx">
@@ -245,6 +247,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="descriptions.txt" />
+    <None Include="Resources\Refresh.bmp" />
+    <None Include="Resources\UnknownDrive.png" />
     <None Include="Resources\search.png" />
     <None Include="Resources\Laptop.ico" />
   </ItemGroup>
