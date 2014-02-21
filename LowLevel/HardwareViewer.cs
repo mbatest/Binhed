@@ -82,7 +82,7 @@ namespace LowLevel
                 if (dd.InterfaceType != null) hd.Nodes.Add(dd.InterfaceType);
                 if (dd.Model != null) hd.Nodes.Add(dd.Model);
                 if (dd.FirmwareRevision != null) hd.Nodes.Add(dd.FirmwareRevision);
-                if (dd.serialNumber != null) hd.Nodes.Add(dd.serialNumber);
+                if (dd.SerialNumber != null) hd.Nodes.Add(dd.SerialNumber);
                 hd.Nodes.Add("Total heads " + dd.TotalHeads.ToString());
                 hd.Nodes.Add("Total cylinders " + dd.TotalCylinders.ToString());
                 hd.Nodes.Add("Total tracks " + dd.TotalTracks.ToString());
@@ -180,7 +180,7 @@ namespace LowLevel
             os.Nodes.Add(dk.os.Manufacturer);
             os.Nodes.Add("Build type :" + dk.os.BuildType);
             os.Nodes.Add("Build number :" + dk.os.BuildNumber);
-            os.Nodes.Add("Boot device :" + dk.os.BootDevice);
+            os.Nodes.Add("Boot_Record device :" + dk.os.BootDevice);
             os.Nodes.Add("Windows directory :" + dk.os.WindowsDirectory);
             os.Nodes.Add("System directory :" + dk.os.SystemDirectory);
             os.Nodes.Add("Install date :" + dk.os.InstallDate);

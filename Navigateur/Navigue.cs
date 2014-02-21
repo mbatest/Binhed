@@ -8,6 +8,7 @@ using System.Text;
 using System.Windows.Forms;
 using System.Security.AccessControl;
 
+
 namespace Navigateur
 {
     public partial class Navigue : UserControl
@@ -40,15 +41,26 @@ namespace Navigateur
             foreach (string strDrive in drives)
             {
                 DriveInfo drv = new DriveInfo(strDrive);
+                string driveName = strDrive;
                 if (drv.DriveType == DriveType.Fixed)
                 {
-                    TreeNode tn = new TreeNode(strDrive + drv.VolumeLabel, 0, 1);
+                    driveName += " " + drv.VolumeLabel;
+                    TreeNode tn = new TreeNode(driveName, 0, 1);
+                    tn.Tag = drv;
+                    repertoire.Nodes.Add(tn);
+                }
+                if ((drv.DriveType == DriveType.CDRom) && drv.IsReady)
+                {
+                    driveName += " " + drv.VolumeLabel;
+                    TreeNode tn = new TreeNode(driveName, 0, 1);
                     tn.Tag = drv;
                     repertoire.Nodes.Add(tn);
                 }
             }
+            
             return true;
         }
+
         private void FillTree(string path, TreeNode T)
         {
             string[] dirs = Directory.GetDirectories(path);
@@ -117,10 +129,13 @@ namespace Navigateur
                 }
                 #region un fichier est sélectionné
                 if (tn.Nodes.Count == 0)
-                    if (NavIndexChanged != null)
-                    {
-                        NavIndexChanged(new SelectedIndexEventArg(path));
-                    }
+                {
+                    if (File.Exists(path))
+                        if (NavIndexChanged != null)
+                        {
+                            NavIndexChanged(new SelectedIndexEventArg(path));
+                        }
+                }
                 #endregion
             }
         }

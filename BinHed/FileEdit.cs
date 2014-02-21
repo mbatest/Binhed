@@ -583,11 +583,15 @@ namespace BinHed
             parseBlock.Visible = true;
             binaryView.scrollHandler += new ScrollHandler(view1_scrollHandler);
             fileNameLabel.Visible = false;
-            foreach (Win32_DiskDrive p in da.Physical_Disks)
+            foreach (Win32_Drive p in da.Drives)
             {
-                ToolStripMenuItem m = new ToolStripMenuItem(p.DeviceID);
-                m.Click += new EventHandler(m_Click);
-                textBoxPath.DropDownItems.Add(m);
+                if (p.MediaLoaded)
+                {
+                    ToolStripMenuItem m = new ToolStripMenuItem(p.DeviceID);
+                    m.Tag = p;
+                    m.Click += new EventHandler(m_Click);
+                    textBoxPath.DropDownItems.Add(m);
+                }
             }
             textBoxPath.Text = @"\\.\PhysicalDrive0";
         }
@@ -633,25 +637,29 @@ namespace BinHed
         }
         private void textBoxPath_TextChanged(object sender, EventArgs e)
         {
-            foreach (Win32_DiskDrive p in da.Physical_Disks)
+            da.Current_Drive = null;
+            foreach (Win32_Drive pa in da.Drives)
             {
-                if (p.DeviceID.ToUpper() == textBoxPath.Text.ToUpper())
+                if (pa.DeviceID.ToUpper() == textBoxPath.Text.ToUpper())
                 {
-                    da.Current_Drive = p;
-                    da.Total_Cylinders = p.TotalCylinders;
-                    da.Number_Of_Tracks = p.TracksPerCylinder;
-                    da.Number_Of_Sectors = p.SectorsPerTrack;
-                    da.Total_Sectors = p.TotalSectors;
-                    da.Total_Tracks = p.TotalTracks;
-                    ulong diskSize = p.Size;
-                    break;
+                    da.Current_Drive = pa;
+                    switch (pa.GetType().Name)
+                    {
+                        case "Win32_DiskDrive":
+
+                            Win32_DiskDrive p = (Win32_DiskDrive)pa;
+                            da.ReadsFirstSector(p);
+                            binaryView.SetScrollSize(p.TotalSectors);
+                            break;
+                        case "Win32_CDROMDrive":
+                            Win32_CDROMDrive c = (Win32_CDROMDrive)pa;
+                            da.ReadsFirstSector(c);
+                            break;
+                    }
                 }
             }
-            da.ReadsFirstSector();
-            binaryView.SetScrollSize(da.Total_Sectors);
             binaryView.Init(da.SectorBuffer, 0);
             UpdateTextBoxes();
-            FileViewer exv = new FileViewer();
             exv.Init(da);
             splitContainer3.Panel1.Controls.Clear();
             splitContainer3.Panel1.Controls.Add(exv);
@@ -679,7 +687,7 @@ namespace BinHed
         }
         private void next_Click(object sender, EventArgs e)
         {
-            if (da.SecteurNumber < (long)da.Total_Sectors - 1)
+            if (da.SecteurNumber < (long)((Win32_DiskDrive)da.Current_Drive).TotalSectors - 1)
                 ChangeSector(da.SecteurNumber + 1);
         }
         private void back_Click(object sender, EventArgs e)
@@ -700,8 +708,11 @@ namespace BinHed
         {
             int sizeBuf = int.Parse(textBoxSize.Text, System.Globalization.NumberStyles.HexNumber);
             da.Change(e, sizeBuf);
-            binaryView.Init(da.SectorBuffer, e * da.SizeBuffer);
-            UpdateTextBoxes();
+            if (da.SectorBuffer != null)
+            {
+                binaryView.Init(da.SectorBuffer, e * da.SizeBuffer);
+                UpdateTextBoxes();
+            }
         }
         #endregion
     }

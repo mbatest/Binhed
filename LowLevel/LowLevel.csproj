@@ -44,6 +44,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Attributes.cs" />
+    <Compile Include="ECMA_167.cs" />
     <Compile Include="Enumerations.cs" />
     <Compile Include="FAT.cs" />
     <Compile Include="LogFile.cs" />

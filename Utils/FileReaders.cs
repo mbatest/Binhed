@@ -712,7 +712,6 @@ namespace Utils
             value = v;
         }
     }
-
     public interface ILOCALIZED_DATA
     {
         long PositionOfStructureInFile { get; set; }
@@ -751,7 +750,7 @@ namespace Utils
         /// Reads a given type
         /// </summary>
         /// <param name="sw">Stream</param>
-        /// <param name="offset">Offset</param>
+        /// <param name="offset">Offset : used in raw access to refer to the origin of the disk</param>
         /// <param name="t">Type to read</param>
         public ELEMENTARY_TYPE(BitStreamReader sw, long offset, Type t)
         {
@@ -802,7 +801,7 @@ namespace Utils
         /// Reads a given number of bytes into a given type
         /// </summary>
         /// <param name="sw">Stream</param>
-        /// <param name="offset">Offset</param>
+        /// <param name="offset">Offset : used in raw access to refer to the origin of the disk</param>
         /// <param name="t">Type to read</param>
         /// <param name="length">Number of bytes</param>
         public ELEMENTARY_TYPE(BitStreamReader sw, long offset, Type t, int length)
@@ -858,7 +857,7 @@ namespace Utils
         /// Reads a string of given length
         /// </summary>
         /// <param name="sw">Stream</param>
-        /// <param name="offset">Offset</param>
+        /// <param name="offset">Offset : used in raw access to refer to the origin of the disk</param>
         /// <param name="enc">Encoding</param>
         /// <param name="length">Length of string</param>
         public ELEMENTARY_TYPE(BitStreamReader sw, long offset, Encoding enc, int length)
@@ -888,6 +887,12 @@ namespace Utils
             value = s;
             LengthInFile = s.Length;
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="s"></param>
+        /// <param name="offset">used in raw access to refer to the origin of the disk</param>
+        /// <param name="length"></param>
         public ELEMENTARY_TYPE(string s, long offset, long length)
         {
             PositionOfStructureInFile = offset;

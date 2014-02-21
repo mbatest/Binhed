@@ -158,7 +158,7 @@ namespace BinHed
             }
             else
             {
-                MessageBox.Show("The process is running as administrator", "UAC");
+      //          MessageBox.Show("The process is running as administrator", "UAC");
                 splitContainer4.Panel1Collapsed = true;
                 TabPage tp = new TabPage();
                 FileEdit f = new FileEdit();
@@ -182,6 +182,11 @@ namespace BinHed
             {
                 OpenFile(opfd.FileName);
             }
+
+        }
+
+        private void toolStrip1_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
 
         }
 

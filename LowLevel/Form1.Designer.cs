@@ -1,6 +1,6 @@
 ﻿namespace LowLevel
 {
-    partial class Form1
+    partial class LowLevelViewer
     {
         /// <summary>
         /// Variable nécessaire au concepteur.
@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(LowLevelViewer));
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.textBoxPath = new System.Windows.Forms.ToolStripDropDownButton();
             this.toolStripLabel4 = new System.Windows.Forms.ToolStripLabel();
@@ -212,7 +212,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.splitContainer1);
             this.Controls.Add(this.toolStrip1);
-            this.Name = "Form1";
+            this.Name = "LowLevelViewer";
             this.Size = new System.Drawing.Size(998, 350);
             this.toolStrip1.ResumeLayout(false);
             this.toolStrip1.PerformLayout();

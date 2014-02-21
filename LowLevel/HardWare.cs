@@ -142,7 +142,7 @@ namespace LowLevel
             if (o["Caption"] != null) Caption = (string)o["Caption"];
             if (o["ConfigManagerErrorCode"] != null) ConfigManagerErrorCode = (uint)o["ConfigManagerErrorCode"];
             if (o["ConfigManagerUserConfig"] != null) ConfigManagerUserConfig = (bool)o["ConfigManagerUserConfig"];
-            if (o["CreationClassName"] != null) CreationClassName = (string)o["CreationClassName"];
+            if (o["creationClassName"] != null) CreationClassName = (string)o["creationClassName"];
             if (o["Description"] != null) Description = (string)o["Description"];
             if (o["DeviceID"] != null) DeviceID = (string)o["DeviceID"];
             if (o["DiskIndex"] != null) DiskIndex = (uint)o["DiskIndex"];
@@ -205,7 +205,7 @@ namespace LowLevel
             if (o["Caption"] != null) Caption = (string)o["Caption"];
             if (o["ConfigManagerErrorCode"] != null) ConfigManagerErrorCode = (uint)o["ConfigManagerErrorCode"];
             if (o["ConfigManagerUserConfig"] != null) ConfigManagerUserConfig = (bool)o["ConfigManagerUserConfig"];
-            if (o["CreationClassName"] != null) CreationClassName = (string)o["CreationClassName"];
+            if (o["creationClassName"] != null) CreationClassName = (string)o["creationClassName"];
             if (o["Description"] != null) Description = (string)o["Description"];
             if (o["DesiredSpeed"] != null) DesiredSpeed = (long)o["DesiredSpeed"];
             if (o["DeviceID"] != null) DeviceID = (string)o["DeviceID"];
@@ -259,7 +259,7 @@ namespace LowLevel
             if (o["Caption"] != null) Caption = (string)o["Caption"];
             if (o["ConfigManagerErrorCode"] != null) ConfigManagerErrorCode = (uint)o["ConfigManagerErrorCode"];
             if (o["ConfigManagerUserConfig"] != null) ConfigManagerUserConfig = (bool)o["ConfigManagerUserConfig"];
-            if (o["CreationClassName"] != null) CreationClassName = (string)o["CreationClassName"];
+            if (o["creationClassName"] != null) CreationClassName = (string)o["creationClassName"];
             if (o["Description"] != null) Description = (string)o["Description"];
             if (o["DeviceID"] != null) DeviceID = (string)o["DeviceID"];
             if (o["ErrorCleared"] != null) ErrorCleared = (bool)o["ErrorCleared"];
@@ -343,7 +343,7 @@ namespace LowLevel
             if (o["ConfigManagerErrorCode"] != null) ConfigManagerErrorCode = (uint)o["ConfigManagerErrorCode"];
             if (o["ConfigManagerUserConfig"] != null) ConfigManagerUserConfig = (bool)o["ConfigManagerUserConfig"];
             if (o["CpuStatus"] != null) CpuStatus = (ushort)o["CpuStatus"];
-            if (o["CreationClassName"] != null) CreationClassName = (string)o["CreationClassName"];
+            if (o["creationClassName"] != null) CreationClassName = (string)o["creationClassName"];
             if (o["CurrentClockSpeed"] != null) CurrentClockSpeed = (uint)o["CurrentClockSpeed"];
             if (o["CurrentVoltage"] != null) CurrentVoltage = (ushort)o["CurrentVoltage"];
             if (o["DataWidth"] != null) DataWidth = (ushort)o["DataWidth"];
@@ -391,46 +391,76 @@ namespace LowLevel
         }
     }
     //http://msdn.microsoft.com/en-us/library/windows/desktop/aa394081(v=VS.85).aspx
-    public class Win32_DiskDrive:LOCALIZED_DATA
+    public class Win32_Drive : LOCALIZED_DATA
     {
-        private ushort availability;
-        private uint bytesPerSector;
-       public ushort[] capabilities;
-         private string[] capabilityDescriptions;
+        protected ushort availability;
+        protected ushort[] capabilities;
+        protected string[] capabilityDescriptions;
         private string caption;
-        private string compressionMethod;
-        private uint configManagerErrorCode;
-        private bool configManagerUserConfig;
+        protected string compressionMethod;
+        protected uint configManagerErrorCode;
+        protected bool configManagerUserConfig;
         private string creationClassName;
-        private ulong defaultBlockSize;
-        private string description;
-        private string deviceID;
 
-        private string systemName;
-        private ulong totalCylinders;
-        private uint totalHeads;
-        private ulong totalSectors;
-        private ulong totalTracks;
-        private uint tracksPerCylinder;
+        private ulong defaultBlockSize;
+
+        protected string description;
+        protected string deviceID;
+        public bool ErrorCleared;
+        public string ErrorDescription;
+        public string ErrorMethodology;
+
+        protected DateTime installDate;
+
+
+        protected string manufacturer;
+        protected ulong maxBlockSize;
+        protected ulong maxMediaSize;
+        private bool mediaLoaded;
+        public ulong MinBlockSize;
+        public bool NeedsCleaning;
+        public uint NumberOfMediaSupported;
+
+
+        protected string name;
+        public string PNPDeviceID;
+
+        protected uint SCSIBus;
+        protected ushort SCSILogicalUnit;
+        protected ushort SCSIPort;
+        protected ushort SCSITargetId;
+        private string serialNumber;
+        public string Status;
+        public ushort StatusInfo;
+        public string SystemCreationClassName;
+
+ 
+
+        #region Propriétés
         public ushort Availability
         {
             get { return availability; }
             set { availability = value; }
         }
-        public string CompressionMethod
+        public ushort[] Capabilities
+        {
+            get { return capabilities; }
+            set { capabilities = value; }
+        }
+        public string[] CapabilityDescriptions
+        {
+            get { return capabilityDescriptions; }
+            set { capabilityDescriptions = value; }
+        }
+        public string Caption
+        {
+            get { return caption; }
+            set { caption = value; }
+        }
+        protected string CompressionMethod
         {
             get { return compressionMethod; }
             set { compressionMethod = value; }
-        }
-        public uint ConfigManagerErrorCode
-        {
-            get { return configManagerErrorCode; }
-            set { configManagerErrorCode = value; }
-        }
-        public bool ConfigManagerUserConfig
-        {
-            get { return configManagerUserConfig; }
-            set { configManagerUserConfig = value; }
         }
         public string CreationClassName
         {
@@ -442,21 +472,6 @@ namespace LowLevel
             get { return defaultBlockSize; }
             set { defaultBlockSize = value; }
         }
-        public string[] CapabilityDescriptions
-        {
-            get { return capabilityDescriptions; }
-            set { capabilityDescriptions = value; }
-        }
-        public uint BytesPerSector
-        {
-            get { return bytesPerSector; }
-            set { bytesPerSector = value; }
-        }
-        public string Caption
-        {
-            get { return caption; }
-            set { caption = value; }
-        }
         public string Description
         {
             get { return description; }
@@ -467,43 +482,175 @@ namespace LowLevel
             get { return deviceID; }
             set { deviceID = value; }
         }
-        public bool ErrorCleared;
-        public string ErrorDescription;
-        public string ErrorMethodology;
-        public string FirmwareRevision;
-        public uint Index;
-        public DateTime InstallDate;
-        public string InterfaceType;
+        public DateTime InstallDate
+        {
+            get { return installDate; }
+            set { installDate = value; }
+        }
+        public string Manufacturer
+        {
+            get { return manufacturer; }
+            set { manufacturer = value; }
+        }
+        public bool MediaLoaded
+        {
+            get { return mediaLoaded; }
+            set { mediaLoaded = value; }
+        }
+        public string Name
+        {
+            get { return name; }
+            set { name = value; }
+        }
+        public string SerialNumber
+        {
+            get { return serialNumber; }
+            set { serialNumber = value; }
+        }
+        #endregion
+    }
+    public class Win32_CDROMDrive : Win32_Drive
+    {
+        Volume_Structure_Description volStructDesc;
+        CDDirectory root;
+        CDBootRecord boot;
+        Booting_Catalog booting;
+
+        public string Drive;
+        public bool DriveIntegrity;
+        public ushort FileSystemFlags;
+        public uint FileSystemFlagsEx;
+        public string Id;
         public uint LastErrorCode;
-        public string Manufacturer;
-        public ulong MaxBlockSize;
-        public ulong MaxMediaSize;
-        public bool MediaLoaded;
+        public uint MaximumComponentLength;
         public string MediaType;
-        public ulong MinBlockSize;
-        public string Model;
-        public string Name;
-        public bool NeedsCleaning;
-        public uint NumberOfMediaSupported;
-        public uint Partitions;
-        public string PNPDeviceID;
+        public string MfrAssignedRevisionLevel;
         public ushort[] PowerManagementCapabilities;
         public bool PowerManagementSupported;
-        public uint SCSIBus;
-        public ushort SCSILogicalUnit;
-        public ushort SCSIPort;
-        public ushort SCSITargetId;
-        private uint sectorsPerTrack;
+        public string RevisionLevel;
+        public ulong Size;
+        public string SystemName;
+        public double TransferRate;
+        public string VolumeName;
+        public string VolumeSerialNumber;
 
+        public Volume_Structure_Description Volume_Structure_Descriptor
+        {
+            get { return volStructDesc; }
+            set { volStructDesc = value; }
+        }
+        public CDDirectory CD_RootDirectory
+        {
+            get { return root; }
+            set { root = value; }
+        }
+        public CDBootRecord Boot_Record
+        {
+            get { return boot; }
+            set { boot = value; }
+        }
+        public Booting_Catalog Booting_Catalog
+        {
+            get { return booting; }
+            set { booting = value; }
+        }
+
+        public Win32_CDROMDrive(ManagementObject o)
+        {
+             if (o["Availability"] != null) Availability = (ushort)o["Availability"];
+            if (o["Capabilities"] != null) Capabilities = (ushort[])o["Capabilities"];
+            if (o["CapabilityDescriptions"] != null) CapabilityDescriptions = (string[])o["CapabilityDescriptions"];
+            if (o["Caption"] != null) Caption = (string)o["Caption"];
+            if (o["CompressionMethod"] != null) CompressionMethod = (string)o["CompressionMethod"];
+            if (o["ConfigManagerErrorCode"] != null) configManagerErrorCode = (uint)o["ConfigManagerErrorCode"];
+            if (o["ConfigManagerUserConfig"] != null) configManagerUserConfig = (bool)o["ConfigManagerUserConfig"];
+            if (o["creationClassName"] != null) CreationClassName = (string)o["creationClassName"];
+            if (o["defaultBlockSize"] != null) DefaultBlockSize = (ulong)o["defaultBlockSize"];
+            if (o["Description"] != null) Description = (string)o["Description"];
+            if (o["DeviceID"] != null) DeviceID = (string)o["DeviceID"];
+            if (o["Drive"] != null) Drive = (string)o["Drive"];
+            if (o["DriveIntegrity"] != null) DriveIntegrity = (bool)o["DriveIntegrity"];
+            if (o["ErrorCleared"] != null) ErrorCleared = (bool)o["ErrorCleared"];
+            if (o["ErrorDescription"] != null) ErrorDescription = (string)o["ErrorDescription"];
+            if (o["ErrorMethodology"] != null) ErrorMethodology = (string)o["ErrorMethodology"];
+            if (o["FileSystemFlags"] != null) FileSystemFlags = (ushort)o["FileSystemFlags"];
+            if (o["FileSystemFlagsEx"] != null) FileSystemFlagsEx = (uint)o["FileSystemFlagsEx"];
+            if (o["Id"] != null) Id = (string)o["Id"];
+            if (o["InstallDate"] != null) InstallDate = (DateTime)o["InstallDate"];
+            if (o["LastErrorCode"] != null) LastErrorCode = (uint)o["LastErrorCode"];
+            if (o["Manufacturer"] != null) Manufacturer = (string)o["Manufacturer"];
+            if (o["MaxBlockSize"] != null) maxBlockSize = (ulong)o["MaxBlockSize"];
+            if (o["MaximumComponentLength"] != null) MaximumComponentLength = (uint)o["MaximumComponentLength"];
+            if (o["MaxMediaSize"] != null) maxMediaSize = (ulong)o["MaxMediaSize"];
+            if (o["MediaLoaded"] != null) MediaLoaded = (bool)o["MediaLoaded"];
+            if (o["MediaType"] != null) MediaType = (string)o["MediaType"];
+            if (o["MfrAssignedRevisionLevel"] != null) MfrAssignedRevisionLevel = (string)o["MfrAssignedRevisionLevel"];
+            if (o["MinBlockSize"] != null) MinBlockSize = (ulong)o["MinBlockSize"];
+            if (o["Name"] != null) Name = (string)o["Name"];
+            if (o["NeedsCleaning"] != null) NeedsCleaning = (bool)o["NeedsCleaning"];
+            if (o["NumberOfMediaSupported"] != null) NumberOfMediaSupported = (uint)o["NumberOfMediaSupported"];
+            if (o["PNPDeviceID"] != null) PNPDeviceID = (string)o["PNPDeviceID"];
+            if (o["PowerManagementCapabilities"] != null) PowerManagementCapabilities = (ushort[])o["PowerManagementCapabilities"];
+            if (o["PowerManagementSupported"] != null) PowerManagementSupported = (bool)o["PowerManagementSupported"];
+            if (o["RevisionLevel"] != null) RevisionLevel = (string)o["RevisionLevel"];
+            if (o["SCSIBus"] != null) SCSIBus = (uint)o["SCSIBus"];
+            if (o["SCSILogicalUnit"] != null) SCSILogicalUnit = (ushort)o["SCSILogicalUnit"];
+            if (o["SCSIPort"] != null) SCSIPort = (ushort)o["SCSIPort"];
+            if (o["SCSITargetId"] != null) SCSITargetId = (ushort)o["SCSITargetId"];
+            if (o["SerialNumber"] != null) SerialNumber = (string)o["SerialNumber"];
+            if (o["Size"] != null) Size = (ulong)o["Size"];
+            if (o["Status"] != null) Status = (string)o["Status"];
+            if (o["StatusInfo"] != null) StatusInfo = (ushort)o["StatusInfo"];
+            if (o["SystemCreationClassName"] != null) SystemCreationClassName = (string)o["SystemCreationClassName"];
+            if (o["SystemName"] != null) SystemName = (string)o["SystemName"];
+            if (o["TransferRate"] != null) TransferRate = (double)o["TransferRate"];
+            if (o["VolumeName"] != null) VolumeName = (string)o["VolumeName"];
+            if (o["VolumeSerialNumber"] != null) VolumeSerialNumber = (string)o["VolumeSerialNumber"];
+        }
+        public override string ToString()
+        {
+            return "";
+        }
+    }
+    public class Win32_DiskDrive:Win32_Drive
+    {
+        public MasterBootRecord Master_Boot_Record
+        {
+            get { return mbr; }
+            set { mbr = value; }
+        }
+        MasterBootRecord mbr;
+
+        private uint bytesPerSector;
+        public uint BytesPerSector
+        {
+            get { return bytesPerSector; }
+            set { bytesPerSector = value; }
+        }
+        private string systemName;
+        private ulong totalCylinders;
+        private uint totalHeads;
+        private ulong totalSectors;
+        private ulong totalTracks;
+        private uint tracksPerCylinder;
+         public string FirmwareRevision;
+        public uint Index;
+        public string InterfaceType;
+        public uint LastErrorCode;
+        public string MediaType;
+        public string Model;
+        public uint Partitions;
+        public ushort[] PowerManagementCapabilities;
+        public bool PowerManagementSupported;
+        private uint sectorsPerTrack;
+        private uint signature;
+        private ulong size;
+        #region Properties
         public uint SectorsPerTrack
         {
             get { return sectorsPerTrack; }
             set { sectorsPerTrack = value; }
         }
-        public string serialNumber;
-        private uint signature;
-        private ulong size;
-
         public uint Signature
         {
             get { return signature; }
@@ -514,9 +661,6 @@ namespace LowLevel
             get { return size; }
             set { size = value; }
         }
-        public string Status;
-        public ushort StatusInfo;
-        public string SystemCreationClassName;
         public string SystemName
         {
             get { return systemName; }
@@ -547,18 +691,20 @@ namespace LowLevel
             get { return tracksPerCylinder; }
             set { tracksPerCylinder = value; }
         }
+        #endregion
+
         public Win32_DiskDrive(ManagementObject o)
         {
             if (o["Availability"] != null) availability = (ushort)o["Availability"];
             if (o["BytesPerSector"] != null) bytesPerSector = (uint)o["BytesPerSector"];
-            if (o["Capabilities"] != null) capabilities = (ushort[])o["Capabilities"];
-            if (o["CapabilityDescriptions"] != null) capabilityDescriptions = (string[])o["CapabilityDescriptions"];
-            if (o["Caption"] != null) caption = (string)o["Caption"];
-            if (o["CompressionMethod"] != null) compressionMethod = (string)o["CompressionMethod"];
+            if (o["Capabilities"] != null) Capabilities = (ushort[])o["Capabilities"];
+            if (o["CapabilityDescriptions"] != null) CapabilityDescriptions = (string[])o["CapabilityDescriptions"];
+            if (o["Caption"] != null) Caption = (string)o["Caption"];
+            if (o["CompressionMethod"] != null) CompressionMethod = (string)o["CompressionMethod"];
             if (o["ConfigManagerErrorCode"] != null) configManagerErrorCode = (uint)o["ConfigManagerErrorCode"];
             if (o["ConfigManagerUserConfig"] != null) configManagerUserConfig = (bool)o["ConfigManagerUserConfig"];
-            if (o["CreationClassName"] != null) creationClassName = (string)o["CreationClassName"];
-            if (o["DefaultBlockSize"] != null) defaultBlockSize = (ulong)o["DefaultBlockSize"];
+            if (o["creationClassName"] != null) CreationClassName = (string)o["creationClassName"];
+            if (o["defaultBlockSize"] != null) DefaultBlockSize = (ulong)o["defaultBlockSize"];
             if (o["Description"] != null) description = (string)o["Description"];
             if (o["DeviceID"] != null) deviceID = (string)o["DeviceID"];
             if (o["ErrorCleared"] != null) ErrorCleared = (bool)o["ErrorCleared"];
@@ -570,8 +716,8 @@ namespace LowLevel
             if (o["InterfaceType"] != null) InterfaceType = (string)o["InterfaceType"];
             if (o["LastErrorCode"] != null) LastErrorCode = (uint)o["LastErrorCode"];
             if (o["Manufacturer"] != null) Manufacturer = (string)o["Manufacturer"];
-            if (o["MaxBlockSize"] != null) MaxBlockSize = (ulong)o["MaxBlockSize"];
-            if (o["MaxMediaSize"] != null) MaxMediaSize = (ulong)o["MaxMediaSize"];
+            if (o["MaxBlockSize"] != null) maxBlockSize = (ulong)o["MaxBlockSize"];
+            if (o["MaxMediaSize"] != null) maxMediaSize = (ulong)o["MaxMediaSize"];
             if (o["MediaLoaded"] != null) MediaLoaded = (bool)o["MediaLoaded"];
             if (o["MediaType"] != null) MediaType = (string)o["MediaType"];
             if (o["MinBlockSize"] != null) MinBlockSize = (ulong)o["MinBlockSize"];
@@ -588,7 +734,7 @@ namespace LowLevel
             if (o["SCSIPort"] != null) SCSIPort = (ushort)o["SCSIPort"];
             if (o["SCSITargetId"] != null) SCSITargetId = (ushort)o["SCSITargetId"];
             if (o["SectorsPerTrack"] != null) sectorsPerTrack = (uint)o["SectorsPerTrack"];
-            if (o["SerialNumber"] != null) serialNumber = (string)o["SerialNumber"];
+            if (o["SerialNumber"] != null) SerialNumber = (string)o["SerialNumber"];
             if (o["Signature"] != null) signature = (uint)o["Signature"];
             if (o["Size"] != null) size = (ulong)o["Size"];
             if (o["Status"] != null) Status = (string)o["Status"];
@@ -606,6 +752,40 @@ namespace LowLevel
             return DeviceID + " : "+ Caption;
         }
     }
+    class Win32_PhysicalMedia
+    {
+        string Caption;
+        string Description;
+        DateTime InstallDate;
+        string Name;
+        string Status;
+        string CreationClassName;
+        string Manufacturer;
+        string Model;
+        string SKU;
+        string SerialNumber;
+        string Tag;
+        string Version;
+        string PartNumber;
+        string OtherIdentifyingInfo;
+        bool PoweredOn;
+        bool Removable;
+        bool Replaceable;
+        bool HotSwappable;
+        long Capacity;
+        short MediaType;
+        string MediaDescription;
+        bool WriteProtectOn;
+        bool CleanerMedia;
+        public Win32_PhysicalMedia(ManagementObject o)
+        {
+            if (o["Name"] != null) Name = (string)o["Name"];
+            if (o["MediaType"] != null) MediaType = (short)o["MediaType"];
+            if (o["MediaDescription"] != null) Caption = (string)o["MediaDescription"];
+            PropertyDataCollection pc = o.Properties;
+        }
+    }
+
     public class Win32_Battery
     {
         public ushort Availability;
@@ -650,7 +830,7 @@ namespace LowLevel
             if (o["Chemistry"] != null) Chemistry = (ushort)o["Chemistry"];
             if (o["ConfigManagerErrorCode"] != null) ConfigManagerErrorCode = (uint)o["ConfigManagerErrorCode"];
             if (o["ConfigManagerUserConfig"] != null) ConfigManagerUserConfig = (bool)o["ConfigManagerUserConfig"];
-            if (o["CreationClassName"] != null) CreationClassName = (string)o["CreationClassName"];
+            if (o["creationClassName"] != null) CreationClassName = (string)o["creationClassName"];
             if (o["Description"] != null) Description = (string)o["Description"];
             if (o["DesignCapacity"] != null) DesignCapacity = (uint)o["DesignCapacity"];
             if (o["DesignVoltage"] != null) DesignVoltage = (ulong)o["DesignVoltage"];
@@ -680,114 +860,6 @@ namespace LowLevel
         public override string ToString()
         {
             return "Win32 battery";
-        }
-    }
-    public class Win32_CDROMDrive
-    {
-        public ushort Availability;
-        public ushort[] Capabilities;
-        public string[] CapabilityDescriptions;
-        public string Caption;
-        public string CompressionMethod;
-        public uint ConfigManagerErrorCode;
-        public bool ConfigManagerUserConfig;
-        public string CreationClassName;
-        public ulong DefaultBlockSize;
-        public string Description;
-        public string DeviceID;
-        public string Drive;
-        public bool DriveIntegrity;
-        public bool ErrorCleared;
-        public string ErrorDescription;
-        public string ErrorMethodology;
-        public ushort FileSystemFlags;
-        public uint FileSystemFlagsEx;
-        public string Id;
-        public DateTime InstallDate;
-        public uint LastErrorCode;
-        public string Manufacturer;
-        public ulong MaxBlockSize;
-        public uint MaximumComponentLength;
-        public ulong MaxMediaSize;
-        public bool MediaLoaded;
-        public string MediaType;
-        public string MfrAssignedRevisionLevel;
-        public ulong MinBlockSize;
-        public string Name;
-        public bool NeedsCleaning;
-        public uint NumberOfMediaSupported;
-        public string PNPDeviceID;
-        public ushort[] PowerManagementCapabilities;
-        public bool PowerManagementSupported;
-        public string RevisionLevel;
-        public uint SCSIBus;
-        public ushort SCSILogicalUnit;
-        public ushort SCSIPort;
-        public ushort SCSITargetId;
-        public string SerialNumber;
-        public ulong Size;
-        public string Status;
-        public ushort StatusInfo;
-        public string SystemCreationClassName;
-        public string SystemName;
-        public double TransferRate;
-        public string VolumeName;
-        public string VolumeSerialNumber;
-        public Win32_CDROMDrive(ManagementObject o)
-        {
-            if (o["Availability"] != null) Availability = (ushort)o["Availability"];
-            if (o["Capabilities"] != null) Capabilities = (ushort[])o["Capabilities"];
-            if (o["CapabilityDescriptions"] != null) CapabilityDescriptions = (string[])o["CapabilityDescriptions"];
-            if (o["Caption"] != null) Caption = (string)o["Caption"];
-            if (o["CompressionMethod"] != null) CompressionMethod = (string)o["CompressionMethod"];
-            if (o["ConfigManagerErrorCode"] != null) ConfigManagerErrorCode = (uint)o["ConfigManagerErrorCode"];
-            if (o["ConfigManagerUserConfig"] != null) ConfigManagerUserConfig = (bool)o["ConfigManagerUserConfig"];
-            if (o["CreationClassName"] != null) CreationClassName = (string)o["CreationClassName"];
-            if (o["DefaultBlockSize"] != null) DefaultBlockSize = (ulong)o["DefaultBlockSize"];
-            if (o["Description"] != null) Description = (string)o["Description"];
-            if (o["DeviceID"] != null) DeviceID = (string)o["DeviceID"];
-            if (o["Drive"] != null) Drive = (string)o["Drive"];
-            if (o["DriveIntegrity"] != null) DriveIntegrity = (bool)o["DriveIntegrity"];
-            if (o["ErrorCleared"] != null) ErrorCleared = (bool)o["ErrorCleared"];
-            if (o["ErrorDescription"] != null) ErrorDescription = (string)o["ErrorDescription"];
-            if (o["ErrorMethodology"] != null) ErrorMethodology = (string)o["ErrorMethodology"];
-            if (o["FileSystemFlags"] != null) FileSystemFlags = (ushort)o["FileSystemFlags"];
-            if (o["FileSystemFlagsEx"] != null) FileSystemFlagsEx = (uint)o["FileSystemFlagsEx"];
-            if (o["Id"] != null) Id = (string)o["Id"];
-            if (o["InstallDate"] != null) InstallDate = (DateTime)o["InstallDate"];
-            if (o["LastErrorCode"] != null) LastErrorCode = (uint)o["LastErrorCode"];
-            if (o["Manufacturer"] != null) Manufacturer = (string)o["Manufacturer"];
-            if (o["MaxBlockSize"] != null) MaxBlockSize = (ulong)o["MaxBlockSize"];
-            if (o["MaximumComponentLength"] != null) MaximumComponentLength = (uint)o["MaximumComponentLength"];
-            if (o["MaxMediaSize"] != null) MaxMediaSize = (ulong)o["MaxMediaSize"];
-            if (o["MediaLoaded"] != null) MediaLoaded = (bool)o["MediaLoaded"];
-            if (o["MediaType"] != null) MediaType = (string)o["MediaType"];
-            if (o["MfrAssignedRevisionLevel"] != null) MfrAssignedRevisionLevel = (string)o["MfrAssignedRevisionLevel"];
-            if (o["MinBlockSize"] != null) MinBlockSize = (ulong)o["MinBlockSize"];
-            if (o["Name"] != null) Name = (string)o["Name"];
-            if (o["NeedsCleaning"] != null) NeedsCleaning = (bool)o["NeedsCleaning"];
-            if (o["NumberOfMediaSupported"] != null) NumberOfMediaSupported = (uint)o["NumberOfMediaSupported"];
-            if (o["PNPDeviceID"] != null) PNPDeviceID = (string)o["PNPDeviceID"];
-            if (o["PowerManagementCapabilities"] != null) PowerManagementCapabilities = (ushort[])o["PowerManagementCapabilities"];
-            if (o["PowerManagementSupported"] != null) PowerManagementSupported = (bool)o["PowerManagementSupported"];
-            if (o["RevisionLevel"] != null) RevisionLevel = (string)o["RevisionLevel"];
-            if (o["SCSIBus"] != null) SCSIBus = (uint)o["SCSIBus"];
-            if (o["SCSILogicalUnit"] != null) SCSILogicalUnit = (ushort)o["SCSILogicalUnit"];
-            if (o["SCSIPort"] != null) SCSIPort = (ushort)o["SCSIPort"];
-            if (o["SCSITargetId"] != null) SCSITargetId = (ushort)o["SCSITargetId"];
-            if (o["SerialNumber"] != null) SerialNumber = (string)o["SerialNumber"];
-            if (o["Size"] != null) Size = (ulong)o["Size"];
-            if (o["Status"] != null) Status = (string)o["Status"];
-            if (o["StatusInfo"] != null) StatusInfo = (ushort)o["StatusInfo"];
-            if (o["SystemCreationClassName"] != null) SystemCreationClassName = (string)o["SystemCreationClassName"];
-            if (o["SystemName"] != null) SystemName = (string)o["SystemName"];
-            if (o["TransferRate"] != null) TransferRate = (double)o["TransferRate"];
-            if (o["VolumeName"] != null) VolumeName = (string)o["VolumeName"];
-            if (o["VolumeSerialNumber"] != null) VolumeSerialNumber = (string)o["VolumeSerialNumber"];
-        }
-        public override string ToString()
-        {
-            return "";
         }
     }
     public class Win32_ComputerSystem
@@ -862,7 +934,7 @@ namespace LowLevel
             if (o["BootupState"] != null) BootupState = (string)o["BootupState"];
             if (o["Caption"] != null) Caption = (string)o["Caption"];
             if (o["ChassisBootupState"] != null) ChassisBootupState = (ushort)o["ChassisBootupState"];
-            if (o["CreationClassName"] != null) CreationClassName = (string)o["CreationClassName"];
+            if (o["creationClassName"] != null) CreationClassName = (string)o["creationClassName"];
             if (o["CurrentTimeZone"] != null) CurrentTimeZone = (short)o["CurrentTimeZone"];
             if (o["DaylightInEffect"] != null) DaylightInEffect = (bool)o["DaylightInEffect"];
             if (o["Description"] != null) Description = (string)o["Description"];
@@ -970,7 +1042,7 @@ namespace LowLevel
             if (o["Compressed"] != null) Compressed = (bool)o["Compressed"];
             if (o["ConfigManagerErrorCode"] != null) ConfigManagerErrorCode = (uint)o["ConfigManagerErrorCode"];
             if (o["ConfigManagerUserConfig"] != null) ConfigManagerUserConfig = (bool)o["ConfigManagerUserConfig"];
-            if (o["CreationClassName"] != null) CreationClassName = (string)o["CreationClassName"];
+            if (o["creationClassName"] != null) CreationClassName = (string)o["creationClassName"];
             if (o["Description"] != null) Description = (string)o["Description"];
             if (o["DeviceID"] != null) DeviceID = (string)o["DeviceID"];
             if (o["DirtyBitSet"] != null) DirtyBitSet = (bool)o["DirtyBitSet"];
@@ -1059,7 +1131,7 @@ namespace LowLevel
             if (o["Compressed"] != null) Compressed = (bool)o["Compressed"];
             if (o["ConfigManagerErrorCode"] != null) ConfigManagerErrorCode = (uint)o["ConfigManagerErrorCode"];
             if (o["ConfigManagerUserConfig"] != null) ConfigManagerUserConfig = (bool)o["ConfigManagerUserConfig"];
-            if (o["CreationClassName"] != null) CreationClassName = (string)o["CreationClassName"];
+            if (o["creationClassName"] != null) CreationClassName = (string)o["creationClassName"];
             if (o["Description"] != null) Description = (string)o["Description"];
             if (o["DeviceID"] != null) DeviceID = (string)o["DeviceID"];
             if (o["DriveType"] != null) DriveType = (uint)o["DriveType"];
@@ -1149,7 +1221,7 @@ namespace LowLevel
             if (o["ConfigManagerErrorCode"] != null) ConfigManagerErrorCode = (uint)o["ConfigManagerErrorCode"];
             if (o["ConfigManagerUserConfig"] != null) ConfigManagerUserConfig = (bool)o["ConfigManagerUserConfig"];
             if (o["CorrectableError"] != null) CorrectableError = (bool)o["CorrectableError"];
-            if (o["CreationClassName"] != null) CreationClassName = (string)o["CreationClassName"];
+            if (o["creationClassName"] != null) CreationClassName = (string)o["creationClassName"];
             if (o["Description"] != null) Description = (string)o["Description"];
             if (o["DeviceID"] != null) DeviceID = (string)o["DeviceID"];
             if (o["EndingAddress"] != null) EndingAddress = (ulong)o["EndingAddress"];
@@ -1237,7 +1309,7 @@ namespace LowLevel
             if (o["ConfigManagerErrorCode"] != null) ConfigManagerErrorCode = (uint)o["ConfigManagerErrorCode"];
             if (o["ConfigManagerUserConfig"] != null) ConfigManagerUserConfig = (bool)o["ConfigManagerUserConfig"];
             if (o["CorrectableError"] != null) CorrectableError = (bool)o["CorrectableError"];
-            if (o["CreationClassName"] != null) CreationClassName = (string)o["CreationClassName"];
+            if (o["creationClassName"] != null) CreationClassName = (string)o["creationClassName"];
             if (o["Description"] != null) Description = (string)o["Description"];
             if (o["DeviceID"] != null) DeviceID = (string)o["DeviceID"];
             if (o["EndingAddress"] != null) EndingAddress = (ulong)o["EndingAddress"];
@@ -1305,7 +1377,7 @@ namespace LowLevel
             if (o["Caption"] != null) Caption = (string)o["Caption"];
             if (o["ConfigManagerErrorCode"] != null) ConfigManagerErrorCode = (uint)o["ConfigManagerErrorCode"];
             if (o["ConfigManagerUserConfig"] != null) ConfigManagerUserConfig = (bool)o["ConfigManagerUserConfig"];
-            if (o["CreationClassName"] != null) CreationClassName = (string)o["CreationClassName"];
+            if (o["creationClassName"] != null) CreationClassName = (string)o["creationClassName"];
             if (o["Description"] != null) Description = (string)o["Description"];
             if (o["DeviceID"] != null) DeviceID = (string)o["DeviceID"];
             if (o["ErrorCleared"] != null) ErrorCleared = (bool)o["ErrorCleared"];
@@ -1381,7 +1453,7 @@ namespace LowLevel
             if (o["Caption"] != null) Caption = (string)o["Caption"];
             if (o["ConfigManagerErrorCode"] != null) ConfigManagerErrorCode = (uint)o["ConfigManagerErrorCode"];
             if (o["ConfigManagerUserConfig"] != null) ConfigManagerUserConfig = (bool)o["ConfigManagerUserConfig"];
-            if (o["CreationClassName"] != null) CreationClassName = (string)o["CreationClassName"];
+            if (o["creationClassName"] != null) CreationClassName = (string)o["creationClassName"];
             if (o["Description"] != null) Description = (string)o["Description"];
             if (o["DeviceID"] != null) DeviceID = (string)o["DeviceID"];
             if (o["ErrorCleared"] != null) ErrorCleared = (bool)o["ErrorCleared"];
@@ -1493,7 +1565,7 @@ namespace LowLevel
             if (o["Caption"] != null) Caption = (string)o["Caption"];
             if (o["CodeSet"] != null) CodeSet = (string)o["CodeSet"];
             if (o["CountryCode"] != null) CountryCode = (string)o["CountryCode"];
-            if (o["CreationClassName"] != null) CreationClassName = (string)o["CreationClassName"];
+            if (o["creationClassName"] != null) CreationClassName = (string)o["creationClassName"];
             if (o["CSCreationClassName"] != null) CSCreationClassName = (string)o["CSCreationClassName"];
             if (o["CSDVersion"] != null) CSDVersion = (string)o["CSDVersion"];
             if (o["CSName"] != null) CSName = (string)o["CSName"];
@@ -1629,7 +1701,7 @@ namespace LowLevel
             if (o["ColorTableEntries"] != null) ColorTableEntries = (uint)o["ColorTableEntries"];
             if (o["ConfigManagerErrorCode"] != null) ConfigManagerErrorCode = (uint)o["ConfigManagerErrorCode"];
             if (o["ConfigManagerUserConfig"] != null) ConfigManagerUserConfig = (bool)o["ConfigManagerUserConfig"];
-            if (o["CreationClassName"] != null) CreationClassName = (string)o["CreationClassName"];
+            if (o["creationClassName"] != null) CreationClassName = (string)o["creationClassName"];
             if (o["CurrentBitsPerPixel"] != null) CurrentBitsPerPixel = (uint)o["CurrentBitsPerPixel"];
             if (o["CurrentHorizontalResolution"] != null) CurrentHorizontalResolution = (uint)o["CurrentHorizontalResolution"];
             if (o["CurrentNumberOfColors"] != null) CurrentNumberOfColors = (ulong)o["CurrentNumberOfColors"];
@@ -1722,7 +1794,7 @@ namespace LowLevel
             if (o["Caption"] != null) Caption = (string)o["Caption"];
             if (o["ConfigManagerErrorCode"] != null) ConfigManagerErrorCode = (uint)o["ConfigManagerErrorCode"];
             if (o["ConfigManagerUserConfig"] != null) ConfigManagerUserConfig = (bool)o["ConfigManagerUserConfig"];
-            if (o["CreationClassName"] != null) CreationClassName = (string)o["CreationClassName"];
+            if (o["creationClassName"] != null) CreationClassName = (string)o["creationClassName"];
             if (o["Description"] != null) Description = (string)o["Description"];
             if (o["DeviceID"] != null) DeviceID = (string)o["DeviceID"];
             if (o["DisplayType"] != null) DisplayType = (ushort)o["DisplayType"];
@@ -1792,7 +1864,7 @@ namespace LowLevel
             if (o["Caption"] != null) Caption = (string)o["Caption"];
             if (o["ConfigManagerErrorCode"] != null) ConfigManagerErrorCode = (uint)o["ConfigManagerErrorCode"];
             if (o["ConfigManagerUserConfig"] != null) ConfigManagerUserConfig = (bool)o["ConfigManagerUserConfig"];
-            if (o["CreationClassName"] != null) CreationClassName = (string)o["CreationClassName"];
+            if (o["creationClassName"] != null) CreationClassName = (string)o["creationClassName"];
             if (o["Description"] != null) Description = (string)o["Description"];
             if (o["DeviceID"] != null) DeviceID = (string)o["DeviceID"];
             if (o["DeviceInterface"] != null) DeviceInterface = (ushort)o["DeviceInterface"];
@@ -1858,7 +1930,7 @@ namespace LowLevel
         {
             if (o["Caption"] != null) Caption = (string)o["Caption"];
             if (o["ConfigOptions"] != null) ConfigOptions = (string[])o["ConfigOptions"];
-            if (o["CreationClassName"] != null) CreationClassName = (string)o["CreationClassName"];
+            if (o["creationClassName"] != null) CreationClassName = (string)o["creationClassName"];
             if (o["Depth"] != null) Depth = (float)o["Depth"];
             if (o["Description"] != null) Description = (string)o["Description"];
             if (o["Height"] != null) Height = (float)o["Height"];
@@ -1925,7 +1997,7 @@ namespace LowLevel
             if (o["ClassCode"] != null) ClassCode = (byte)o["ClassCode"];
             if (o["ConfigManagerErrorCode"] != null) ConfigManagerErrorCode = (uint)o["ConfigManagerErrorCode"];
             if (o["ConfigManagerUserConfig"] != null) ConfigManagerUserConfig = (bool)o["ConfigManagerUserConfig"];
-            if (o["CreationClassName"] != null) CreationClassName = (string)o["CreationClassName"];
+            if (o["creationClassName"] != null) CreationClassName = (string)o["creationClassName"];
             if (o["CurrentAlternateSettings"] != null) CurrentAlternateSettings = (byte)o["CurrentAlternateSettings"];
             if (o["CurrentConfigValue"] != null) CurrentConfigValue = (byte)o["CurrentConfigValue"];
             if (o["Description"] != null) Description = (string)o["Description"];
@@ -1993,7 +2065,7 @@ namespace LowLevel
             if (o["Caption"] != null) Caption = (string)o["Caption"];
             if (o["Compressed"] != null) Compressed = (bool)o["Compressed"];
             if (o["CompressionMethod"] != null) CompressionMethod = (string)o["CompressionMethod"];
-            if (o["CreationClassName"] != null) CreationClassName = (string)o["CreationClassName"];
+            if (o["creationClassName"] != null) CreationClassName = (string)o["creationClassName"];
             if (o["CreationDate"] != null) CreationDate = (string)o["CreationDate"];
             if (o["CSCreationClassName"] != null) CSCreationClassName = (string)o["CSCreationClassName"];
             if (o["CSName"] != null) CSName = (string)o["CSName"];

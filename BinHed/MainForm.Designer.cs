@@ -34,19 +34,19 @@
             this.splitContainer4 = new System.Windows.Forms.SplitContainer();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.navigator = new Navigateur.Navigue();
+            this.dataInspector1 = new BinHed.DataInspector();
             this.splitContainer3 = new System.Windows.Forms.SplitContainer();
+            this.tabs = new BinHed.TabControlEx();
+            this.tabPage1 = new System.Windows.Forms.TabPage();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.refresh = new System.Windows.Forms.ToolStripButton();
+            this.nouveauToolStripButton = new System.Windows.Forms.ToolStripButton();
             this.ouvrirToolStripButton = new System.Windows.Forms.ToolStripButton();
             this.toolStripButton2 = new System.Windows.Forms.ToolStripButton();
             this.dataInspector = new System.Windows.Forms.ToolStripButton();
             this.diskAvvess = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.ToolStripButton = new System.Windows.Forms.ToolStripButton();
-            this.dataInspector1 = new BinHed.DataInspector();
-            this.tabs = new BinHed.TabControlEx();
-            this.tabPage1 = new System.Windows.Forms.TabPage();
-            this.nouveauToolStripButton = new System.Windows.Forms.ToolStripButton();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).BeginInit();
             this.splitContainer2.Panel2.SuspendLayout();
             this.splitContainer2.SuspendLayout();
@@ -64,8 +64,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer3)).BeginInit();
             this.splitContainer3.Panel1.SuspendLayout();
             this.splitContainer3.SuspendLayout();
-            this.toolStrip1.SuspendLayout();
             this.tabs.SuspendLayout();
+            this.toolStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // splitContainer2
@@ -150,6 +150,14 @@
             this.navigator.TabIndex = 0;
             this.navigator.NavIndexChanged += new Navigateur.Navigue.SelectedIndexEvent(this.navigator_NavIndexChanged);
             // 
+            // dataInspector1
+            // 
+            this.dataInspector1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dataInspector1.Location = new System.Drawing.Point(0, 0);
+            this.dataInspector1.Name = "dataInspector1";
+            this.dataInspector1.Size = new System.Drawing.Size(96, 100);
+            this.dataInspector1.TabIndex = 0;
+            // 
             // splitContainer3
             // 
             this.splitContainer3.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -163,6 +171,27 @@
             this.splitContainer3.Size = new System.Drawing.Size(633, 395);
             this.splitContainer3.SplitterDistance = 558;
             this.splitContainer3.TabIndex = 2;
+            // 
+            // tabs
+            // 
+            this.tabs.Controls.Add(this.tabPage1);
+            this.tabs.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tabs.DrawMode = System.Windows.Forms.TabDrawMode.OwnerDrawFixed;
+            this.tabs.Location = new System.Drawing.Point(0, 0);
+            this.tabs.Name = "tabs";
+            this.tabs.SelectedIndex = 0;
+            this.tabs.Size = new System.Drawing.Size(633, 395);
+            this.tabs.TabIndex = 0;
+            // 
+            // tabPage1
+            // 
+            this.tabPage1.Location = new System.Drawing.Point(4, 22);
+            this.tabPage1.Name = "tabPage1";
+            this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage1.Size = new System.Drawing.Size(625, 369);
+            this.tabPage1.TabIndex = 0;
+            this.tabPage1.Text = "tabPage1";
+            this.tabPage1.UseVisualStyleBackColor = true;
             // 
             // toolStrip1
             // 
@@ -180,6 +209,7 @@
             this.toolStrip1.Name = "toolStrip1";
             this.toolStrip1.Size = new System.Drawing.Size(32, 197);
             this.toolStrip1.TabIndex = 1;
+            this.toolStrip1.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.toolStrip1_ItemClicked);
             // 
             // refresh
             // 
@@ -190,6 +220,16 @@
             this.refresh.Size = new System.Drawing.Size(30, 20);
             this.refresh.Text = "Refresh";
             this.refresh.Click += new System.EventHandler(this.refresh_Click);
+            // 
+            // nouveauToolStripButton
+            // 
+            this.nouveauToolStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.nouveauToolStripButton.Image = ((System.Drawing.Image)(resources.GetObject("nouveauToolStripButton.Image")));
+            this.nouveauToolStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.nouveauToolStripButton.Name = "nouveauToolStripButton";
+            this.nouveauToolStripButton.Size = new System.Drawing.Size(30, 20);
+            this.nouveauToolStripButton.Text = "&Nouveau";
+            this.nouveauToolStripButton.Click += new System.EventHandler(this.nouveauToolStripButton_Click);
             // 
             // ouvrirToolStripButton
             // 
@@ -247,45 +287,6 @@
             this.ToolStripButton.Size = new System.Drawing.Size(30, 20);
             this.ToolStripButton.Text = "&?";
             // 
-            // dataInspector1
-            // 
-            this.dataInspector1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dataInspector1.Location = new System.Drawing.Point(0, 0);
-            this.dataInspector1.Name = "dataInspector1";
-            this.dataInspector1.Size = new System.Drawing.Size(96, 100);
-            this.dataInspector1.TabIndex = 0;
-            // 
-            // tabs
-            // 
-            this.tabs.Controls.Add(this.tabPage1);
-            this.tabs.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tabs.DrawMode = System.Windows.Forms.TabDrawMode.OwnerDrawFixed;
-            this.tabs.Location = new System.Drawing.Point(0, 0);
-            this.tabs.Name = "tabs";
-            this.tabs.SelectedIndex = 0;
-            this.tabs.Size = new System.Drawing.Size(633, 395);
-            this.tabs.TabIndex = 0;
-            // 
-            // tabPage1
-            // 
-            this.tabPage1.Location = new System.Drawing.Point(4, 22);
-            this.tabPage1.Name = "tabPage1";
-            this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(625, 369);
-            this.tabPage1.TabIndex = 0;
-            this.tabPage1.Text = "tabPage1";
-            this.tabPage1.UseVisualStyleBackColor = true;
-            // 
-            // nouveauToolStripButton
-            // 
-            this.nouveauToolStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.nouveauToolStripButton.Image = ((System.Drawing.Image)(resources.GetObject("nouveauToolStripButton.Image")));
-            this.nouveauToolStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.nouveauToolStripButton.Name = "nouveauToolStripButton";
-            this.nouveauToolStripButton.Size = new System.Drawing.Size(30, 20);
-            this.nouveauToolStripButton.Text = "&Nouveau";
-            this.nouveauToolStripButton.Click += new System.EventHandler(this.nouveauToolStripButton_Click);
-            // 
             // Editor
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -313,9 +314,9 @@
             this.splitContainer3.Panel1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer3)).EndInit();
             this.splitContainer3.ResumeLayout(false);
+            this.tabs.ResumeLayout(false);
             this.toolStrip1.ResumeLayout(false);
             this.toolStrip1.PerformLayout();
-            this.tabs.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }

@@ -6,11 +6,15 @@ using Microsoft.Win32.SafeHandles;
 using System.Runtime.InteropServices;
 using System.Management;
 using Utils;
+using System.IO;
 
 namespace LowLevel
 {
     public class RawDiskAccess : LOCALIZED_DATA
     {
+        const uint GENERIC_READ = 0x80000000;
+        const uint OPEN_EXISTING = 3;
+        const int FILE_SHARE_READ = 1;
         public long SecteurNumber = 0;
         public long Offset;
         public int SizeBuffer = 0x200;
@@ -19,72 +23,38 @@ namespace LowLevel
         public int Sector = 1;
         public byte[] SectorBuffer;
         #region Private members
-        ulong totalCylinders;
         ulong numberOfTracks;
         ulong numberOfSectors;
-        ulong totalTracks;
-        ulong totalSectors;
-        List<Win32_DiskDrive> physicalDisks;
-        MasterBootRecord mbr;
-        TreeNode mbrNode;
-        Win32_DiskDrive currentDrive;
         Partition currentPartition;
+
+        List<Win32_DiskDrive> physicalDisks;
+        List<Win32_Drive> drives;
+        TreeNode mbrNode;
+        Win32_Drive currentDrive;
         #endregion
         #region Properties
-        public List<Win32_DiskDrive> Physical_Disks
+        public List<Win32_Drive> Drives
         {
-            get { return physicalDisks; }
-            set { physicalDisks = value; }
+            get { return drives; }
+            set { drives = value; }
         }
-        public Win32_DiskDrive Current_Drive
+        public Win32_Drive Current_Drive
         {
             get { return currentDrive; }
             set { currentDrive = value; }
-        }
-        public ulong Total_Cylinders
-        {
-            get { return totalCylinders; }
-            set { totalCylinders = value; }
-        }
-        public ulong Number_Of_Tracks
-        {
-            get { return numberOfTracks; }
-            set { numberOfTracks = value; }
-        }
-        public ulong Number_Of_Sectors
-        {
-            get { return numberOfSectors; }
-            set { numberOfSectors = value; }
-        }
-        public ulong Total_Tracks
-        {
-            get { return totalTracks; }
-            set { totalTracks = value; }
-        }
-        public ulong Total_Sectors
-        {
-            get { return totalSectors; }
-            set { totalSectors = value; }
-        }
-        public MasterBootRecord Master_Boot_Record
-        {
-            get { return mbr; }
-            set { mbr = value; }
         }
         #endregion
         public RawDiskAccess()
         {
             physicalDisks = new List<Win32_DiskDrive>();
-            ManagementObjectSearcher res = new ManagementObjectSearcher(new WqlObjectQuery("SELECT * FROM Win32_DiskDrive"));
             mbrNode = new TreeNode("Master boot record");
-            foreach (ManagementObject o in res.Get())
+            drives = GetDrives();
+            currentDrive = drives[0];
+            if (currentDrive.GetType().Name == "Win32_DiskDrive")
             {
-                Win32_DiskDrive p = new Win32_DiskDrive(o);
-                physicalDisks.Add(p);
+                numberOfSectors = ((Win32_DiskDrive)currentDrive).TotalSectors;
+                numberOfTracks = ((Win32_DiskDrive)currentDrive).TotalTracks;
             }
-            currentDrive = physicalDisks[0];
-            numberOfSectors = currentDrive.TotalSectors;
-            numberOfTracks = currentDrive.TotalTracks;
         }
         #region Public methods
         public object RequestData(object o)
@@ -114,7 +84,7 @@ namespace LowLevel
             {
                 INDEX_ENTRY indx = (INDEX_ENTRY)o;
                 BootRecord_NTFS boot = (BootRecord_NTFS)currentPartition.Boot_Sector;
-                long off = (uint)indx.FileReference.SegmentNumberLowPart.Value * 2 + 
+                long off = (uint)indx.FileReference.SegmentNumberLowPart.Value * 2 +
                     currentPartition.ClusterToSector((long)boot.MFT_Start.Value);
                 BitStreamReader sw = new BitStreamReader(ReadSectors(off, 2 * (short)boot.Bytes_Per_Sector.Value), false);
                 FILE_RECORD_SEGMENT fs = new FILE_RECORD_SEGMENT(sw, off * (short)boot.Bytes_Per_Sector.Value, currentPartition, (int)(uint)indx.FileReference.SegmentNumberLowPart.Value);
@@ -128,7 +98,7 @@ namespace LowLevel
                             break;
                         }
                     }
-           
+
                     detail = fs;
                 }
                 if (fs.Is_File)
@@ -136,18 +106,18 @@ namespace LowLevel
                     detail = fs;
                 }
             }
-            if (t.Name==typeof(ATTRIBUTE_RECORD_HEADER).Name)
+            if (t.Name == typeof(ATTRIBUTE_RECORD_HEADER).Name)
             {
                 ATTRIBUTE_RECORD_HEADER att = (ATTRIBUTE_RECORD_HEADER)o;
                 switch (att.Attribute_Type == ATTRIBUTE_TYPE_CODE.ATTRIBUTE_LIST)
                 {
                 }
             }
-            if (t.Name==typeof(ATTRIBUTE_LIST_ENTRY).Name)
+            if (t.Name == typeof(ATTRIBUTE_LIST_ENTRY).Name)
             {
                 ATTRIBUTE_LIST_ENTRY att = (ATTRIBUTE_LIST_ENTRY)o;
                 BootRecord_NTFS boot = (BootRecord_NTFS)currentPartition.Boot_Sector;
-                long off = (uint)att.Base_File_Reference_of_the_attribute.SegmentNumberLowPart.Value * 2 + 
+                long off = (uint)att.Base_File_Reference_of_the_attribute.SegmentNumberLowPart.Value * 2 +
                     currentPartition.ClusterToSector((long)boot.MFT_Start.Value);
                 BitStreamReader sw = new BitStreamReader(ReadSectors(off, 2 * (short)boot.Bytes_Per_Sector.Value), false);
                 FILE_RECORD_SEGMENT fs = new FILE_RECORD_SEGMENT(sw, off * (short)boot.Bytes_Per_Sector.Value, currentPartition, (int)(uint)att.Base_File_Reference_of_the_attribute.SegmentNumberLowPart.Value);
@@ -167,7 +137,7 @@ namespace LowLevel
         {
             object dt = null;
             byte[] data = ReadSectors(sector, length);
-            string head = Encoding.Default.GetString(data, 0, 4); 
+            string head = Encoding.Default.GetString(data, 0, 4);
             switch (head)
             {
                 case "FILE":
@@ -177,7 +147,7 @@ namespace LowLevel
                     dt = fs;
                     break;
                 case "INDX":
-                    data = ReadSectors(sector, 8*0x200);
+                    data = ReadSectors(sector, 8 * 0x200);
                     INDX indx = new INDX(new BitStreamReader(data, false), sector * 0x200);
                     dt = indx;
                     break;
@@ -186,23 +156,110 @@ namespace LowLevel
             }
             return dt;
         }
-        public void ReadsFirstSector()
+        public void ReadsFirstSector(Win32_DiskDrive currentDrive)
         {
             SizeBuffer = (int)currentDrive.BytesPerSector;
-            mbr = ReadMasterBoot(0);
+            currentDrive.Master_Boot_Record = ReadMasterBoot(0);
+        }
+        public void ReadsFirstSector(Win32_CDROMDrive currentDrive)
+        {
+            SizeBuffer = 0x800;
+            string drivestring = @"\\.\" + currentDrive.Drive;
+            int startSector = 0x10;
+            byte[] rootSector = ReadSector(drivestring, startSector);
+            if (rootSector == null)
+                return;
+            BitStreamReader sw = new BitStreamReader(rootSector, true);
+            currentDrive.Volume_Structure_Descriptor = new Volume_Structure_Description(sw, SizeBuffer * startSector);
+            byte key = 0;
+            int deb = 1;
+            while (key != 0xff)
+            {
+                byte[] sector = ReadSector(drivestring, startSector + deb);
+
+                key = sector[0];
+                if (key == 0x00)//Boot sector
+                {
+                    currentDrive.Boot_Record = new CDBootRecord(new BitStreamReader(sector, false), (startSector + deb) * SizeBuffer);
+                    sector = ReadSector(drivestring, (int)currentDrive.Boot_Record.Absolute_pointer_to_boot_catalog.Value);
+                    currentDrive.Booting_Catalog = new Booting_Catalog(new BitStreamReader(sector, false), (int)currentDrive.Boot_Record.Absolute_pointer_to_boot_catalog.Value * SizeBuffer);
+                }
+                deb++;
+            }
+            byte[] record = ReadSector(drivestring, (int)currentDrive.Volume_Structure_Descriptor.Directory_Record.Directory_Record_Root_Directory.Value);
+            currentDrive.CD_RootDirectory = new CDDirectory(new BitStreamReader(record, true), SizeBuffer * (int)currentDrive.Volume_Structure_Descriptor.Directory_Record.Directory_Record_Root_Directory.Value);
+            foreach (Directory_Record dr in currentDrive.CD_RootDirectory.Entries)
+            {
+                record = ReadSector(drivestring, (int)dr.Directory_Record_Root_Directory.Value);
+                currentDrive.CD_RootDirectory.Subentries.Add(new CDDirectory(new BitStreamReader(record, true), (int)dr.Directory_Record_Root_Directory.Value * SizeBuffer));
+            }
+            SectorBuffer = ReadSector(drivestring, 0);
+        }
+        private byte[] ReadSector(string drivestring, int sectorNumber)
+        {
+            SafeFileHandle handleValue = RawDiskAccess.CreateFile(drivestring, GENERIC_READ, FILE_SHARE_READ, IntPtr.Zero, OPEN_EXISTING, 0, IntPtr.Zero);
+            if (handleValue.IsInvalid)
+            {
+                return null;
+            }
+            else
+            {
+                long Offset = sectorNumber * SizeBuffer;
+                byte[] buffer = new byte[SizeBuffer];
+                int read = 0;
+                //  Offset = 0x8000;
+                int moveToHigh = (int)(Offset >> 32);
+                uint x = RawDiskAccess.SetFilePointer(handleValue, (int)Offset, out moveToHigh, RawDiskAccess.EMoveMethod.Current);
+                int y = RawDiskAccess.ReadFile(handleValue, buffer, (int)SizeBuffer, out read, IntPtr.Zero);
+                handleValue.Close();
+                return buffer;
+            }
         }
         public void Change(long shift, int sb)
         {
-            SecteurNumber = shift;
-            long[] chs = SectorToChs(SecteurNumber);
-            Cylinder = (int)chs[0];
-            Track = (int)chs[1];
-            Sector = (int)chs[2];
-            SizeBuffer = sb;
-            SectorBuffer = ReadSectors(SecteurNumber, sb);
+            if (currentDrive.GetType().Name.StartsWith("Win32_CD"))
+            {
+                SecteurNumber = shift;
+                string drivestring = @"\\.\" + ((Win32_CDROMDrive)currentDrive).Drive;
+                SectorBuffer = ReadSector(drivestring, (int)SecteurNumber); ;
+            }
+            else
+            {
+                SecteurNumber = shift;
+                long[] chs = SectorToChs(SecteurNumber);
+                Cylinder = (int)chs[0];
+                Track = (int)chs[1];
+                Sector = (int)chs[2];
+                SizeBuffer = sb;
+                SectorBuffer = ReadSectors(SecteurNumber, sb);
+            }
         }
         #endregion
         #region Private Methods
+        private static List<Win32_Drive> GetDrives()
+        {
+            List<Win32_Drive> cd = new List<Win32_Drive>();
+            ManagementObjectSearcher res = new ManagementObjectSearcher(new WqlObjectQuery("SELECT * FROM Win32_DiskDrive"));
+            foreach (ManagementObject o in res.Get())
+            {
+                Win32_DiskDrive p = new Win32_DiskDrive(o);
+                cd.Add(p);
+            }
+            res = new ManagementObjectSearcher(new WqlObjectQuery("Select * from Win32_CDROMDrive"));
+            foreach (ManagementObject o in res.Get())
+            {
+                Win32_CDROMDrive p = new Win32_CDROMDrive(o);
+                cd.Add(p);
+            }
+            res = new ManagementObjectSearcher(new WqlObjectQuery("Select * from Win32_PhysicalMedia"));
+            List<Win32_PhysicalMedia> phys = new List<Win32_PhysicalMedia>();
+            foreach (ManagementObject o in res.Get())
+            {
+                Win32_PhysicalMedia ph = new Win32_PhysicalMedia(o);
+                phys.Add(ph);
+            }
+            return cd;
+        }
         private void ParseIndexAllocation(BootRecord_NTFS boot, FILE_RECORD_SEGMENT fs, ATTRIBUTE_RECORD_HEADER att, Partition p)
         {
             long st = (long)(att.Nonresident.Startcluster * (byte)boot.Sectors_Per_Cluster.Value + (uint)boot.Hidden_Sectors.Value + p.Start_Partition);
@@ -278,7 +335,7 @@ namespace LowLevel
                                     {
                                         if (att.Attribute_Type == ATTRIBUTE_TYPE_CODE.INDEX_ALLOCATION)
                                         {
-                                            ParseIndexAllocation((BootRecord_NTFS) p.Boot_Sector, frs, att, p);
+                                            ParseIndexAllocation((BootRecord_NTFS)p.Boot_Sector, frs, att, p);
                                             break;
                                         }
                                     }
@@ -322,13 +379,6 @@ namespace LowLevel
             if (chs == null)
                 return null;
             Offset = startSector * SizeBuffer;
-            /*     short FILE_ATTRIBUTE_NORMAL = 0x80;
-              short INVALID_HANDLE_VALUE = -1;
-              uint GENERIC_WRITE = 0x40000000;
-              uint CREATE_NEW = 1;
-              uint CREATE_ALWAYS = 2;*/
-            uint GENERIC_READ = 0x80000000;
-            uint OPEN_EXISTING = 3;
             SafeFileHandle handleValue = CreateFile(currentDrive.DeviceID, GENERIC_READ, 0, IntPtr.Zero, OPEN_EXISTING, 0, IntPtr.Zero);
             if (handleValue.IsInvalid)
             {
@@ -338,7 +388,7 @@ namespace LowLevel
             byte[] buffer = new byte[length];
             int read = 0;
             int moveToHigh = (int)(Offset >> 32);
-            SetFilePointer(handleValue, (int) Offset, out moveToHigh, EMoveMethod.Begin);
+            SetFilePointer(handleValue, (int)Offset, out moveToHigh, EMoveMethod.Begin);
             ReadFile(handleValue, buffer, (int)length, out read, IntPtr.Zero);
             handleValue.Close();
             return buffer;
@@ -376,22 +426,22 @@ namespace LowLevel
             End = 2
         }
         [DllImport("Kernel32.dll", SetLastError = true, CharSet = CharSet.Auto)]
-        static extern uint SetFilePointer(
+        public static extern uint SetFilePointer(
             [In] SafeFileHandle hFile,
             [In] int lDistanceToMove,
             [Out] out int lpDistanceToMoveHigh,
             [In] EMoveMethod dwMoveMethod);
         [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
-        static extern SafeFileHandle CreateFile(string lpFileName, uint dwDesiredAccess,
+        public static extern SafeFileHandle CreateFile(string lpFileName, uint dwDesiredAccess,
           uint dwShareMode, IntPtr lpSecurityAttributes, uint dwCreationDisposition,
           uint dwFlagsAndAttributes, IntPtr hTemplateFile);
         [DllImport("kernel32", SetLastError = true)]
-        internal extern static int ReadFile(SafeFileHandle handle, byte[] bytes,
+        public extern static int ReadFile(SafeFileHandle handle, byte[] bytes,
            int numBytesToRead, out int numBytesRead, IntPtr overlapped_MustBeZero);
         [DllImport("kernel32.dll")]
         static extern bool WriteFile(SafeFileHandle handle, byte[] lpBuffer,
            uint nNumberOfBytesToWrite, out uint lpNumberOfBytesWritten,
-           [In] ref System.Threading.NativeOverlapped lpOverlapped); 
+           [In] ref System.Threading.NativeOverlapped lpOverlapped);
         #endregion
     }
 }

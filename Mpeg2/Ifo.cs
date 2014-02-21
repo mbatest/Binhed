@@ -1016,10 +1016,19 @@ namespace Mpeg2Files
                 nb_post_commands = new ELEMENTARY_TYPE(sw, 0, typeof(short));
                 nb_cell_commands = new ELEMENTARY_TYPE(sw, 0, typeof(short));
                 end_adress = new ELEMENTARY_TYPE(sw, 0, typeof(short));
-                pre_commands = new ELEMENTARY_TYPE(sw,0,typeof(byte[]),(short)nb_pre_commands.Value) ;
-                 post_commands = new ELEMENTARY_TYPE(sw,0,typeof(byte[]),(short)nb_post_commands.Value );
-                 cell_commands = new ELEMENTARY_TYPE(sw, 0, typeof(byte[]), (short)nb_cell_commands.Value);
+                pre_commands = new ELEMENTARY_TYPE(sw,0,typeof(byte[]),(short)nb_pre_commands.Value * 8) ;
+                 post_commands = new ELEMENTARY_TYPE(sw,0,typeof(byte[]),(short)nb_post_commands.Value * 8);
+                 cell_commands = new ELEMENTARY_TYPE(sw, 0, typeof(byte[]), (short)nb_cell_commands.Value * 8);
                sw.Position += (int)PositionOfStructureInFile + (short)end_adress.Value;
+            }
+            if ((short)offsetToProgramMap.Value != 0)
+            {
+            }
+            if ((short)offsetToCellPlayback.Value != 0)
+            {
+            }
+            if ((short)offsetToCellPosition.Value != 0)
+            {
             }
             LengthInFile = sw.Position - PositionOfStructureInFile;
         }

@@ -19,7 +19,7 @@ using Utils;
 
 namespace LowLevel
 {
-    public partial class Form1 : UserControl
+    public partial class LowLevelViewer : UserControl
     {
         long secteurNumber = 0;
         int sizebuff = 0x200;
@@ -56,7 +56,7 @@ namespace LowLevel
         [DllImport("kernel32", SetLastError = true)]
         internal extern static int ReadFile(SafeFileHandle handle, byte[] bytes,
            int numBytesToRead, out int numBytesRead, IntPtr overlapped_MustBeZero);
-        public Form1()
+        public LowLevelViewer()
         {
             InitializeComponent();
             physicalDisks = new List<Win32_DiskDrive>();

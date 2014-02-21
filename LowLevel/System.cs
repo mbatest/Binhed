@@ -12,10 +12,7 @@ namespace LowLevel
         public DiskAccess()
         {
             RawAccess r = new RawAccess();
-            /*     Process myProcess = new Process();
-                 myProcess.StartInfo.UseShellExecute = true;
-                 myProcess.StartInfo.Verb = "runas";*/
-           Drives();
+            Drives();
         }
         public DriveInfo[] allDrives = DriveInfo.GetDrives();
         public Win32_Battery battery;

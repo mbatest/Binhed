@@ -136,6 +136,7 @@ namespace BinHed
                                 #region Display according to type
                                 switch (currentNode.GetType().GetProperty(v.Name).GetValue(currentNode, null).GetType().Name)
                                 {
+                                    #region Primitive types
                                     case "Byte":
                                         byte ub = (byte)currentNode.GetType().GetProperty(v.Name).GetValue(currentNode, null);
                                         s += "0x" + ub.ToString("x2");
@@ -186,11 +187,21 @@ namespace BinHed
                                             s += uby.ToString("x2");
 
                                         break;
+                                    #endregion
                                     default:
-                                        //   if (currentNode.GetType().GetProperty(v.nameAddr).GetValue(currentNode, null).ToString() == "")
-                                        //      s = "";
-                                        //  else
-                                        s += currentNode.GetType().GetProperty(v.Name).GetValue(currentNode, null).ToString();
+                                        #region class type
+                                        if (v.PropertyType.Name == "ELEMENTARY_TYPE")
+                                        {
+                                            s += currentNode.GetType().GetProperty(v.Name).GetValue(currentNode, null).ToString();
+                                        }
+                                        else
+                                        {
+                                     //     var x=  currentNode.GetType().GetProperty(v.Name);
+                                      //    TreeNode tn = new TreeNode(x.Name, 0, 1);
+                                       //   tn.Tag = x;
+                                      //    root.Nodes.Add(tn);
+                                        }
+                                        #endregion
                                         break;
                                 }
                                 if (s != "")

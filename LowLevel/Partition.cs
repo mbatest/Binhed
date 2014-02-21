@@ -292,7 +292,6 @@ namespace LowLevel
         #endregion
         public BootRecord(BitStreamReader sw, long offset)
         {
-
             PositionOfStructureInFile = sw.Position + offset;
             jmp = new ELEMENTARY_TYPE(sw, offset, typeof(byte[]), 3);
             oEM = new ELEMENTARY_TYPE(sw, offset, Encoding.Default, 8);// sw.ReadString(8);
@@ -312,7 +311,7 @@ namespace LowLevel
         }
         public override string ToString()
         {
-            return "Boot sector";
+            return "Boot_Record sector";
         }
     }
     public class BootRecord_Fat16 : BootRecord
@@ -325,8 +324,7 @@ namespace LowLevel
         ELEMENTARY_TYPE volumeLabel;//0x2B
         ELEMENTARY_TYPE fileSystem;//0x36
         byte[] bootCode;//0x3E
-        #endregion
-        
+        #endregion       
         public ELEMENTARY_TYPE Drive_Number
         {
             get { return driveNumber; }
@@ -375,7 +373,7 @@ namespace LowLevel
         }
         public override string ToString()
         {
-            return "Boot sector";
+            return "Boot_Record sector";
         }
     }
     public class BootRecord_Fat32 : BootRecord
@@ -427,7 +425,6 @@ namespace LowLevel
             get { return extBoot32; }
             set { extBoot32 = value; }
         }
-
         public ELEMENTARY_TYPE VolId32
         {
             get { return volId32; }
@@ -473,7 +470,7 @@ namespace LowLevel
 
         public override string ToString()
         {
-            return "Boot sector";
+            return "Boot_Record sector";
         }
     }
     public class BootRecord_Dell : BootRecord
@@ -490,7 +487,6 @@ namespace LowLevel
             get { return fileSystem32; }
             set { fileSystem32 = value; }
         }
-
         public BootRecord_Dell(BitStreamReader sw, long sectorNumber)
             : base(sw, sectorNumber)
         {
@@ -502,7 +498,7 @@ namespace LowLevel
         }
         public override string ToString()
         {
-            return "Boot sector";
+            return "Boot_Record sector";
         }
     }
     public class BootRecord_NTFS : BootRecord
@@ -569,7 +565,7 @@ namespace LowLevel
         }
         public override string ToString()
         {
-            return "Boot sector";
+            return "Boot_Record sector";
         }
     }
     // The "FS Information ChsSector" was introduced in FAT32 for speeding up access times of certain operations 
