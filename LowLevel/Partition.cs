@@ -3,14 +3,52 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using Utils;
+using Code;
 
 namespace LowLevel
 {
     public class MasterBootRecord : LOCALIZED_DATA
     {
-        public byte[] bootCode;
+        ELEMENTARY_TYPE bootCode;
+        ELEMENTARY_TYPE disk_TimeStamp;
+        ELEMENTARY_TYPE bootCode_Part2;
+        ELEMENTARY_TYPE disk_Signature;
+        ELEMENTARY_TYPE end_Signature;
+
+        public ELEMENTARY_TYPE BootCode
+        {
+            get { return bootCode; }
+            set { bootCode = value; }
+        }
+        public ELEMENTARY_TYPE Disk_TimeStamp
+        {
+            get { return disk_TimeStamp; }
+            set { disk_TimeStamp = value; }
+        }
+        public ELEMENTARY_TYPE BootCode_Part2
+        {
+            get { return bootCode_Part2; }
+            set { bootCode_Part2 = value; }
+        }
+        public ELEMENTARY_TYPE Disk_Signature
+        {
+            get { return disk_Signature; }
+            set { disk_Signature = value; }
+        }
         private List<ELEMENTARY_TYPE> messages = new List<ELEMENTARY_TYPE>();
+        public ELEMENTARY_TYPE End_Signature
+        {
+            get { return end_Signature; }
+            set { end_Signature = value; }
+        }
         private List<Partition> partitions = new List<Partition>();
+        List<CodeLine> code;
+
+        public List<CodeLine> Code
+        {
+            get { return code; }
+            set { code = value; }
+        }
         public List<ELEMENTARY_TYPE> Messages
         {
             get { return messages; }
@@ -24,17 +62,37 @@ namespace LowLevel
         public MasterBootRecord(BitStreamReader sw, long offset)
         {
             PositionOfStructureInFile = sw.Position + offset;
-            bootCode = sw.ReadBytes(0x163);
+            bootCode = new ELEMENTARY_TYPE(sw, offset, typeof(byte[]), 218);
+            code = null;
+            disk_TimeStamp = new ELEMENTARY_TYPE(sw, offset, typeof(byte[]), 0x6);
+            int start = sw.Position;
+            sw.Position = 0;
+            byte jump = sw.ReadByte();
+            while (jump != 0xC3)
+                jump = sw.ReadByte();
+            int end = sw.Position;
+            sw.Position = start;
+            bootCode_Part2 = new ELEMENTARY_TYPE(sw, offset, typeof(byte[]), end - start);
+            try
+            {
+                code = Disassemble.ParseBloc((byte[])bootCode.Value, PositionOfStructureInFile);
+            }
+            catch { }
             while (sw.Position < 0x1B2)
             {
                 messages.Add(new ELEMENTARY_TYPE(sw, offset, Encoding.Default));
+                if (sw.ReadByte() == 0)
+                    break;
             }
+            sw.Position = 0x1B8;
+            disk_Signature = new ELEMENTARY_TYPE(sw, offset, typeof(byte[]), 0x6);
             sw.Position = 0x1be;
             for (int i = 0; i < 4; i++)
             {
                 Partition p = new Partition(sw, offset);
                 partitions.Add(p);
             }
+            end_Signature = new ELEMENTARY_TYPE(sw, offset, typeof(byte[]), 0x2);
             LengthInFile = sw.Position + offset - PositionOfStructureInFile;
         }
         public override string ToString()

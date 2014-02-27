@@ -276,11 +276,11 @@ namespace BinHed
                 case ".dll":
                     exv.Visible = false;
                     Executable ex = new Executable(FileName);
-                    ExeViewer exev = new ExeViewer();
-                    exev.Init(ex);
-                    exev.dataSelected += exv_dataSelected;
-                    splitContainer3.Panel1.Controls.Add(exev);
-                    exev.Dock = DockStyle.Fill;
+                    ExeViewer exeViewer = new ExeViewer();
+                    exeViewer.Init(ex);
+                    exeViewer.dataSelected += exv_dataSelected;
+                    splitContainer3.Panel1.Controls.Add(exeViewer);
+                    exeViewer.Dock = DockStyle.Fill;
                     break;
                 #endregion
                 case "ITSF"://chm : http://www.russotto.net/chm/chmformat.html

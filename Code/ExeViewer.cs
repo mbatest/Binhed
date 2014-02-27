@@ -218,7 +218,7 @@ namespace Code
                         tn.Nodes.Add(ttn);
                         foreach (CallAdress c in exe.Disassembly.subroutines)
                         {
-                            if ((c.cdLine.ToString().Contains("CALL")) & (c.cdLine.opCode == 0xE8))
+                            if ((c.cdLine.ToString().Contains("CALL")) & (c.cdLine.OpCode == 0xE8))
                                 ttn.Nodes.Add("0x" + (exe.NT_Headers.OptionalHeader.BaseOfCode + c.offset).ToString("x8") + " : " + c.cdLine);
                         }
                     }
@@ -480,19 +480,24 @@ namespace Code
             }
             if((tn.Text.Contains("L"))||(tn.Text.Contains("J")))
             {
-                long l;
-                if (long.TryParse((string)tn.Tag, out l))
+                if (tn.Tag != null)
                 {
-                    long a = (long)tn.Tag;
-                    showCode1.SelectLine(a);
+                    long l;
+                    if (tn.Tag.GetType().Name == "String")
+                    {
+                        if (long.TryParse((string)tn.Tag, out l))
+                        {
+                            long a = (long)tn.Tag;
+                            showCode1.SelectLine(a);
+                        }
+                        string aa = tn.Text.Substring(0, tn.Text.IndexOf(':')).Trim().Replace("0x", "");
+                        if (long.TryParse(aa, System.Globalization.NumberStyles.AllowHexSpecifier, null, out l))
+                        {
+                            //  long a = (long)tn.Tag;
+                            showCode1.SelectLine(l);
+                        }
+                    }
                 }
-                 string aa = tn.Text.Substring(0, tn.Text.IndexOf(':')).Trim().Replace("0x","");
-                 if (long.TryParse(aa,System.Globalization.NumberStyles.AllowHexSpecifier,null, out l))
-                 {
-                   //  long a = (long)tn.Tag;
-                     showCode1.SelectLine(l);
-                 }
-
            }
             if (tn.Text.Contains("IAT"))
             {
@@ -522,11 +527,14 @@ namespace Code
                                 tn.Tag = imdesc;
                                 foreach (IMAGE_THUNK_DATA imth in imdesc.FirstThunks)
                                 {
-                                    TreeNode tno = new TreeNode(imth.AddressOfData.Name);
-                                    tx.Nodes.Add(tno);
-                                    tno.Tag = imth;
-                                    tno.Nodes.Add("Hint : " + imth.AddressOfData.Hint.ToString("x4"));
-                                    tno.Nodes.Add("Function : " + imth.Function.ToString("x4"));
+                                    if (imth.AddressOfData != null)
+                                    {
+                                        TreeNode tno = new TreeNode(imth.AddressOfData.Name);
+                                        tx.Nodes.Add(tno);
+                                        tno.Tag = imth;
+                                        tno.Nodes.Add("Hint : " + imth.AddressOfData.Hint.ToString("x4"));
+                                        tno.Nodes.Add("Function : " + imth.Function.ToString("x4"));
+                                    }
                                 }
                             }
                     }

@@ -19,6 +19,7 @@ namespace LowLevel
         private ELEMENTARY_TYPE lastModifiedDate;
         private ELEMENTARY_TYPE startOfFile;
         private ELEMENTARY_TYPE sizeOfFile;
+        int entryNumber;
         private bool isDeleted;
         private string name;
         private string extension;
@@ -60,17 +61,17 @@ namespace LowLevel
             get { return lastAccessDate; }
             set { lastAccessDate = value; }
         }
-        public ELEMENTARY_TYPE EaIndex
+        public ELEMENTARY_TYPE Extended_Attributes
         {
             get { return eaIndex; }
             set { eaIndex = value; }
         }
-        public ELEMENTARY_TYPE LastModifiedTime
+        public ELEMENTARY_TYPE Last_Modified_Time
         {
             get { return lastModifiedTime; }
             set { lastModifiedTime = value; }
         }
-        public ELEMENTARY_TYPE LastModifiedDate
+        public ELEMENTARY_TYPE Last_Modified_Date
         {
             get { return lastModifiedDate; }
             set { lastModifiedDate = value; }
@@ -85,16 +86,16 @@ namespace LowLevel
             get { return sizeOfFile; }
             set { sizeOfFile = value; }
         }
-        public DateTime Create
-        { get { try { return ShortToDate((byte[])createDate.Value, (byte[])createTime.Value); } catch { return DateTime.MinValue; } } }
-        public DateTime LastModidied
-        { get { try { return ShortToDate((byte[])lastModifiedDate.Value, (byte[])lastModifiedTime.Value); } catch { return DateTime.MinValue; } } }
-        public int SequenceNumber
+        public DateTime? Creation_Date
+        { get { try { return ShortToDate((byte[])createDate.Value, (byte[])createTime.Value); } catch {return null; } } }
+        public DateTime? Last_Modidied
+        { get { try { return ShortToDate((byte[])lastModifiedDate.Value, (byte[])lastModifiedTime.Value); } catch { return null; } } }
+        public int Sequence_Number
         {
             get
             {
                 if (HasLongFileName)
-                    return (name[0]) & 0x1F;
+                    return (entryNumber) & 0x1F;
                 else
                     return -1;
             }
@@ -163,50 +164,69 @@ namespace LowLevel
         public Root16Entry(BitStreamReader sw, Partition p, long offset)
         {
             PositionOfStructureInFile = sw.Position + offset;
-            nameBytes = new ELEMENTARY_TYPE(sw, offset, typeof(byte[]), 11); //sw.ReadBytes(11);
-            if (((byte[])nameBytes.Value)[0] == 0x00) 
-                return;
-            attributes = new ELEMENTARY_TYPE(sw, offset, typeof(byte));
-            reserved = new ELEMENTARY_TYPE(sw, offset, typeof(byte));
-            createHour = new ELEMENTARY_TYPE(sw, offset, typeof(byte));
-            createTime = new ELEMENTARY_TYPE(sw, offset, typeof(byte[]), 2); //sw.ReadBytes(2);
-            createDate = new ELEMENTARY_TYPE(sw, offset, typeof(byte[]), 2); //sw.ReadBytes(2);
-            lastAccessDate = new ELEMENTARY_TYPE(sw, offset, typeof(byte[]), 2); //sw.ReadBytes(2);
-            eaIndex = new ELEMENTARY_TYPE(sw, offset, typeof(byte[]), 2); //sw.ReadBytes(2);
-            lastModifiedTime = new ELEMENTARY_TYPE(sw, offset, typeof(byte[]), 2); //sw.ReadBytes(2);
-            lastModifiedDate = new ELEMENTARY_TYPE(sw, offset, typeof(byte[]), 2); //sw.ReadBytes(2);
-            startOfFile = new ELEMENTARY_TYPE(sw, offset, typeof(ushort)); ;// sw.ReadShort();
-            sizeOfFile = new ELEMENTARY_TYPE(sw, offset, typeof(int), 4); //sw.ReadBytes(4);
+            int start = sw.Position;
             LengthInFile = 0x20;
-            switch (((byte[])nameBytes.Value)[0])
+            entryNumber = sw.ReadByte();
+            if (entryNumber < 0x50)
             {
-                case 0xE5:
-                    isDeleted = true;
-                    break;
-                case 0x05:
-                    ((byte[])nameBytes.Value)[0] = 0xE5;
-                    break;
-                case 0x2E://parent
-                    break;
-            }
-            if (HasLongFileName)
-            {
-                List<byte> by = new List<byte>();
-                name = Encoding.Unicode.GetString((byte[])nameBytes.Value, 1, 10);
-                name += Encoding.Unicode.GetString((byte[])createTime.Value);
-                name += Encoding.Unicode.GetString((byte[])createDate.Value);
-                name += Encoding.Unicode.GetString((byte[])lastAccessDate.Value);
-                name += Encoding.Unicode.GetString((byte[])eaIndex.Value);
-                name += Encoding.Unicode.GetString((byte[])lastModifiedTime.Value);
-                name += Encoding.Unicode.GetString((byte[])lastModifiedDate.Value);
-                name += Encoding.Unicode.GetString(BitConverter.GetBytes((int)sizeOfFile.Value));
+                ELEMENTARY_TYPE st = new ELEMENTARY_TYPE(sw, offset, Encoding.Unicode, 05);
+                attributes = new ELEMENTARY_TYPE(sw, offset, typeof(byte));
+                reserved = new ELEMENTARY_TYPE(sw, offset, typeof(byte));
+                ELEMENTARY_TYPE checksum = new ELEMENTARY_TYPE(sw, offset, typeof(byte));
+                ELEMENTARY_TYPE mid = new ELEMENTARY_TYPE(sw, offset, Encoding.Unicode, 06);
+                ELEMENTARY_TYPE cluster = new ELEMENTARY_TYPE(sw, offset, typeof(short));
+                ELEMENTARY_TYPE end = new ELEMENTARY_TYPE(sw, offset, Encoding.Unicode, 02);
+                nameBytes = new ELEMENTARY_TYPE((string)st.Value + (string)mid.Value + (string)end.Value, offset);
+                name = (string)nameBytes.Value;
+                sw.Position = start + 0x20;
             }
             else
             {
-                name = Encoding.Default.GetString((byte[])nameBytes.Value, 0, 8).Trim();
-                extension = Encoding.Default.GetString((byte[])nameBytes.Value, 8, 3).Trim();
+                sw.Position--;
+                nameBytes = new ELEMENTARY_TYPE(sw, offset, typeof(byte[]), 11); //sw.ReadBytes(11);
+                if (((byte[])nameBytes.Value)[0] == 0x00)
+                    return;
+                attributes = new ELEMENTARY_TYPE(sw, offset, typeof(byte));
+                reserved = new ELEMENTARY_TYPE(sw, offset, typeof(byte));
+                createHour = new ELEMENTARY_TYPE(sw, offset, typeof(byte));
+                createTime = new ELEMENTARY_TYPE(sw, offset, typeof(byte[]), 2); //sw.ReadBytes(2);
+                createDate = new ELEMENTARY_TYPE(sw, offset, typeof(byte[]), 2); //sw.ReadBytes(2);
+                lastAccessDate = new ELEMENTARY_TYPE(sw, offset, typeof(byte[]), 2); //sw.ReadBytes(2);
+                eaIndex = new ELEMENTARY_TYPE(sw, offset, typeof(byte[]), 2); //sw.ReadBytes(2);
+                lastModifiedTime = new ELEMENTARY_TYPE(sw, offset, typeof(byte[]), 2); //sw.ReadBytes(2);
+                lastModifiedDate = new ELEMENTARY_TYPE(sw, offset, typeof(byte[]), 2); //sw.ReadBytes(2);
+                startOfFile = new ELEMENTARY_TYPE(sw, offset, typeof(ushort)); ;// sw.ReadShort();
+                sizeOfFile = new ELEMENTARY_TYPE(sw, offset, typeof(int), 4); //sw.ReadBytes(4);
+                switch (((byte[])nameBytes.Value)[0])
+                {
+                    case 0xE5:
+                        isDeleted = true;
+                        break;
+                    case 0x05:
+                        ((byte[])nameBytes.Value)[0] = 0xE5;
+                        break;
+                    case 0x2E://parent
+                        break;
+                }
+                if (HasLongFileName)
+                {
+                    List<byte> by = new List<byte>();
+                    name = Encoding.Unicode.GetString((byte[])nameBytes.Value, 1, 10);
+                    name += Encoding.Unicode.GetString((byte[])createTime.Value);
+                    name += Encoding.Unicode.GetString((byte[])createDate.Value);
+                    name += Encoding.Unicode.GetString((byte[])lastAccessDate.Value);
+                    name += Encoding.Unicode.GetString((byte[])eaIndex.Value);
+                    name += Encoding.Unicode.GetString((byte[])lastModifiedTime.Value);
+                    name += Encoding.Unicode.GetString((byte[])lastModifiedDate.Value);
+                    name += Encoding.Unicode.GetString(BitConverter.GetBytes((int)sizeOfFile.Value));
+                }
+                else
+                {
+                    name = Encoding.Default.GetString((byte[])nameBytes.Value, 0, 8).Trim();
+                    extension = Encoding.Default.GetString((byte[])nameBytes.Value, 8, 3).Trim();
+                }
+                startSector = p.ClusterToSector((ushort)startOfFile.Value);
             }
-            startSector = p.ClusterToSector( (ushort)startOfFile.Value);
         }
         /*Date Format: The date field is 16-bit. This is relative to 01/01/1980.
 Bits 0 - 4: Day of month, range 1-31 

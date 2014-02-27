@@ -16,6 +16,7 @@ namespace Code
         IMAGE_SECTION_DIRECTORY sections_Directory;
         IMAGE_RESOURCE_DIRECTORY imDir;
         IMAGE_BASE_RELOCATION a;
+        long executableSize;
         Disassemble ds;
         public long imageDescriptorOffset;
         #region Properties
@@ -75,17 +76,22 @@ namespace Code
         public int FileAlignment
         { get { return NT_Headers.OptionalHeader.FileAlignment; } }
         #endregion
+        public long ExecutableSize
+        {
+            get { return executableSize; }
+            set { executableSize = value; }
+        }
         public Executable(string FileName)
         {
             //http://support.microsoft.com/kb/65122
             fileName = FileName;
             BinaryFileReader sw = new BinaryFileReader(FileName, true);
+            executableSize = sw.Length;
             #region Reading Headers
             exeheader = new IMAGE_DOS_HEADER(sw);
-             sw.Position = exeheader.AddressOfNewHeader;
+            sw.Position = exeheader.AddressOfNewHeader;
             NT_headers = new IMAGE_NT_HEADERS(sw);
             Is64bits = NT_headers.Is64bits;
-
             #endregion
             #region Sections
             sections_Directory = new IMAGE_SECTION_DIRECTORY(sw, NT_headers.FileHeader.NumberOfSections);
@@ -119,24 +125,25 @@ If RVA for example is 0x30D2 (it's in the .intData sections_Directory) file offs
             }
             #endregion
             #region iATEntries
-            foreach (IMAGE_IMPORT_DIRECTORY_IAT_ENTRY im in DataDirs[0xC].IAT.IATEntries)
-            {
-                string name = "";
-                foreach (IMAGE_IMPORT_DESCRIPTOR id in DataDirs[1].Import.Descriptors)
+            if (DataDirs[0xC].IAT!=null)
+                foreach (IMAGE_IMPORT_DIRECTORY_IAT_ENTRY im in DataDirs[0xC].IAT.IATEntries)
                 {
-                    foreach (IMAGE_THUNK_DATA imt in id.FirstThunks)
+                    string name = "";
+                    foreach (IMAGE_IMPORT_DESCRIPTOR id in DataDirs[1].Import.Descriptors)
                     {
-                        if(imt.Function!=0)
-                            if (imt.Function == im.intData)
-                            {
-                                name = id.Name + "!" + imt.AddressOfData.Name;
-                                break;
-                            }
-                        if (name != "") break;
+                        foreach (IMAGE_THUNK_DATA imt in id.FirstThunks)
+                        {
+                            if (imt.Function != 0)
+                                if (imt.Function == im.intData)
+                                {
+                                    name = id.Name + "!" + imt.AddressOfData.Name;
+                                    break;
+                                }
+                            if (name != "") break;
+                        }
                     }
+                    im.Name = name;
                 }
-                im.Name = name;
-            }
             #endregion
             #region Parse sections_Directory
             foreach (IMAGE_SECTION_HEADER im in sections_Directory.Sections)
@@ -154,13 +161,16 @@ If RVA for example is 0x30D2 (it's in the .intData sections_Directory) file offs
                             Console.WriteLine("error in dissassembler");
                         }
                         break;
-                    case ".bss,":
+                    case ".bss":
                         //uninitialized intData starts at the endIAT of the intData segment and contains all global variables and static variables
                         break;
                     case ".rdata":
-                        break;
+                         sw.Position = im.pointerToRawData;
+                             imDir = new IMAGE_RESOURCE_DIRECTORY(sw, im, 0 /*, NT_headers*/);
+                      break;
                     case ".data":
-                        break;
+                           sw.Position = im.pointerToRawData;
+                     break;
                     case ".rsrc":
                         try
                         {
@@ -191,6 +201,7 @@ If RVA for example is 0x30D2 (it's in the .intData sections_Directory) file offs
                         }
                         break;
                     case ".debug":
+                        sw.Position = im.pointerToRawData;
                         break;
                     case ".reloc":
                         sw.Position = im.pointerToRawData;

@@ -7,6 +7,7 @@ using System.Runtime.InteropServices;
 using System.Management;
 using Utils;
 using System.IO;
+using Code;
 
 namespace LowLevel
 {
@@ -33,15 +34,15 @@ namespace LowLevel
         Win32_Drive currentDrive;
         #endregion
         #region Properties
-        public List<Win32_Drive> Drives
-        {
-            get { return drives; }
-            set { drives = value; }
-        }
         public Win32_Drive Current_Drive
         {
             get { return currentDrive; }
             set { currentDrive = value; }
+        }
+        public List<Win32_Drive> Drives
+        {
+            get { return drives; }
+            set { drives = value; }
         }
         #endregion
         public RawDiskAccess()
@@ -55,6 +56,7 @@ namespace LowLevel
                 numberOfSectors = ((Win32_DiskDrive)currentDrive).TotalSectors;
                 numberOfTracks = ((Win32_DiskDrive)currentDrive).TotalTracks;
             }
+            Disassemble.ReadOpCode();
         }
         #region Public methods
         public object RequestData(object o)
@@ -251,13 +253,13 @@ namespace LowLevel
                 Win32_CDROMDrive p = new Win32_CDROMDrive(o);
                 cd.Add(p);
             }
-            res = new ManagementObjectSearcher(new WqlObjectQuery("Select * from Win32_PhysicalMedia"));
+/*            res = new ManagementObjectSearcher(new WqlObjectQuery("Select * from Win32_PhysicalMedia"));
             List<Win32_PhysicalMedia> phys = new List<Win32_PhysicalMedia>();
             foreach (ManagementObject o in res.Get())
             {
                 Win32_PhysicalMedia ph = new Win32_PhysicalMedia(o);
                 phys.Add(ph);
-            }
+            }*/
             return cd;
         }
         private void ParseIndexAllocation(BootRecord_NTFS boot, FILE_RECORD_SEGMENT fs, ATTRIBUTE_RECORD_HEADER att, Partition p)
@@ -379,7 +381,7 @@ namespace LowLevel
             if (chs == null)
                 return null;
             Offset = startSector * SizeBuffer;
-            SafeFileHandle handleValue = CreateFile(currentDrive.DeviceID, GENERIC_READ, 0, IntPtr.Zero, OPEN_EXISTING, 0, IntPtr.Zero);
+            SafeFileHandle handleValue = CreateFile(currentDrive.DeviceID, GENERIC_READ, FILE_SHARE_READ, IntPtr.Zero, OPEN_EXISTING, 0, IntPtr.Zero);
             if (handleValue.IsInvalid)
             {
                 return null;

@@ -257,8 +257,8 @@ namespace Code
             if ((int)buffer[0] == 188 && (int)buffer[1] == 14) { return "EFI byte code"; }
             if ((int)buffer[0] == 65 && (int)buffer[1] == 144) { return "Mitsubishi M32R little endian"; }
             if ((int)buffer[0] == 102 && (int)buffer[1] == 2) { return "MIPS16"; }
-            if ((int)buffer[0] == 102 && (int)buffer[1] == 3) { return "MIPS with FPU"; }
-            if ((int)buffer[0] == 102 && (int)buffer[1] == 4) { return "MIPS 16 with FPU"; }
+            if ((int)buffer[0] == 102 && (int)buffer[1] == 3) { return "MIPS with Floating_Point_Préfix"; }
+            if ((int)buffer[0] == 102 && (int)buffer[1] == 4) { return "MIPS 16 with Floating_Point_Préfix"; }
             if ((int)buffer[0] == 102 && (int)buffer[1] == 1) { return "MIPS little endian / R4000"; }
             if ((int)buffer[0] == 162 && (int)buffer[1] == 1) { return "Hitachi SH3"; }
             if ((int)buffer[0] == 163 && (int)buffer[1] == 1) { return "Hitachi SH3 DSP"; }
@@ -306,7 +306,6 @@ namespace Code
             get
             {
                 string s = "";
-
                 if ((characteristics & 0x001) == 1) s += "Relocs Stripped {0}";
                 if ((characteristics & 0x002) == 2) s += "Executable Image ";
                 if ((characteristics & 0x004) == 0x004) s += "Line Numbers Stripped ";
@@ -323,31 +322,6 @@ namespace Code
                 if ((characteristics & 0x4000) == 0x4000) s += "Uni-Processor Only ";
                 if ((characteristics & 0x8000) == 0x8000) s += "High Bytes Reversed";
                 return s;
-            }
-        }
-        public string IMAGE_FILE_CHARS
-        {
-            get
-            {
-                /*                if((originalThunk&&FILE_FLAGS.IMAGE_FILE_RELOCS_STRIPPED)==	FILE_FLAGS.IMAGE_FILE_RELOCS_STRIPPED)
-                                {
-                                }
-                if((originalThunk&&FILE_FLAGS.IMAGE_FILE_EXECUTABLE_if((FILE_FLAGS&&FILE_FLAGS.IMAGE	)=	FILE_FLAGS.IMAGE_FILE_EXECUTABLE_Characteristics_Flags.IMAGE){}
-                if((FILE_FLAGS&&FILE_FLAGS.IMAGE_FILE_LINE_NUMS_STRIPPED	)=	FILE_FLAGS.IMAGE_FILE_LINE_NUMS_STRIPPED
-                if((FILE_FLAGS&&FILE_FLAGS.IMAGE_FILE_LOCAL_SYMS_STRIPPED	)=	FILE_FLAGS.IMAGE_FILE_LOCAL_SYMS_STRIPPED
-                if((FILE_FLAGS&&FILE_FLAGS.IMAGE_FILE_AGGRESSIVE_WS_TRIM	)=	FILE_FLAGS.IMAGE_FILE_AGGRESSIVE_WS_TRIM
-                if((FILE_FLAGS&&FILE_FLAGS.IMAGE_FILE_LARGE_ADDRESS_ AWARE	)=	FILE_FLAGS.IMAGE_FILE_LARGE_ADDRESS_ AWARE
-                if((FILE_FLAGS&&FILE_FLAGS.IMAGE_FILE_BYTES_REVERSED_LO	)=	FILE_FLAGS.IMAGE_FILE_BYTES_REVERSED_LO
-                if((FILE_FLAGS&&FILE_FLAGS.IMAGE_FILE_32BIT_MACHINE	)=	FILE_FLAGS.IMAGE_FILE_32BIT_MACHINE
-                if((FILE_FLAGS&&FILE_FLAGS.IMAGE_FILE_DEBUG_STRIPPED	)=	FILE_FLAGS.IMAGE_FILE_DEBUG_STRIPPED
-                if((FILE_FLAGS&&FILE_FLAGS.IMAGE_FILE_REMOVABLE_RUN_ FROM_SWAP	)=	FILE_FLAGS.IMAGE_FILE_REMOVABLE_RUN_ FROM_SWAP
-                if((FILE_FLAGS&&FILE_FLAGS.IMAGE_FILE_NET_RUN_FROM_SWAP	)=	FILE_FLAGS.IMAGE_FILE_NET_RUN_FROM_SWAP
-                if((FILE_FLAGS&&FILE_FLAGS.IMAGE_FILE_SYSTEM	)=	FILE_FLAGS.IMAGE_FILE_SYSTEM
-                if((FILE_FLAGS&&FILE_FLAGS.IMAGE_FILE_DLL	)=	FILE_FLAGS.IMAGE_FILE_DLL
-                if((FILE_FLAGS&&FILE_FLAGS.IMAGE_FILE_UP_SYSTEM_ONLY	)=	FILE_FLAGS.IMAGE_FILE_UP_SYSTEM_ONLY
-                if((FILE_FLAGS&&FILE_FLAGS.IMAGE_FILE_BYTES_REVERSED_HI	)=	FILE_FLAGS.IMAGE_FILE_BYTES_REVERSED_HI
-                */
-                return "";
             }
         }
         public IMAGE_FILE_HEADER(BinaryFileReader sw)
@@ -2479,7 +2453,6 @@ namespace Code
             LengthInFile = sw.Position - PositionOfStructureInFile;
         }
     }
-
     #endregion
     #region Icons
     public class ICOHEADER : IMAGE_BASE_DATA

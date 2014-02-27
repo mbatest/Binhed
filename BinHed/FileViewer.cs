@@ -115,7 +115,7 @@ namespace BinHed
                                             else
                                             {
                                                 string details = "";
-                                                if (x.GetType().Name == "String")
+                                                if ((x.GetType().Name == "String")||(x.GetType().Name == "CodeLine"))
 
                                                     details = x.ToString();
                                                 else
@@ -129,6 +129,20 @@ namespace BinHed
                                         }
                                     }
                                 }
+                                else if (v.PropertyType.Name.Contains("Nullable"))
+                                {
+                                    Type[] tp = v.PropertyType.GetGenericArguments();
+                                    var a = currentNode.GetType().GetProperty(v.Name).GetValue(currentNode, null);
+                                    switch (tp[0].Name)
+                                    {
+                                        case "DateTime":
+                                            TreeNode ts = new TreeNode(v.Name + " "+ a.ToString(), 0, 1);
+                                            ts.Tag = v;
+                                            root.Nodes.Add(ts);
+                                            break;
+                                    }
+                                }
+
                                 #endregion
                             }
                             else
@@ -190,17 +204,26 @@ namespace BinHed
                                     #endregion
                                     default:
                                         #region class type
-                                        if (v.PropertyType.Name == "ELEMENTARY_TYPE")
+                                        switch (v.PropertyType.Name)
                                         {
-                                            s += currentNode.GetType().GetProperty(v.Name).GetValue(currentNode, null).ToString();
+                                            case "Boolean":
+                                            case "ELEMENTARY_TYPE":
+                                                s += currentNode.GetType().GetProperty(v.Name).GetValue(currentNode, null).ToString();
+                                                break;
+                                            case "DateTime":
+                                                s += currentNode.GetType().GetProperty(v.Name).GetValue(currentNode, null).ToString();
+                                                break;
+                                            case "Instruction":
+                                                 s += currentNode.GetType().GetProperty(v.Name).GetValue(currentNode, null).ToString();
+                                               break;
+                                            case "CodeLigne":
+                                               s += currentNode.GetType().GetProperty(v.Name).GetValue(currentNode, null).ToString();
+                                               break;
                                         }
-                                        else
-                                        {
-                                     //     var x=  currentNode.GetType().GetProperty(v.Name);
-                                      //    TreeNode tn = new TreeNode(x.Name, 0, 1);
-                                       //   tn.Tag = x;
-                                      //    root.Nodes.Add(tn);
-                                        }
+                                        //    var x=  currentNode.GetType().GetProperty(v.Name);
+                                        //    TreeNode tn = new TreeNode(x.Name, 0, 1);
+                                        //    tn.Tag = x;
+                                        //    root.Nodes.Add(tn);
                                         #endregion
                                         break;
                                 }

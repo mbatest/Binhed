@@ -21,7 +21,7 @@ namespace Code
         public CodeLine cdLine;
         public bool Contains(long address)
         {
-            return ((startAddress<=address)&(address<endAddress));
+            return ((startAddress <= address) & (address < endAddress));
         }
         public void setEnd(long e)
         {
@@ -83,7 +83,7 @@ namespace Code
             codeBase = codeB;
             blocName = name;
         }
-     }
+    }
     public class Disassemble : IMAGE_BASE_DATA
     {
         Executable exe;
@@ -116,7 +116,7 @@ namespace Code
                 return l;
             }
         }
-        private static void ReadOpCode()
+        public static void ReadOpCode()
         {
             string codeFile = "x86code.dat";
             if (File.Exists(codeFile))
@@ -167,12 +167,14 @@ namespace Code
             ReadOpCode();
             lines.Clear();
             this.exe = exe;
-     //       InitData(sw);
+            //       InitData(sw);
             byte[] buffer = InitData(exe, sw);
             if (buffer == null)
                 return;
             CallAdress c = new CallAdress(addressOfEntryPoint, addressOfEntryPoint, codeBase, false, null);
-            ParseInstructionsFollowCalls32(buffer, c, "");
+ //           ParseInstructionsFollowCalls32Old(buffer, c, "");
+            BitStreamReader sb = new BitStreamReader(buffer, true);
+            ParseInstructionsFollowCalls32(sb, c, "");
             while (calls.Count > 0)
             {
                 #region Main loop
@@ -181,18 +183,18 @@ namespace Code
                 if ((st >= addressOfEntryPoint) & (st < endCode))
                 {
                     CodeLine cdl;
-                    if(!lines.TryGetValue(c.startAddress, out cdl))
+                    if (!lines.TryGetValue(c.startAddress, out cdl))
                     {
                         try
-                            {
-                                int count = ParseInstructionsFollowCalls32(buffer, c, "");
-                                if (lines.Count > 10000)
-                                    return;
-                            }
-                            catch
-                            {
-                                Trace.WriteLine(c.realAddress);
-                            }
+                        {
+                            int count = ParseInstructionsFollowCalls32(sb, c, "");
+                            if (lines.Count > 10000)
+                                return;
+                        }
+                        catch
+                        {
+                            Trace.WriteLine(c.realAddress);
+                        }
                     }
                 }
                 #endregion
@@ -223,7 +225,7 @@ namespace Code
                     {
                         foreach (CodeLine cx in lines.Values)
                         {
-                            if (cx.PositionOfStructureInFile > addr )
+                            if (cx.PositionOfStructureInFile > addr)
                             {
                                 nextAddr = cx.PositionOfStructureInFile;
                                 break;
@@ -244,8 +246,8 @@ namespace Code
                         }
                         else
                         {
-          //                  int strLength = 4;
-         //                   SortData(codeBuffer, addr, strLength);
+                            //                  int strLength = 4;
+                            //                   SortData(codeBuffer, addr, strLength);
                         }
                     }
                 }
@@ -295,7 +297,7 @@ namespace Code
             }
             if (end == 0)
             {
-                lines.Add(addr + codeBase, new CodeLine(addr, dat, "Filling", addr));
+                lines.Add(addr + codeBase, new CodeLine(dat, addr, "Filling", addr));
             }
             else
                 switch (dat[end])
@@ -312,7 +314,7 @@ namespace Code
                             g = Encoding.Default.GetString(dat);
                         try
                         {
-                            lines.Add(addr + codeBase, new CodeLine(addr, dat, g, addr));
+                            lines.Add(addr + codeBase, new CodeLine(dat, addr, g, addr));
                         }
                         catch { }
                         #endregion
@@ -346,11 +348,11 @@ namespace Code
                         }
                     if (x >= (int)exe.NT_Headers.OptionalHeader.ImageBase + (int)exe.NT_Headers.OptionalHeader.BaseOfCode)
                     {
-                      //  txt = "L" + x.ToString("x8") + " - label";
+                        //  txt = "L" + x.ToString("x8") + " - label";
                     }
                     try
                     {
-                        lines.Add(addr + codeBase + z * 4, new CodeLine(addr + z * 4, word, txt, addr + z * 4));
+                        lines.Add(addr + codeBase + z * 4, new CodeLine(word, addr + z * 4, txt, addr + z * 4));
                     }
                     catch
                     {
@@ -360,11 +362,11 @@ namespace Code
             }
             else
             {
-                lines.Add(addr + codeBase, new CodeLine(addr, dat, "raw data", addr));
+                lines.Add(addr + codeBase, new CodeLine(dat, addr, "raw data", addr));
             }
             #endregion
         }
-        private void InitData(BinaryFileReader sw)
+        private void InitData(BitStreamReader sw)
         {
             #region Init
             code = new List<CodeLine>();
@@ -372,7 +374,7 @@ namespace Code
             codeBase = exe.NT_Headers.OptionalHeader.BaseOfCode;
             imageBase = exe.NT_Headers.OptionalHeader.ImageBase;
             byte[] codeBuffer = null;
-            long p = sw.Position;
+            int p = sw.Position;
             foreach (IMAGE_SECTION_HEADER hd in exe.Sections.Sections)
             {
                 if (hd.Name.Contains(".text"))
@@ -393,7 +395,7 @@ namespace Code
                 blocList.Add(new Bloc(exe.IAT.startIAT, exe.IAT.endIAT));
                 foreach (IMAGE_IMPORT_DIRECTORY_IAT_ENTRY imat in exe.IAT.IATEntries)
                 {
-                    CodeLine cd = new CodeLine(imat.Address - exe.NT_Headers.OptionalHeader.SizeOfHeaders, imat.ArrayPointer, imat.Name, imat.PositionOfStructureInFile);
+                    CodeLine cd = new CodeLine(imat.ArrayPointer, imat.Address - exe.NT_Headers.OptionalHeader.SizeOfHeaders, imat.Name, imat.PositionOfStructureInFile);
                     lines.Add(imat.Address - exe.NT_Headers.OptionalHeader.SizeOfHeaders + codeBase, cd);
                 }
             }
@@ -410,37 +412,37 @@ namespace Code
                     for (int j = 0; j < 5; j++)
                     {
                         byte[] buf = sw.ReadBytes(4);
-                        lines.Add(position + codeBase - exe.NT_Headers.OptionalHeader.SizeOfHeaders, new CodeLine(sw.Position - 4 - exe.NT_Headers.OptionalHeader.SizeOfHeaders, buf, names[j], position));
+                        lines.Add(position + codeBase - exe.NT_Headers.OptionalHeader.SizeOfHeaders, new CodeLine(buf, sw.Position - 4 - exe.NT_Headers.OptionalHeader.SizeOfHeaders, names[j], position));
                         position += 4;
                     }
                 }
                 for (int j = 0; j < 5; j++)
                 {
                     byte[] buf = sw.ReadBytes(4);
-                    lines.Add(position + codeBase - exe.NT_Headers.OptionalHeader.SizeOfHeaders, new CodeLine(position - exe.NT_Headers.OptionalHeader.SizeOfHeaders, buf, "End of table", position));
+                    lines.Add(position + codeBase - exe.NT_Headers.OptionalHeader.SizeOfHeaders, new CodeLine(buf, position - exe.NT_Headers.OptionalHeader.SizeOfHeaders, "End of table", position));
                     position += 4;
                 }
                 foreach (IMAGE_IMPORT_DESCRIPTOR id in exe.DataDirs[1].Import.Descriptors)
                 {
-                    lines.Add(id.name, new CodeLine(id.name - codeBase, Encoding.Default.GetBytes(id.Name), id.Name, id.name - exe.NT_Headers.OptionalHeader.SizeOfHeaders));
+                    lines.Add(id.name, new CodeLine(Encoding.Default.GetBytes(id.Name), id.name - codeBase, id.Name, id.name - exe.NT_Headers.OptionalHeader.SizeOfHeaders));
                 }
                 foreach (IMAGE_IMPORT_DESCRIPTOR id in exe.DataDirs[1].Import.Descriptors)
                 {
                     #region Thunk details
                     position = id.originalThunk;
- //                   if (position - codeBase < codeBuffer.Length)// true only if Import is in .text
+                    //                   if (position - codeBase < codeBuffer.Length)// true only if Import is in .text
                     {
-                        sw.Position = position - exe.NT_Headers.OptionalHeader.SizeOfHeaders;
+                        sw.Position = (int) position - exe.NT_Headers.OptionalHeader.SizeOfHeaders;
                         for (int i = 0; i < id.FirstThunks.Count; i++)
                         {
                             byte[] buf = new byte[4];
                             Buffer.BlockCopy(codeBuffer, (int)position - codeBase, buf, 0, 4);
-                            lines.Add(position, new CodeLine(position - codeBase, buf, "Thunk " + i.ToString(), position));
+                            lines.Add(position, new CodeLine(buf, position - codeBase, "Thunk " + i.ToString(), position));
                             position += 4;
                         }
                         byte[] buff = new byte[4];
                         Buffer.BlockCopy(codeBuffer, (int)position - codeBase, buff, 0, 4);
-                        lines.Add(position, new CodeLine(position - codeBase, buff, "Filling ", position));
+                        lines.Add(position, new CodeLine(buff, position - codeBase, "Filling ", position));
                         foreach (IMAGE_THUNK_DATA imt in id.FirstThunks)
                         {
                             position = imt.Function;
@@ -449,7 +451,7 @@ namespace Code
                                 {
                                     byte[] y = Encoding.Default.GetBytes(imt.AddressOfData.Name);
                                     lines.Add(imt.Function, new CodeLine(imt.Function - codeBase, imt.AddressOfData.Hint, imt.AddressOfData.Hint.ToString("x4"), imt.Function));
-                                    lines.Add(imt.Function + 2, new CodeLine(imt.Function + 2 - codeBase, Encoding.Default.GetBytes(imt.AddressOfData.Name), imt.AddressOfData.Name, imt.Function + 2));
+                                    lines.Add(imt.Function + 2, new CodeLine(Encoding.Default.GetBytes(imt.AddressOfData.Name), imt.Function + 2 - codeBase, imt.AddressOfData.Name, imt.Function + 2));
                                     lines.Add(imt.Function + 2 + imt.AddressOfData.Name.Length, new CodeLine(imt.Function + imt.AddressOfData.Name.Length - codeBase, 0, "", imt.Function + 2 + imt.AddressOfData.Name.Length));
                                     position = imt.Function + imt.AddressOfData.Name.Length;
                                 }
@@ -474,28 +476,28 @@ namespace Code
                 {
                     byte[] dat = new byte[4];
                     Buffer.BlockCopy(codeBuffer, indes - codeBase, dat, 0, dat.Length);
-                    lines.Add(indes, new CodeLine(indes - codeBase, dat, names[i], indes));
+                    lines.Add(indes, new CodeLine(dat, indes - codeBase, names[i], indes));
                     indes += 4;
                 }
                 for (int i = 0; i < exe.DataDirs[0].Export.NumberOfFunctions; i++)
                 {
                     byte[] dat = new byte[4];
                     Buffer.BlockCopy(codeBuffer, indes - codeBase, dat, 0, dat.Length);
-                    lines.Add(indes, new CodeLine(indes - codeBase, dat, "Address of Function", indes));
+                    lines.Add(indes, new CodeLine(dat, indes - codeBase, "Address of Function", indes));
                     indes += 4;
                 }
                 for (int i = 0; i < exe.DataDirs[0].Export.NumberOfNames; i++)
                 {
                     byte[] dat = new byte[4];
                     Buffer.BlockCopy(codeBuffer, indes - codeBase, dat, 0, dat.Length);
-                    lines.Add(indes, new CodeLine(indes - codeBase, dat, "Address of Name", indes));
+                    lines.Add(indes, new CodeLine(dat, indes - codeBase, "Address of Name", indes));
                     indes += 4;
                 }
                 for (int i = 0; i < exe.DataDirs[0].Export.NumberOfFunctions; i++)
                 {
                     byte[] dat = new byte[4];
                     Buffer.BlockCopy(codeBuffer, indes - codeBase, dat, 0, dat.Length);
-                    lines.Add(indes, new CodeLine(indes - codeBase, dat, "Ordinal", indes));
+                    lines.Add(indes, new CodeLine(dat, indes - codeBase, "Ordinal", indes));
                     indes += 4;
                 }
                 int x = codeBuffer[exe.DataDirs[0].Export.AddressOfName - codeBase];
@@ -508,7 +510,7 @@ namespace Code
                 }
                 try
                 {
-                    lines.Add(exe.DataDirs[0].Export.AddressOfName, new CodeLine(exe.DataDirs[0].Export.AddressOfName - codeBase, a.ToArray(), Encoding.Default.GetString(a.ToArray()), indes));
+                    lines.Add(exe.DataDirs[0].Export.AddressOfName, new CodeLine(a.ToArray(), exe.DataDirs[0].Export.AddressOfName - codeBase, Encoding.Default.GetString(a.ToArray()), indes));
                 }
                 catch { }
                 foreach (EXPORTED_FUNCTION exf in exe.DataDirs[0].Export.Exports)
@@ -516,9 +518,9 @@ namespace Code
                     CallAdress d = new CallAdress(exf.addressOfFunction, exf.addressOfFunction, codeBase, false, null);
                     try
                     {
-                        lines.Add(exf.addressOfName, new CodeLine(exf.addressOfName - codeBase, Encoding.Default.GetBytes(exf.Name), exf.Name, exf.addressOfName));
+                        lines.Add(exf.addressOfName, new CodeLine(Encoding.Default.GetBytes(exf.Name), exf.addressOfName - codeBase, exf.Name, exf.addressOfName));
                         indes = exf.addressOfName + exf.Name.Length * 2;
-                        ParseInstructionsFollowCalls32(codeBuffer, d, exf.Name);
+                        ParseInstructionsFollowCalls32(sw, d, exf.Name);
                     }
                     catch { }
                 }
@@ -536,7 +538,7 @@ namespace Code
                     {
                         byte[] buf = new byte[4];
                         Buffer.BlockCopy(codeBuffer, startConfig - codeBase + 4 * i, buf, 0, 4);
-                        lines.Add(startConfig + 4 * i, new CodeLine(startConfig - codeBase + 4 * i, buf, "Config table", startConfig));
+                        lines.Add(startConfig + 4 * i, new CodeLine(buf, startConfig - codeBase + 4 * i, "Config table", startConfig));
                     }
                 }
             }
@@ -564,36 +566,36 @@ namespace Code
                         IMAGE_DEBUG_DIRECTORY dbg = new IMAGE_DEBUG_DIRECTORY();
                         byte[] buf = new byte[4];
                         Buffer.BlockCopy(codeBuffer, ind - codeBase, buf, 0, 4);
-                        lines.Add(ind, new CodeLine(ind - codeBase, buf, "characteristics", ind));
+                        lines.Add(ind, new CodeLine(buf, ind - codeBase, "characteristics", ind));
                         dbg.characteristics = BitConverter.ToInt32(buf, 0);
                         ind += 4;
                         buf = new byte[4];
                         Buffer.BlockCopy(codeBuffer, ind - codeBase, buf, 0, 4);
-                        lines.Add(ind, new CodeLine(ind - codeBase, buf, "time stamp", ind));
+                        lines.Add(ind, new CodeLine(buf, ind - codeBase, "time stamp", ind));
                         dbg.timeDateStamp = BitConverter.ToInt32(buf, 0);
                         ind += 4;
                         buf = new byte[4];
                         Buffer.BlockCopy(codeBuffer, ind - codeBase, buf, 0, 4);
-                        lines.Add(ind, new CodeLine(ind - codeBase, buf, "version", ind));
+                        lines.Add(ind, new CodeLine(buf, ind - codeBase, "version", ind));
                         ind += 4;
                         buf = new byte[4];
                         Buffer.BlockCopy(codeBuffer, ind - codeBase, buf, 0, 4);
-                        lines.Add(ind, new CodeLine(ind - codeBase, buf, ((IMAGE_DEBUG)BitConverter.ToInt32(buf, 0)).ToString(), ind));
+                        lines.Add(ind, new CodeLine(buf, ind - codeBase, ((IMAGE_DEBUG)BitConverter.ToInt32(buf, 0)).ToString(), ind));
                         dbg.Type = BitConverter.ToInt32(buf, 0);
                         ind += 4;
                         buf = new byte[4];
                         Buffer.BlockCopy(codeBuffer, ind - codeBase, buf, 0, 4);
-                        lines.Add(ind, new CodeLine(ind - codeBase, buf, "size of data", ind));
+                        lines.Add(ind, new CodeLine(buf, ind - codeBase, "size of data", ind));
                         dbg.SizeOfData = BitConverter.ToInt32(buf, 0);
                         ind += 4;
                         buf = new byte[4];
                         Buffer.BlockCopy(codeBuffer, ind - codeBase, buf, 0, 4);
-                        lines.Add(ind, new CodeLine(ind - codeBase, buf, "address of data", ind));
+                        lines.Add(ind, new CodeLine(buf, ind - codeBase, "address of data", ind));
                         dbg.AddressOfRawData = BitConverter.ToInt32(buf, 0);
                         ind += 4;
                         buf = new byte[4];
                         Buffer.BlockCopy(codeBuffer, ind - codeBase, buf, 0, 4);
-                        lines.Add(ind, new CodeLine(ind - codeBase, buf, "pointer to data", ind));
+                        lines.Add(ind, new CodeLine(buf, ind - codeBase, "pointer to data", ind));
                         dbg.PointerToRawData = BitConverter.ToInt32(buf, 0);
                         ind += 4;
                         imdeb.Add(dbg.AddressOfRawData, dbg);
@@ -608,7 +610,7 @@ namespace Code
                                 Buffer.BlockCopy(codeBuffer, dbg.AddressOfRawData - codeBase, buf, 0, buf.Length);
                                 BitStreamReader ms = new BitStreamReader(buf, false);
                                 string signature = ms.ReadString(4);
-                                lines.Add(dbg.AddressOfRawData + ms.Position - 4, new CodeLine(dbg.AddressOfRawData + ms.Position - 4 - codeBase, Encoding.Default.GetBytes(signature), signature, dbg.AddressOfRawData));
+                                lines.Add(dbg.AddressOfRawData + ms.Position - 4, new CodeLine(Encoding.Default.GetBytes(signature), dbg.AddressOfRawData + ms.Position - 4 - codeBase, signature, dbg.AddressOfRawData));
                                 int Offset = ms.ReadInteger();
                                 lines.Add(dbg.AddressOfRawData + ms.Position - 4, new CodeLine(dbg.AddressOfRawData + ms.Position - 4 - codeBase, Offset, Offset.ToString("x8"), dbg.AddressOfRawData));
                                 int Timestamp = ms.ReadInteger();
@@ -624,14 +626,14 @@ namespace Code
                                     try
                                     {
                                         string dt = ms.ReadString();
-                                        lines.Add(dbg.AddressOfRawData + ms.Position - dt.Length - 1, new CodeLine(dbg.AddressOfRawData + ms.Position - dt.Length - 1 - codeBase, buf, dt, dbg.AddressOfRawData));
+                                        lines.Add(dbg.AddressOfRawData + ms.Position - dt.Length - 1, new CodeLine(buf, dbg.AddressOfRawData + ms.Position - dt.Length - 1 - codeBase, dt, dbg.AddressOfRawData));
                                     }
                                     catch { }
                                 }
                                 break;
                             default:
                                 Buffer.BlockCopy(codeBuffer, dbg.AddressOfRawData - codeBase, buf, 0, dbg.SizeOfData);
-                                lines.Add(dbg.AddressOfRawData, new CodeLine(dbg.AddressOfRawData - codeBase, buf, "Debug data : " + dbg.AddressOfRawData.ToString("x8"), dbg.AddressOfRawData));
+                                lines.Add(dbg.AddressOfRawData, new CodeLine(buf, dbg.AddressOfRawData - codeBase, "Debug data : " + dbg.AddressOfRawData.ToString("x8"), dbg.AddressOfRawData));
                                 break;
                         }
                     }
@@ -639,7 +641,6 @@ namespace Code
             }
             #endregion
         }
-
         private byte[] InitData(Executable exe, BinaryFileReader sw)
         {
             #region Init
@@ -671,7 +672,7 @@ namespace Code
                 blocList.Add(new Bloc(exe.IAT.startIAT, exe.IAT.endIAT));
                 foreach (IMAGE_IMPORT_DIRECTORY_IAT_ENTRY imat in exe.IAT.IATEntries)
                 {
-                    CodeLine cd = new CodeLine(imat.Address - exe.NT_Headers.OptionalHeader.SizeOfHeaders, imat.ArrayPointer, imat.Name, imat.Address);
+                    CodeLine cd = new CodeLine(imat.ArrayPointer, imat.Address - exe.NT_Headers.OptionalHeader.SizeOfHeaders, imat.Name, imat.Address);
                     lines.Add(imat.Address - exe.NT_Headers.OptionalHeader.SizeOfHeaders + codeBase, cd);
                 }
             }
@@ -691,7 +692,7 @@ namespace Code
                         {
                             byte[] buf = new byte[4];
                             Buffer.BlockCopy(codeBuffer, (int)position - exe.NT_Headers.OptionalHeader.SizeOfHeaders, buf, 0, 4);
-                            lines.Add(position + codeBase - exe.NT_Headers.OptionalHeader.SizeOfHeaders, new CodeLine(position - exe.NT_Headers.OptionalHeader.SizeOfHeaders, buf, names[j], position));
+                            lines.Add(position + codeBase - exe.NT_Headers.OptionalHeader.SizeOfHeaders, new CodeLine(buf, position - exe.NT_Headers.OptionalHeader.SizeOfHeaders, names[j], position));
                             position += 4;
                         }
                     }
@@ -699,12 +700,12 @@ namespace Code
                     {
                         byte[] buf = new byte[4];
                         Buffer.BlockCopy(codeBuffer, (int)position - exe.NT_Headers.OptionalHeader.SizeOfHeaders, buf, 0, 4);
-                        lines.Add(position + codeBase - exe.NT_Headers.OptionalHeader.SizeOfHeaders, new CodeLine(position - exe.NT_Headers.OptionalHeader.SizeOfHeaders, buf, "End of table", position));
+                        lines.Add(position + codeBase - exe.NT_Headers.OptionalHeader.SizeOfHeaders, new CodeLine(buf, position - exe.NT_Headers.OptionalHeader.SizeOfHeaders, "End of table", position));
                         position += 4;
                     }
                     foreach (IMAGE_IMPORT_DESCRIPTOR id in exe.DataDirs[1].Import.Descriptors)
                     {
-                        lines.Add(id.name, new CodeLine(id.name - codeBase, Encoding.Default.GetBytes(id.Name), id.Name, position));
+                        lines.Add(id.name, new CodeLine(Encoding.Default.GetBytes(id.Name), id.name - codeBase, id.Name, position));
                     }
                 }
                 foreach (IMAGE_IMPORT_DESCRIPTOR id in exe.DataDirs[1].Import.Descriptors)
@@ -717,12 +718,12 @@ namespace Code
                         {
                             byte[] buf = new byte[4];
                             Buffer.BlockCopy(codeBuffer, (int)position - codeBase, buf, 0, 4);
-                            lines.Add(position, new CodeLine(position - codeBase, buf, "Thunk " + i.ToString(), position));
+                            lines.Add(position, new CodeLine(buf, position - codeBase, "Thunk " + i.ToString(), position));
                             position += 4;
                         }
                         byte[] buff = new byte[4];
                         Buffer.BlockCopy(codeBuffer, (int)position - codeBase, buff, 0, 4);
-                        lines.Add(position, new CodeLine(position - codeBase, buff, "Filling ", position));
+                        lines.Add(position, new CodeLine(buff, position - codeBase, "Filling ", position));
                         foreach (IMAGE_THUNK_DATA imt in id.FirstThunks)
                         {
                             position = imt.Function;
@@ -730,11 +731,11 @@ namespace Code
                                 if (imt.AddressOfData.Name != "")
                                 {
                                     byte[] y = Encoding.Default.GetBytes(imt.AddressOfData.Name);
-                                    lines.Add(imt.Function, new CodeLine(imt.Function - codeBase,BitConverter.GetBytes( imt.AddressOfData.Hint), imt.AddressOfData.Hint.ToString("x4"), position));
+                                    lines.Add(imt.Function, new CodeLine(BitConverter.GetBytes(imt.AddressOfData.Hint), imt.Function - codeBase, imt.AddressOfData.Hint.ToString("x4"), position));
                                     position += 2;
-                                    lines.Add(imt.Function + 2, new CodeLine(position - codeBase, Encoding.Default.GetBytes(imt.AddressOfData.Name), imt.AddressOfData.Name, position));
+                                    lines.Add(imt.Function + 2, new CodeLine(Encoding.Default.GetBytes(imt.AddressOfData.Name), position - codeBase, imt.AddressOfData.Name, position));
                                     position += imt.AddressOfData.Name.Length;
-                                    lines.Add(imt.Function + 2 + imt.AddressOfData.Name.Length, new CodeLine(position - codeBase, imt.AddressOfData.filler.ToArray(), "null", position));
+                                    lines.Add(imt.Function + 2 + imt.AddressOfData.Name.Length, new CodeLine(imt.AddressOfData.filler.ToArray(), position - codeBase, "null", position));
                                 }
                         }
                         Bloc b = new Bloc(start, position);
@@ -757,28 +758,28 @@ namespace Code
                 {
                     byte[] dat = new byte[4];
                     Buffer.BlockCopy(codeBuffer, indes - codeBase, dat, 0, dat.Length);
-                    lines.Add(indes, new CodeLine(indes - codeBase, dat, names[i], indes));
+                    lines.Add(indes, new CodeLine(dat, indes - codeBase, names[i], indes));
                     indes += 4;
                 }
                 for (int i = 0; i < exe.DataDirs[0].Export.NumberOfFunctions; i++)
                 {
                     byte[] dat = new byte[4];
                     Buffer.BlockCopy(codeBuffer, indes - codeBase, dat, 0, dat.Length);
-                    lines.Add(indes, new CodeLine(indes - codeBase, dat, "Address of Function", indes));
+                    lines.Add(indes, new CodeLine(dat, indes - codeBase, "Address of Function", indes));
                     indes += 4;
                 }
                 for (int i = 0; i < exe.DataDirs[0].Export.NumberOfNames; i++)
                 {
                     byte[] dat = new byte[4];
                     Buffer.BlockCopy(codeBuffer, indes - codeBase, dat, 0, dat.Length);
-                    lines.Add(indes, new CodeLine(indes - codeBase, dat, "Address of Name", indes));
+                    lines.Add(indes, new CodeLine(dat, indes - codeBase, "Address of Name", indes));
                     indes += 4;
                 }
                 for (int i = 0; i < exe.DataDirs[0].Export.NumberOfFunctions; i++)
                 {
                     byte[] dat = new byte[4];
                     Buffer.BlockCopy(codeBuffer, indes - codeBase, dat, 0, dat.Length);
-                    lines.Add(indes, new CodeLine(indes - codeBase, dat, "Ordinal", indes));
+                    lines.Add(indes, new CodeLine(dat, indes - codeBase, "Ordinal", indes));
                     indes += 4;
                 }
                 int x = codeBuffer[exe.DataDirs[0].Export.AddressOfName - codeBase];
@@ -791,7 +792,7 @@ namespace Code
                 }
                 try
                 {
-                    lines.Add(exe.DataDirs[0].Export.AddressOfName, new CodeLine(exe.DataDirs[0].Export.AddressOfName - codeBase, a.ToArray(), Encoding.Default.GetString(a.ToArray()), indes));
+                    lines.Add(exe.DataDirs[0].Export.AddressOfName, new CodeLine(a.ToArray(), exe.DataDirs[0].Export.AddressOfName - codeBase, Encoding.Default.GetString(a.ToArray()), indes));
                 }
                 catch { }
                 foreach (EXPORTED_FUNCTION exf in exe.DataDirs[0].Export.Exports)
@@ -799,9 +800,9 @@ namespace Code
                     CallAdress d = new CallAdress(exf.addressOfFunction, exf.addressOfFunction, codeBase, false, null);
                     try
                     {
-                        lines.Add(exf.addressOfName, new CodeLine(exf.addressOfName - codeBase, Encoding.Default.GetBytes(exf.Name), exf.Name, exf.addressOfName));
+                        lines.Add(exf.addressOfName, new CodeLine(Encoding.Default.GetBytes(exf.Name), exf.addressOfName - codeBase, exf.Name, exf.addressOfName));
                         indes = exf.addressOfName + exf.Name.Length * 2;
-                        ParseInstructionsFollowCalls32(codeBuffer, d, exf.Name);
+                        ParseInstructionsFollowCalls32(new BitStreamReader(codeBuffer, true), d, exf.Name);
                     }
                     catch { }
                 }
@@ -819,7 +820,7 @@ namespace Code
                     {
                         byte[] buf = new byte[4];
                         Buffer.BlockCopy(codeBuffer, startConfig - codeBase + 4 * i, buf, 0, 4);
-                        lines.Add(startConfig + 4 * i, new CodeLine(startConfig - codeBase + 4 * i, buf, "Config table", startConfig));
+                        lines.Add(startConfig + 4 * i, new CodeLine(buf, startConfig - codeBase + 4 * i, "Config table", startConfig));
                     }
                 }
             }
@@ -839,7 +840,7 @@ namespace Code
             int ind = debugData;
             if (debugSize > 0)
             {
-                if (ind -codeBase < codeBuffer.Length)
+                if (ind - codeBase < codeBuffer.Length)
                 {
                     SortedList<long, IMAGE_DEBUG_DIRECTORY> imdeb = new SortedList<long, IMAGE_DEBUG_DIRECTORY>();
                     while (ind < debugData + debugSize)
@@ -847,36 +848,36 @@ namespace Code
                         IMAGE_DEBUG_DIRECTORY dbg = new IMAGE_DEBUG_DIRECTORY();
                         byte[] buf = new byte[4];
                         Buffer.BlockCopy(codeBuffer, ind - codeBase, buf, 0, 4);
-                        lines.Add(ind, new CodeLine(ind - codeBase, buf, "characteristics", ind));
+                        lines.Add(ind, new CodeLine(buf, ind - codeBase, "characteristics", ind));
                         dbg.characteristics = BitConverter.ToInt32(buf, 0);
                         ind += 4;
                         buf = new byte[4];
                         Buffer.BlockCopy(codeBuffer, ind - codeBase, buf, 0, 4);
-                        lines.Add(ind, new CodeLine(ind - codeBase, buf, "time stamp", ind));
+                        lines.Add(ind, new CodeLine(buf, ind - codeBase, "time stamp", ind));
                         dbg.timeDateStamp = BitConverter.ToInt32(buf, 0);
                         ind += 4;
                         buf = new byte[4];
                         Buffer.BlockCopy(codeBuffer, ind - codeBase, buf, 0, 4);
-                        lines.Add(ind, new CodeLine(ind - codeBase, buf, "version", ind));
+                        lines.Add(ind, new CodeLine(buf, ind - codeBase, "version", ind));
                         ind += 4;
                         buf = new byte[4];
                         Buffer.BlockCopy(codeBuffer, ind - codeBase, buf, 0, 4);
-                        lines.Add(ind, new CodeLine(ind - codeBase, buf, ((IMAGE_DEBUG)BitConverter.ToInt32(buf, 0)).ToString(), ind));
+                        lines.Add(ind, new CodeLine(buf, ind - codeBase, ((IMAGE_DEBUG)BitConverter.ToInt32(buf, 0)).ToString(), ind));
                         dbg.Type = BitConverter.ToInt32(buf, 0);
                         ind += 4;
                         buf = new byte[4];
                         Buffer.BlockCopy(codeBuffer, ind - codeBase, buf, 0, 4);
-                        lines.Add(ind, new CodeLine(ind - codeBase, buf, "size of data", ind));
+                        lines.Add(ind, new CodeLine(buf, ind - codeBase, "size of data", ind));
                         dbg.SizeOfData = BitConverter.ToInt32(buf, 0);
                         ind += 4;
                         buf = new byte[4];
                         Buffer.BlockCopy(codeBuffer, ind - codeBase, buf, 0, 4);
-                        lines.Add(ind, new CodeLine(ind - codeBase, buf, "address of data", ind));
+                        lines.Add(ind, new CodeLine(buf, ind - codeBase, "address of data", ind));
                         dbg.AddressOfRawData = BitConverter.ToInt32(buf, 0);
                         ind += 4;
                         buf = new byte[4];
                         Buffer.BlockCopy(codeBuffer, ind - codeBase, buf, 0, 4);
-                        lines.Add(ind, new CodeLine(ind - codeBase, buf, "pointer to data", ind));
+                        lines.Add(ind, new CodeLine(buf, ind - codeBase, "pointer to data", ind));
                         dbg.PointerToRawData = BitConverter.ToInt32(buf, 0);
                         ind += 4;
                         imdeb.Add(dbg.AddressOfRawData, dbg);
@@ -891,7 +892,7 @@ namespace Code
                                 Buffer.BlockCopy(codeBuffer, dbg.AddressOfRawData - codeBase, buf, 0, buf.Length);
                                 BitStreamReader ms = new BitStreamReader(buf, false);
                                 string signature = ms.ReadString(4);
-                                lines.Add(dbg.AddressOfRawData + ms.Position - 4, new CodeLine(dbg.AddressOfRawData + ms.Position - 4 - codeBase, Encoding.Default.GetBytes(signature), signature, dbg.AddressOfRawData));
+                                lines.Add(dbg.AddressOfRawData + ms.Position - 4, new CodeLine(Encoding.Default.GetBytes(signature), dbg.AddressOfRawData + ms.Position - 4 - codeBase, signature, dbg.AddressOfRawData));
                                 int Offset = ms.ReadInteger();
                                 lines.Add(dbg.AddressOfRawData + ms.Position - 4, new CodeLine(dbg.AddressOfRawData + ms.Position - 4 - codeBase, Offset, Offset.ToString("x8"), dbg.AddressOfRawData));
                                 int Timestamp = ms.ReadInteger();
@@ -907,14 +908,14 @@ namespace Code
                                     try
                                     {
                                         string dt = ms.ReadString();
-                                        lines.Add(dbg.AddressOfRawData + ms.Position - dt.Length - 1, new CodeLine(dbg.AddressOfRawData + ms.Position - dt.Length - 1 - codeBase, buf, dt, dbg.AddressOfRawData));
+                                        lines.Add(dbg.AddressOfRawData + ms.Position - dt.Length - 1, new CodeLine(buf, dbg.AddressOfRawData + ms.Position - dt.Length - 1 - codeBase, dt, dbg.AddressOfRawData));
                                     }
                                     catch { }
                                 }
                                 break;
                             default:
                                 Buffer.BlockCopy(codeBuffer, dbg.AddressOfRawData - codeBase, buf, 0, dbg.SizeOfData);
-                                lines.Add(dbg.AddressOfRawData, new CodeLine(dbg.AddressOfRawData - codeBase, buf, "Debug data : " + dbg.AddressOfRawData.ToString("x8"), dbg.AddressOfRawData));
+                                lines.Add(dbg.AddressOfRawData, new CodeLine(buf, dbg.AddressOfRawData - codeBase, "Debug data : " + dbg.AddressOfRawData.ToString("x8"), dbg.AddressOfRawData));
                                 break;
                         }
                     }
@@ -923,7 +924,7 @@ namespace Code
             #endregion
             return codeBuffer;
         }
-        private int ParseInstructionsFollowCalls32(byte[] buffer, CallAdress c, string blocName)
+        private int ParseInstructionsFollowCalls32Old(byte[] buffer, CallAdress c, string blocName)
         {
             //http://wiki.osdev.org/X86_Instruction_Encoding
             int count = 0;
@@ -935,23 +936,22 @@ namespace Code
             {
                 foreach (Bloc b in blocList)
                 {
-                    if (b.Contains(index+codeBase))
+                    if (b.Contains(index + codeBase))
                         return count;
                 }
-
-                if ((buffer[index] == 0x90) & (buffer[index + 1] == 0x90))        
+                if ((buffer[index] == 0x90) & (buffer[index + 1] == 0x90))
                     break;
+                #region Base parameters
                 int position;
                 bool twoByte;
                 byte[] displacement;
                 byte[] immediateOperand;
                 CodeLine cd;
-                #region
                 position = index;
                 int operandSize = 4;
-                int FPU = 0;
-                byte prefix = 0;
-                int opcode;
+                byte FPU = 0;
+                List<byte> prefix = new List<byte>();
+                byte opcode;
                 bool HasModRm = false;
                 bool HasSib = false;
                 byte modRM = 0xff;
@@ -977,7 +977,7 @@ namespace Code
                         index++;
                         break;
                     }
-                    prefix = buffer[index];
+                    prefix.Add(buffer[index]);
                     index++;
                 }
                 #endregion
@@ -1039,14 +1039,14 @@ namespace Code
                     }
                 }
                 #endregion
-                #region SIB
-                int SIB = -1;
+                #region Scale_Index_Base
+                byte Scale_Index_Base = 0xff;
                 if ((modRM & 0x07) == 0x04 &&
                    (modRM & 0xC0) != 0xC0)
                 {
                     HasSib = true;
-                    SIB = buffer[index];
-                    index++;   // SIB
+                    Scale_Index_Base = buffer[index];
+                    index++;   // Scale_Index_Base
                 }
                 #endregion
                 #region Displacement
@@ -1160,18 +1160,18 @@ namespace Code
                 #region Identify instruction
                 Instruction ins = null;
                 int regNum = 0;
-                if(position==0x33e)
-                {}
+                if (position == 0x33e)
+                { }
                 int selectedIndex = 0;
                 currentCode = opcode;
                 if (twoByte)
-                    opcode = 0x0F * 256 + opcode;
+                    opcode = (byte)(0x0F * 256 + opcode);
                 try
                 {
                     ins = GetInstructionFromOpCode(prefix, FPU, opcode, modRM, out regNum, out selectedIndex);
                 }
                 catch { }
-                cd = new CodeLine(position, codeBase + imageBase, ins, prefix, FPU, opcode, HasModRm, modRM, SIB, displacement, immediateOperand, function, opcodeExtension, regNum, selectedIndex, position);
+                cd = new CodeLine(position, codeBase + imageBase, ins, prefix, FPU, opcode, HasModRm, modRM, Scale_Index_Base, displacement, immediateOperand, function, opcodeExtension, regNum, selectedIndex, position);
                 code.Add(cd);
                 try
                 {
@@ -1217,11 +1217,11 @@ namespace Code
                                     adress = new CallAdress(position, c.codeBase + index + BitConverter.ToInt32(cd.immediateOperand, 0), c.codeBase, true, cd);
                                 break;
                             case 0xFF:// call ms/m ou Jmp
-                                if (cd.displacement.Length ==4)                                
+                                if (cd.displacement.Length == 4)
                                     adress = new CallAdress(position, BitConverter.ToInt32(cd.displacement, 0), c.codeBase, true, cd);
                                 break;
                             default:
-                                if (cd.displacement.Length ==40)
+                                if (cd.displacement.Length == 40)
                                     adress = new CallAdress(position, c.codeBase + index + BitConverter.ToInt32(cd.displacement, 0), c.codeBase, true, cd);
                                 break;
                         }
@@ -1244,17 +1244,17 @@ namespace Code
                         #region Jump
                         if (cd.ToString().Contains("JMP"))
                         {
-                   /*         c.setEnd(index);
-                            try
-                            {
-                                blocs.Add(c.startAddress, block);
-                            }
-                            catch { }
-                            Trace.WriteLine(" End block JMP " + currentCode.ToString("x2") + " " + index.ToString("x8"));
-                            if (index == 0xfa5)
-                            {
-                            }
-                            return count;*/
+                            /*         c.setEnd(index);
+                                     try
+                                     {
+                                         blocs.Add(c.startAddress, block);
+                                     }
+                                     catch { }
+                                     Trace.WriteLine(" End block JMP " + currentCode.ToString("x2") + " " + index.ToString("x8"));
+                                     if (index == 0xfa5)
+                                     {
+                                     }
+                                     return count;*/
                         }
                         #endregion
                     }
@@ -1281,27 +1281,32 @@ namespace Code
             Trace.WriteLine(" End block EXIT " + currentCode.ToString("x2") + " " + index.ToString("x8"));
             return count;
         }
-        public static List<CodeLine> ParseStub(byte[] buffer, long position)
+        private int ParseInstructionsFollowCalls32(BitStreamReader sw, CallAdress c, string blocName)
         {
             //http://wiki.osdev.org/X86_Instruction_Encoding
-            ReadOpCode();
-            List<CodeLine> code = new List<CodeLine>();
-            int index = 0;
-            long start = index;
-            int currentCode = buffer[index];
-            Trace.Write("Start " + index.ToString("x8"));
-            while ((index < buffer.Length))
+            int count = 0;
+            sw.Position = (int)c.realAddress;
+            long start = (int)c.realAddress;
+            byte currentCode = sw.ReadByte();
+         //   Trace.Write("Start " + index.ToString("x8"));
+            while ((sw.Position < exe.NT_Headers.OptionalHeader.BaseOfCode + exe.NT_Headers.OptionalHeader.SizeOfCode) & (currentCode != 0xCC))
             {
-                int startInstruction = index;
+                foreach (Bloc b in blocList)
+                {
+                    if (b.Contains(sw.Position + codeBase))
+                        return count;
+                }
+                 #region Base parameters
+                int position;
                 bool twoByte;
                 byte[] displacement;
                 byte[] immediateOperand;
                 CodeLine cd;
-                #region
+                position = sw.Position;
                 int operandSize = 4;
-                int FPU = 0;
-                byte prefix = 0;
-                int opcode;
+                byte FPU = 0;
+                List<byte> prefix = new List<byte>();
+                byte opcode;
                 bool HasModRm = false;
                 bool HasSib = false;
                 byte modRM = 0xff;
@@ -1309,38 +1314,39 @@ namespace Code
                 List<byte[]> operands = new List<byte[]>();
                 #endregion
                 #region Prefixes F0h, F2h, F3h, 66h, 67h, D8h-DFh, 2Eh, 36h, 3Eh, 26h, 64h and 65h
-                while (buffer[index] == 0xF0 ||
-                       buffer[index] == 0xF2 ||
-                       buffer[index] == 0xF3 ||
-                      (buffer[index] & 0xFC) == 0x64 ||
-                      (buffer[index] & 0xF8) == 0xD8 ||
-                      (buffer[index] & 0x7E) == 0x62)
+                while (currentCode == 0xF0 ||
+                       currentCode == 0xF2 ||
+                       currentCode == 0xF3 ||
+                      (currentCode & 0xFC) == 0x64 ||
+                      (currentCode & 0xF8) == 0xD8 ||
+                      (currentCode & 0x7E) == 0x62)
                 {
-                    if (buffer[index] == 0x66)
+                    if (currentCode == 0x66)
                     {
                         operandSize = 2;
                     }
-                    else if ((buffer[index] & 0xF8) == 0xD8)
+                    else if ((currentCode & 0xF8) == 0xD8)
                     {
                         // Floating point instructions
-                        FPU = buffer[index];
-                        index++;
+                        FPU = currentCode;
+                        currentCode = sw.ReadByte();
                         break;
                     }
-                    prefix = buffer[index];
-                    index++;
+                    prefix.Add(currentCode);
+                    currentCode = sw.ReadByte();
                 }
                 #endregion
                 #region Two-byte opcode byte
                 twoByte = false;
-                if (buffer[index] == 0x0F)
+                if (currentCode == 0x0F)
                 {
                     twoByte = true;
-                    index++;
+                    currentCode = sw.ReadByte();
                 }
                 #endregion
                 #region Opcode byte
-                opcode = buffer[index];
+                opcode = currentCode;
+                currentCode = sw.ReadByte();
                 #endregion
                 #region Get mod R/M byte
                 if (FPU > 0)
@@ -1365,6 +1371,357 @@ namespace Code
                        (opcode & 0xF6) == 0xF6)
                     {
                         HasModRm = true;
+                        modRM = currentCode;
+                        currentCode = sw.ReadByte();
+                    }
+                }
+                else
+                {
+                    if ((opcode & 0xF0) == 0x00 && (opcode & 0x0F) >= 0x04 && (opcode & 0x0D) != 0x0D ||
+                       (opcode & 0xF0) == 0x30 ||
+                       opcode == 0x77 ||
+                       (opcode & 0xF0) == 0x80 ||
+                       (opcode & 0xF0) == 0xA0 && (opcode & 0x07) <= 0x02 ||
+                       (opcode & 0xF8) == 0xC8)
+                    {
+                        // No mod R/M byte 
+                    }
+                    else
+                    {
+                        HasModRm = true;
+                        modRM = currentCode;
+                        currentCode = sw.ReadByte();
+                    }
+                }
+                #endregion
+                #region Scale_Index_Base
+                byte Scale_Index_Base = 0xff;
+                if ((modRM & 0x07) == 0x04 &&
+                   (modRM & 0xC0) != 0xC0)
+                {
+                    HasSib = true;
+                    Scale_Index_Base = currentCode;
+                    currentCode = sw.ReadByte();   // Scale_Index_Base
+                }
+                #endregion
+                #region Displacement
+                int displacementLength = 0;
+                if ((modRM & 0x07) != 0x07)
+                {
+                    if ((modRM & 0xC5) == 0x05) displacementLength = 4;
+                    else { }
+                } // Dword displacementLength, no base 
+                if ((modRM & 0xC0) == 0x40) displacementLength = 1;   // Byte displacementLength 
+                if ((modRM & 0xC0) == 0x80) displacementLength = 4;   // Dword displacementLength 
+                displacement = null;
+                string function = "";
+                if (displacementLength > 0)
+                {
+                    displacement = sw.ReadBytes(displacementLength);
+                    if (displacementLength == 4)
+                    {
+                        function = FindFunctionName(displacement);
+                    }
+                }
+                #endregion
+                #region Immediate operande
+                immediateOperand = null;
+                if (FPU > 0)
+                {
+                    // Can't have immediate immediateOperand 
+                }
+                else if (!twoByte)
+                {
+                    #region one byte instruction
+                    if ((opcode & 0xC7) == 0x04 ||
+                       (opcode & 0xFE) == 0x6A ||   // PUSH/POP/IMUL 
+                       (opcode & 0xF0) == 0x70 ||   // Jcc 
+                       opcode == 0x80 ||
+                       opcode == 0x83 ||
+                       (opcode & 0xFD) == 0xA0 ||   // MOV 
+                       opcode == 0xA8 ||            // TEST 
+                       (opcode & 0xF8) == 0xB0 ||   // MOV
+                       (opcode & 0xFE) == 0xC0 ||   // RCL 
+                       opcode == 0xC6 ||            // MOV 
+                       opcode == 0xCD ||            // INT 
+                       (opcode & 0xFE) == 0xD4 ||   // AAD/AAM 
+                       (opcode & 0xF8) == 0xE0 ||   // LOOP/JCXZ 
+                       opcode == 0xEB ||
+                       opcode == 0xF6 && (modRM & 0x30) == 0x00)   // TEST 
+                    {
+                        immediateOperand = sw.ReadBytes(1);
+                    }
+                    else if ((opcode & 0xF7) == 0xC2)
+                    {
+                        immediateOperand = sw.ReadBytes(2);   // RET 
+                    }
+                    else if ((opcode & 0xFC) == 0x80 ||
+                            (opcode & 0xC7) == 0x05 ||
+                            (opcode & 0xF8) == 0xB8 ||
+                            (opcode & 0xFE) == 0xE8 ||      // CALL/Jcc 
+                            (opcode & 0xFE) == 0x68 ||
+                            (opcode & 0xFC) == 0xA0 ||
+                            (opcode & 0xEE) == 0xA8 ||
+                            opcode == 0xC7 ||
+                            opcode == 0xF7 && (modRM & 0x30) == 0x00)
+                    {
+                        immediateOperand = sw.ReadBytes(4); 
+                    }
+                    #endregion
+                }
+                else
+                {
+                    #region two byte instructions
+                    if (opcode == 0xBA ||            // BT 
+                      opcode == 0x0F ||            // 3DNow! 
+                      (opcode & 0xFC) == 0x70 ||   // PSLLW 
+                      (opcode & 0xF7) == 0xA4 ||   // SHLD 
+                      opcode == 0xC2 ||
+                      opcode == 0xC4 ||
+                      opcode == 0xC5 ||
+                      opcode == 0xC6)
+                    {
+                        immediateOperand = sw.ReadBytes(1);
+                    }
+                    else if ((opcode & 0xF0) == 0x80)
+                    {
+                        immediateOperand =sw.ReadBytes(operandSize);
+                    }
+                    #endregion
+                }
+                if ((immediateOperand != null) && (immediateOperand.Length == 4))
+                {
+                    {
+                        try
+                        {
+                            function = FindFunctionName(immediateOperand);
+                        }
+                        catch { }
+                    }
+                }
+                #endregion
+                #region Identify instruction
+                Instruction ins = null;
+                int regNum = 0;
+                if (position == 0x33e)
+                { }
+                int selectedIndex = 0;
+                currentCode = opcode;
+                if (twoByte)
+                    opcode = (byte)(0x0F * 256 + opcode);
+                try
+                {
+                    ins = GetInstructionFromOpCode(prefix, FPU, opcode, modRM, out regNum, out selectedIndex);
+                }
+                catch { }
+                cd = new CodeLine(position, codeBase + imageBase, ins, prefix, FPU, opcode, HasModRm, modRM, Scale_Index_Base, displacement, immediateOperand, function, opcodeExtension, regNum, selectedIndex, position);
+                code.Add(cd);
+                try
+                {
+                    lines.Add(position + codeBase, cd);
+                }
+                catch { return count; }
+                count++;
+                AddReference(displacement, function);
+                AddReference(immediateOperand, function);
+                #endregion
+                #region Jump or call
+                if ((cd.ToString().Contains("CALL") || cd.ToString().Contains("J")) & ((displacement != null) || (immediateOperand != null)))
+                {
+                    int[] jumpShort = new int[] { 0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77, 0x78, 0x79, 0x7A, 0x7B, 0x7C, 0x7D, 0x7E, 0x7F, 0xE3, 0xEB };
+                    int[] jumplong = new int[] { 0xE9, 0xEA, 0xFF, 0x9A, 0xE8 };
+                    CallAdress adress = null;
+                    if (Array.IndexOf(jumpShort, currentCode) >= 0)
+                    {
+                        uint x = cd.immediateOperand[0];
+                        if ((x & 0x80) == 0x80)// negative
+                        {
+                            x += 0xFFFFFF00;
+                        }
+                        int y = (int)x;
+
+                        adress = new CallAdress(position, (c.codeBase + sw.Position + y), c.codeBase, false, cd);
+                    }
+                    if (Array.IndexOf(jumplong, currentCode) >= 0)
+                    {
+                        #region long call
+                        switch (currentCode)
+                        {
+                            case 0x9A://Call ptr
+                                if (cd.immediateOperand.Length == 4)
+                                    adress = new CallAdress(position, c.codeBase + sw.Position + BitConverter.ToInt32(cd.immediateOperand, 0), c.codeBase, false, cd);
+                                break;
+                            case 0xE9://JMP rel16:32
+                                if (cd.immediateOperand.Length == 4)
+                                    adress = new CallAdress(position, c.codeBase + sw.Position + BitConverter.ToInt32(cd.immediateOperand, 0), c.codeBase, false, cd);
+                                break;
+                            case 0xE8://call rel
+                                if (cd.immediateOperand.Length == 4)
+                                    adress = new CallAdress(position, c.codeBase + sw.Position + BitConverter.ToInt32(cd.immediateOperand, 0), c.codeBase, true, cd);
+                                break;
+                            case 0xFF:// call ms/m ou Jmp
+                                if (cd.displacement.Length == 4)
+                                    adress = new CallAdress(position, BitConverter.ToInt32(cd.displacement, 0), c.codeBase, true, cd);
+                                break;
+                            default:
+                                if (cd.displacement.Length == 40)
+                                    adress = new CallAdress(position, c.codeBase + sw.Position + BitConverter.ToInt32(cd.displacement, 0), c.codeBase, true, cd);
+                                break;
+                        }
+                        #endregion
+                    }
+                    if (twoByte & ((currentCode & 0x80) == 0x80))
+                    {
+                        if (cd.immediateOperand.Length == 4)
+                            adress = new CallAdress(position, c.codeBase + sw.Position + BitConverter.ToInt32(cd.immediateOperand, 0), c.codeBase, true, cd);
+                    }
+                    if (adress != null)
+                    {
+                        //    references.Add(adress.PositionOfStructureInFile, adress.startAddress);
+                        if (Array.IndexOf(blocAddress.ToArray(), adress.startAddress) < 0)
+                        {
+                            calls.Enqueue(adress);
+                            blocAddress.Add(adress.startAddress);
+                            subroutines.Add(adress);
+                        }
+                        #region Jump
+                        if (cd.ToString().Contains("JMP"))
+                        {
+                            /*         c.setEnd(index);
+                                     try
+                                     {
+                                         blocs.Add(c.startAddress, block);
+                                     }
+                                     catch { }
+                                     Trace.WriteLine(" End block JMP " + currentCode.ToString("x2") + " " + index.ToString("x8"));
+                                     if (index == 0xfa5)
+                                     {
+                                     }
+                                     return count;*/
+                        }
+                        #endregion
+                    }
+                }
+                #region test RET for endIAT of block
+                switch (currentCode)
+                {
+                    case 0xC2:
+                    case 0xC3:
+                    //               case 0xC9:
+                    case 0xCA:
+                    case 0xCB:
+                    case 0xCF:
+                        Bloc b = new Bloc(start, position);
+                        blocList.Add(b);
+                        c.setEnd(sw.Position);
+                        Trace.WriteLine(" End block RET " + currentCode.ToString("x2") + " " + sw.Position.ToString("x8"));
+                        return count;
+                }
+                #endregion
+                #endregion
+            currentCode = sw.ReadByte();
+            }
+            c.endAddress = sw.Position;
+
+            Trace.WriteLine(" End block EXIT " + currentCode.ToString("x2") + " " + sw.Position.ToString("x8"));
+            return count;
+        }
+        public static List<CodeLine> ParseBloc(byte[] buffer, long positionInFile)
+        {
+            List<CodeLine> code = new List<CodeLine>();
+            BitStreamReader sw = new BitStreamReader(buffer, true);
+            StreamWriter swr = new StreamWriter("Assem.txt");
+            while (sw.Position < buffer.Length)
+            {
+                swr.Write(sw.Position.ToString("x2") + "\t");
+                CodeLine dl = new CodeLine(sw, positionInFile);
+                code.Add(dl);
+                swr.WriteLine(dl.ToString());
+            }
+            swr.Close();
+
+            return code;
+        }
+        public static List<CodeLine> ParseStub(byte[] buffer, long position)
+        {
+            //http://wiki.osdev.org/X86_Instruction_Encoding
+            ReadOpCode();
+            List<CodeLine> code = new List<CodeLine>();
+            int index = 0;
+            long start = index;
+            int currentCode = buffer[index];
+            Trace.Write("Start " + index.ToString("x8"));
+            while ((index < buffer.Length))
+            {
+                int startInstruction = index;
+                bool twoByte;
+                byte[] displacement;
+                byte[] immediateOperand;
+                CodeLine cd;
+                #region
+                int operandSize = 4;
+                byte FPU = 0;
+                List<byte> prefix = new List<byte>();
+                int opcode;
+                byte modRM = 0xff;
+                byte opcodeExtension = 0xFF;
+                List<byte[]> operands = new List<byte[]>();
+                #endregion
+                #region Prefixes F0h, F2h, F3h, 66h, 67h, D8h-DFh, 2Eh, 36h, 3Eh, 26h, 64h and 65h
+                while (buffer[index] == 0xF0 ||
+                       buffer[index] == 0xF2 ||
+                       buffer[index] == 0xF3 ||
+                      (buffer[index] & 0xFC) == 0x64 ||
+                      (buffer[index] & 0xF8) == 0xD8 ||
+                      (buffer[index] & 0x7E) == 0x62)
+                {
+                    if (buffer[index] == 0x66)
+                    {
+                        operandSize = 2;
+                    }
+                    else if ((buffer[index] & 0xF8) == 0xD8)
+                    {
+                        // Floating point instructions
+                        FPU = buffer[index];
+                        index++;
+                        break;
+                    }
+                    prefix.Add(buffer[index]);
+                    index++;
+                }
+                #endregion
+                #region Two-byte opcode byte
+                twoByte = false;
+                if (buffer[index] == 0x0F)
+                {
+                    twoByte = true;
+                    index++;
+                }
+                #endregion
+                #region Opcode byte
+                opcode = buffer[index];
+                #endregion
+                #region Get mod R/M byte
+                if (FPU > 0)
+                {
+                    if ((opcode & 0xC0) != 0xC0)
+                    {
+                        modRM = (byte)opcode;
+                    }
+                    else
+                    {
+                        opcodeExtension = (byte)opcode;
+                    }
+                }
+                else if (!twoByte)
+                {
+                    if ((opcode & 0xC4) == 0x00 ||
+                       (opcode & 0xF4) == 0x60 && ((opcode & 0x0A) == 0x02 || (opcode & 0x09) == 0x9) ||
+                       (opcode & 0xF0) == 0x80 ||
+                       (opcode & 0xF8) == 0xC0 && (opcode & 0x0E) != 0x02 ||
+                       (opcode & 0xFC) == 0xD0 ||
+                       (opcode & 0xF6) == 0xF6)
+                    {
                         modRM = buffer[index];
                         index++;
                     }
@@ -1382,20 +1739,18 @@ namespace Code
                     }
                     else
                     {
-                        HasModRm = true;
                         modRM = buffer[index];
                         index++;
                     }
                 }
                 #endregion
-                #region SIB
-                int SIB = -1;
+                #region Scale_Index_Base
+                int Scale_Index_Base = -1;
                 if ((modRM & 0x07) == 0x04 &&
                    (modRM & 0xC0) != 0xC0)
                 {
-                    HasSib = true;
-                    SIB = buffer[index];
-                    index++;   // SIB
+                    Scale_Index_Base = buffer[index];
+                    index++;   // Scale_Index_Base
                 }
                 #endregion
                 #region Displacement
@@ -1499,9 +1854,9 @@ namespace Code
                     ins = GetInstructionFromOpCode(prefix, FPU, opcode, modRM, out regNum, out selectedIndex);
                 }
                 catch { }
-                cd = new CodeLine(ins, prefix, FPU, opcode, displacement, immediateOperand, opcodeExtension, position + startInstruction);
+                cd = new CodeLine(ins, prefix, FPU, modRM, displacement, immediateOperand, opcodeExtension, position + startInstruction);
                 code.Add(cd);
-                if(cd.BinaryCode=="cd21")
+                if (cd.BinaryCode == "cd21")
                 {
                     if (code[code.Count - 2].BinaryCode.EndsWith("4c"))
                     {
@@ -1547,9 +1902,8 @@ namespace Code
             }
             return function;
         }
-        private static Instruction GetInstructionFromOpCode(int prefix, int FPU, int cod, byte modRm, out int regNum, out int selectedEntry)
+        public static Instruction GetInstructionFromOpCode(List<byte> prefix, int FPU, int cod, byte modRm, out int regNum, out int selectedEntry)
         {
-
             //immediate reg instructions
             regNum = -1;
             selectedEntry = 0;
@@ -1648,21 +2002,48 @@ namespace Code
     }
     public class CodeLine : IMAGE_BASE_DATA
     {
-        private int selectedEntry;
-        private int rightSyntax;
-        private string label;
+        private Instruction instruction;
         public string Label
         {
             get { return label; }
             set { label = value; }
         }
-        public Instruction inst;
-        public int FPU;
-        public int prefix;
-        public int OperandSize;
-        public int opCode;
-        public byte modRM;
-        public int SIB;
+        public Instruction Instruction
+        {
+            get { return instruction; }
+            set { instruction = value; }
+        }
+        public string Addressing_Mode
+        {
+            get { return addressing_Mode; }
+            set { addressing_Mode = value; }
+        }
+        public bool TwoByteInstruction
+        {
+            get { return Two_Byte_Instruction == 0x0F; }
+        }
+        public List<byte> prefix = new List<byte>();
+        public byte Floating_Point_Préfix = 0;
+        public byte Two_Byte_Instruction = 0;
+        public byte modRM = 0xff;
+        public byte Scale_Index_Base = 0xff;
+        string addressing_Mode;
+        int selectedEntry;
+        int rightSyntax;
+        private string label;
+        private byte opCode;
+        Direction direction;
+        WordSize wordSize;
+        private bool isJumpOrCall
+        {
+            get { return (ToString().Contains("CALL")) || (ToString().Contains("J")); }
+        }
+
+        public byte OpCode
+        {
+            get { return opCode; }
+            set { opCode = value; }
+        }
         public byte[] immediateOperand;
         public byte[] displacement;
         public int displaceInt;
@@ -1671,415 +2052,225 @@ namespace Code
         public byte[] data;
         public long dtaInt;
         public string text;
-        private bool HasModRM;
-        private bool isDisplacement
-        {
-            get { return (ToString().Contains("CALL")) || (ToString().Contains("J")); }
-        }
+        private bool hasModRM;
         private List<string> operandes;
-        string[] reg32ascii = new string[] { "eax", "ecx", "edx", "ebx", "esp", "ebp", "esi", "edi" };
-        string[] reg16ascii = new string[] { "ax", "cx", "dx", "bx", "sp", "bp", "si", "di" };
-        string[] reg8ascii = new string[] { "al", "cl", "dl", "bl", "ah", "ch", "dh", "bh" };
-        string[] regind16ascii = new string[] { "bx+si", "bx+di", "bp+si", "bp+di", "si", "di", "bp", "bx" };
-        string[] regfascii = new string[] { "st(0)", "st(1)", "st(2)", "st(3)", "st(4)", "st(5)", "st(6)", "st(7)" };
-        string[] regmascii = new string[] { "mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm6", "mm7" };
-        string[] regxascii = new string[] { "xmm0", "xmm1", "xmm2", "xmm3", "xmm4", "xmm5", "xmm6", "xmm7" };
-        string[] regsascii = new string[] { "es", "cs", "ss", "ds", "fs", "gs", "??", "??" };
-        string[] regcascii = new string[] { "cr0", "cr1", "cr2", "cr3", "cr4", "cr5", "cr6", "cr7" };
-        string[] regdascii = new string[] { "dr0", "dr1", "dr2", "dr3", "dr4", "dr5", "dr6", "dr7" };
-        string[] regtascii = new string[] { "tr0", "tr1", "tr2", "tr3", "tr4", "tr5", "tr6", "tr7" };
-        string[] regzascii = new string[] { "b", "c", "d", "e", "h", "l", "(hl)", "a" };
-        public CodeLine(long offset, long data, string text, long positionInSource)
+
+        public bool HasModRM
         {
-            this.PositionOfStructureInFile = offset + 0x400;
-            
-            this.dtaInt = data;
-            this.text = text;
+            get { return modRM!=0xff; }
         }
-        public CodeLine(long offset, byte[] data, string text, long positionInSource)
+        public List<string> Operandes
         {
-            this.PositionOfStructureInFile = offset + 0x400;
-            LengthInFile = data.Length;
-            this.data = data;
-            this.text = text;
+            get { return operandes; }
+            set { operandes = value; }
         }
-        public CodeLine(long position, long offsetToCode, Instruction ins, int prefix, int FPU, int opCode, bool hasModRm, int modRM, int SIB, byte[] displacement, byte[] immediateOperand, string function, byte opCodeExtension, int regNum, int selectedEntry, long positionInSource)
+        #region données
+        static string[] reg32ascii = new string[] { "eax", "ecx", "edx", "ebx", "esp", "ebp", "esi", "edi" };
+        static string[] reg16ascii = new string[] { "ax", "cx", "dx", "bx", "sp", "bp", "si", "di" };
+        static string[] reg8ascii = new string[] { "al", "cl", "dl", "bl", "ah", "ch", "dh", "bh" };
+        static string[] regind16ascii = new string[] { "bx+si", "bx+di", "bp+si", "bp+di", "si", "di", "bp", "bx" };
+        static string[] regfascii = new string[] { "st(0)", "st(1)", "st(2)", "st(3)", "st(4)", "st(5)", "st(6)", "st(7)" };
+        static string[] regmascii = new string[] { "mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm6", "mm7" };
+        static string[] regxascii = new string[] { "xmm0", "xmm1", "xmm2", "xmm3", "xmm4", "xmm5", "xmm6", "xmm7" };
+        static string[] regsascii = new string[] { "es", "cs", "ss", "ds", "fs", "gs", "??", "??" };
+        static string[] regcascii = new string[] { "cr0", "cr1", "cr2", "cr3", "cr4", "cr5", "cr6", "cr7" };
+        static string[] regdascii = new string[] { "dr0", "dr1", "dr2", "dr3", "dr4", "dr5", "dr6", "dr7" };
+        static string[] regtascii = new string[] { "tr0", "tr1", "tr2", "tr3", "tr4", "tr5", "tr6", "tr7" };
+        static string[] regzascii = new string[] { "b", "c", "d", "e", "h", "l", "(hl)", "a" };
+        static List<byte> opCodePrefix = new List<byte>() { 0xF0, 0xF2, 0xF3, 0x66, 0x67, 0xD8, 0xD9, 0xDA, 0xDB, 0xDC, 0xDE, 0xDF, 0x2E, 0x36, 0x3E, 0x26, 0x64, 0x65 };
+        #endregion
+        public CodeLine(BitStreamReader sw, long offset)
         {
-            this.PositionOfStructureInFile = positionInSource + 0x400;
+            #region Base parameters
+            int operandSize = 4;
+            byte opcodeExtension = 0xff;
+            #endregion
+            PositionOfStructureInFile = sw.Position + offset;
+            byte currentByte = sw.ReadByte();
+            if (currentByte == 0xcd)
+            {
+
+            } 
+            #region Prefixes F0h, F2h, F3h, 66h, 67h, D8h-DFh, 2Eh, 36h, 3Eh, 26h, 64h and 65h
+            while(opCodePrefix.Contains(currentByte))
+            {
+                if (currentByte == 0x66)
+                {
+                    //0x66 : 16 bits operands prefix
+                    operandSize = 2;
+                }
+                else if ((currentByte & 0xF8) == 0xD8)
+                {
+                    // Floating point instructions
+                    Floating_Point_Préfix = currentByte;
+                    currentByte = sw.ReadByte();
+                    break;
+                }
+                prefix.Add(currentByte);
+                currentByte = sw.ReadByte();
+            }
+            #endregion
+            #region Two-byte opcode byte
+            if (currentByte == 0x0F)
+            {
+                Two_Byte_Instruction = currentByte;
+                currentByte = sw.ReadByte();
+            }
+            #endregion
+            #region Get Opcode byte
+            opCode = currentByte;
+            #endregion
+            #region Get mod R/M byte
+            if (Floating_Point_Préfix > 0)
+            {
+                if ((opCode & 0xC0) != 0xC0)
+                {
+                    modRM = (byte)opCode;
+                }
+                else
+                {
+                    opcodeExtension = (byte)opCode;
+                }
+            }
+            else if (!TwoByteInstruction)
+            {
+                if ((opCode & 0xC4) == 0x00 ||
+                   (opCode & 0xF4) == 0x60 && ((opCode & 0x0A) == 0x02 || (opCode & 0x09) == 0x9) ||
+                   (opCode & 0xF0) == 0x80 ||
+                   (opCode & 0xF8) == 0xC0 && (opCode & 0x0E) != 0x02 ||
+                   (opCode & 0xFC) == 0xD0 ||
+                   (opCode & 0xF6) == 0xF6)
+                {
+                    modRM = sw.ReadByte();
+                }
+            }
+            else
+            {
+                if ((opCode & 0xF0) == 0x00 && (opCode & 0x0F) >= 0x04 && (opCode & 0x0D) != 0x0D ||
+                   (opCode & 0xF0) == 0x30 ||
+                   opCode == 0x77 ||
+                   (opCode & 0xF0) == 0x80 ||
+                   (opCode & 0xF0) == 0xA0 && (opCode & 0x07) <= 0x02 ||
+                   (opCode & 0xF8) == 0xC8)
+                {
+                    // No mod R/M byte 
+                }
+                else
+                {
+                    modRM = sw.ReadByte();
+                }
+            }
+            #endregion
+            #region Scale_Index_Base
+            if ((modRM & 0x07) == 0x04 && (modRM & 0xC0) != 0xC0)
+                Scale_Index_Base = sw.ReadByte(); // Scale_Index_Base
+            #endregion
+            #region Displacement
+            int displacementLength = 0;
+            if (HasModRM)
+            {
+                if ((modRM & 0x07) != 0x07)
+                    if ((modRM & 0xC5) == 0x05) displacementLength = 4;// Dword displacementLength, no base
+                if ((modRM & 0xC0) == 0x40) displacementLength = 1;   // Byte displacementLength 
+                if ((modRM & 0xC0) == 0x80) displacementLength = 4;   // Dword displacementLength 
+            }
+            displacement = null;
+            if (displacementLength > 0)
+            {
+                displacement = sw.ReadBytes(displacementLength);
+            }
+            #endregion
+            #region Immediate operand
+            immediateOperand = null;
+            if (Floating_Point_Préfix > 0)
+            {
+                // Can't have immediate immediateOperand 
+            }
+            else
+            {
+                if (TwoByteInstruction)
+                {
+                    #region two byte instructions
+                    if (opCode == 0xBA ||            // BT 
+                      opCode == 0x0F ||            // 3DNow! 
+                      (opCode & 0xFC) == 0x70 ||   // PSLLW 
+                      (opCode & 0xF7) == 0xA4 ||   // SHLD 
+                      opCode == 0xC2 ||
+                      opCode == 0xC4 ||
+                      opCode == 0xC5 ||
+                      opCode == 0xC6)
+                    {
+                        immediateOperand = sw.ReadBytes(1);
+                    }
+                    else if ((opCode & 0xF0) == 0x80)
+                    {
+                        immediateOperand = sw.ReadBytes(operandSize);   // Jcc -u
+                    }
+                    #endregion
+                }
+                else
+                {
+                    #region one byte instruction
+                    if ((opCode & 0xC7) == 0x04 ||
+                       (opCode & 0xFE) == 0x6A ||   // PUSH/POP/IMUL 
+                       (opCode & 0xF0) == 0x70 ||   // Jcc 
+                       opCode == 0x80 ||
+                       opCode == 0x83 ||
+                       (opCode & 0xFD) == 0xA0 ||   // MOV 
+                       opCode == 0xA8 ||            // TEST 
+                       (opCode & 0xF8) == 0xB0 ||   // MOV
+                       (opCode & 0xFE) == 0xC0 ||   // RCL 
+                       opCode == 0xC6 ||            // MOV 
+                       opCode == 0xCD ||            // INT 
+                       (opCode & 0xFE) == 0xD4 ||   // AAD/AAM 
+                       (opCode & 0xF8) == 0xE0 ||   // LOOP/JCXZ 
+                       opCode == 0xEB ||
+                       opCode == 0xF6 && (modRM & 0x30) == 0x00)   // TEST 
+                    {
+                        immediateOperand = sw.ReadBytes(1);
+                    }
+                    else if ((opCode & 0xF7) == 0xC2)
+                    {
+                        immediateOperand = sw.ReadBytes(2);   // RET 
+                    }
+                    else if ((opCode & 0xFC) == 0x80 ||
+                            (opCode & 0xC7) == 0x05 ||
+                            (opCode & 0xF8) == 0xB8 ||
+                            (opCode & 0xFE) == 0xE8 ||      // CALL/Jcc 
+                            (opCode & 0xFE) == 0x68 ||
+                            (opCode & 0xFC) == 0xA0 ||
+                            (opCode & 0xEE) == 0xA8 ||
+                            opCode == 0xC7 ||
+                            opCode == 0xF7 && (modRM & 0x30) == 0x00)
+                    {
+                        immediateOperand = sw.ReadBytes(operandSize);
+                    }
+                    #endregion
+                }
+            }
+            #endregion
+            LengthInFile = sw.Position - PositionOfStructureInFile;
+            #region Identify instruction
+            if (TwoByteInstruction)
+                opCode = (byte)(0x0F * 256 + opCode);
+            int regNum = 0;
+            instruction = Disassemble.GetInstructionFromOpCode(prefix, Floating_Point_Préfix, opCode, modRM, out regNum, out selectedEntry);
+            #endregion
             string[] opers = new string[4];
             string pref = "";
-            operandes = new List<string>();
-            this.rightSyntax = 0;
-            this.FPU = FPU;
-            this.opCode = opCode;
-            this.inst = ins;
-            this.selectedEntry = selectedEntry;
             int opcodeLoc = opCode;
-            this.displacement = displacement;
-            this.immediateOperand = immediateOperand;
-            HasModRM = hasModRm;
-            this.modRM = (byte)modRM;
-            this.SIB = SIB;//http://wiki.osdev.org/X86_Instruction_Encoding
-            string functionName = "";
-            if (function != null)
-            {
-                functionName = function;
-                if ((functionName == "") & (displacement != null))
-                    if (displacement.Length == 4)
-                        functionName = "0x" + BitConverter.ToInt32(displacement, 0).ToString("x8");
-            }
-            if (FPU > 0)
-                opcodeLoc = FPU;
-            else
-            {
-                #region Find predefined operandes for one byte instructions
-                int first = opcodeLoc >> 4;
-                int sec = opcodeLoc & 0x0F;
-                if ((first < 4) || (first == 0xE))
-                {
-                    switch (sec)
-                    {
-                        case 0x04:
-                        case 0x0C:
-                            opers[0] = "al";
-                            operandes.Add("al");
-                            break;
-                        case 0x05:
-                        case 0x0D:
-                            opers[0] = "eax";
-                            operandes.Add("eax");
-                            break;
-                    }
-                }
-                else if (first == 0xA)
-                {
-                    switch (sec)
-                    {
-                        case 0x00:
-                        case 0x08:
-                        case 0x0c:
-                            opers[0] = "al";
-                            operandes.Add("al");
-                            break;
-                        case 0x02:
-                            opers[1] = "al";
-                            operandes.Add("al");//second
-                            break;
-                        case 0x01:
-                        case 0x09:
-                        case 0x0D:
-                            opers[0] = "eax";
-                            operandes.Add("eax");
-                            break;
-                        case 0x03:
-                            opers[1] = "eax";
-                            operandes.Add("eax");//second
-                            break;
-                    }
-                }
-                else if (first == 0xC)
-                {
-                    switch (sec)
-                    {
-                        case 4:
-                            opers[0] = "es";
-                            operandes.Add("es");
-                            break;
-                        case 5:
-                            opers[0] = "ds";
-                            operandes.Add("ds");
-                            break;
-                        case 8:
-                        case 9:
-                            opers[0] = "ebp";
-                            operandes.Add("ebp");
-                            break;
-                    }
-                }
-                switch (opcodeLoc)
-                {
-                    case 0x9E:
-                    case 0x9F:
-                        opers[0] = "ah";
-                        operandes.Add("ah");
-                        break;
-                    case 0xD4:
-                    case 0xD5:
-                        opers[0] = "al";
-                        opers[0] = "ah";
-                        operandes.Add("al");
-                        operandes.Add("ah");
-                        break;
-                    case 0xD6:
-                    case 0xD7:
-                        opers[0] = "al";
-                        operandes.Add("al");
-                        break;
-                }
-
-                operandes = new List<string>();
-                foreach (string s in opers)
-                    operandes.Add(s);
-                if (operandes.Count > 0)
-                {
-                }
-                #endregion
-            }
-            #region Prefix
-            this.prefix = prefix;
-            if (prefix != 0)
-            {
-                switch (prefix)
-                {
-                    case 0x2E: // CS segment override 
-                        pref = "cs:";
-                        break;
-                    case 0x36: // SS segment override 
-                        pref = "ss:";
-                        break;
-                    case 0x3E: // DS segment override 
-                        pref = "ds:";
-                        break;
-                    case 0x26: // ES segment override 
-                        pref = "es:";
-                        break;
-                    case 0x64: // FS segment override 
-                        pref = "fs:";
-                        break;
-                    case 0x65: // GS segment override 
-                        pref = "gs:";
-                        break;
-                    case 0x66: // Operand-size override prefix : 16 bits operand
-                        break;
-                    case 0x67: // Address-size override prefix 
-                        break;
-                    case 0xF0: // LOCK prefix 
-                        break;
-                    case 0xF2: // REPNE/REPNZ prefix 
-                        break;
-                    case 0xF3: // REP or REPE/REPZ prefix 
-                        break;
-                }
-            }
-            #endregion
-            int directionBit = (opcodeLoc & 2) >> 1;//Direction. 1 = Register is Destination, 0 = Register is source.
-            int wordBit = (opcodeLoc & 1);//Operation size. 1 = Word, 0 = byte
-            if (opCodeExtension == 0xff)
-                if (regNum != -1)
-                    operandes.Add(reg32ascii[regNum]);
-            #region Parse ModRm
-            if (isDisplacement)
-            {
-                if (displacement != null)
-                    displaceInt = operandToInt(displacement);
-                if (immediateOperand != null)
-                    imOperandInt = operandToInt(immediateOperand);
-            }
-            if (position == 0x16D)
-            {
-            }
-            if (hasModRm)
-            {
-                string aa = ParseModRm(modRM, SIB, wordBit, directionBit, displacement, immediateOperand, function);
-                operandes.Add(aa);
-            }
-            else
-            {
-                if (immediateOperand != null)
-                {
-                    if (isDisplacement)
-                    {
-                        imOperandInt = (int)position + BinaryCode.Length / 2 + imOperandInt + (int)offsetToCode;
-                        if ((BinaryCode.Length % 2) == 1)
-                            imOperandInt++;
-                    }
-                    else
-                    {
-                        imOperandInt = operandToInt(immediateOperand);
-                    }
-                    operandes.Add(pref + imOperandInt.ToString("x8"));
-                }
-            }
-            #endregion
-            #region select op
-            int rightSyntax = 0;
-            if (inst.entries[selectedEntry].syntax[rightSyntax].src.Count > 0)
-            {
-                string op = "";
-                if (inst.entries[selectedEntry].syntax[rightSyntax].src[0].nr != null)
-                    op += inst.entries[selectedEntry].syntax[rightSyntax].src[0].nr;
-            }
-            if (inst.entries[selectedEntry].syntax[rightSyntax].dest.Count > 0)
-            {
-                string op = "";
-                if (inst.entries[selectedEntry].syntax[rightSyntax].dest[0].nr != null)
-                    op += inst.entries[selectedEntry].syntax[rightSyntax].dest[0].nr;
-            }
-            #endregion
-            #region Opcode extension
-            if (opCodeExtension != 0xff)
-            {
-                if (regNum != -1)
-                    operandes.Add(regfascii[regNum]);
-            }
-            #endregion
-        }
-        public CodeLine(Instruction ins, int prefix, int FPU, int opCode, byte[] displacement, byte[] immediateOperand, byte opCodeExtension, long position)
-        {
-            PositionOfStructureInFile = position;
-            LengthInFile = 1;
-            if (immediateOperand != null)   
-                LengthInFile += immediateOperand.Length;
-            string[] opers = new string[4];
-            SIB = -1;
-            string pref = "";
+            if (Floating_Point_Préfix > 0)
+                opcodeLoc = Floating_Point_Préfix;
             operandes = new List<string>();
-            this.rightSyntax = 0;
-            this.FPU = FPU;
-            this.opCode = opCode;
-            this.inst = ins;
-            int opcodeLoc = opCode;
-            this.displacement = displacement;
-            this.immediateOperand = immediateOperand;
-            if (FPU > 0)
-                opcodeLoc = FPU;
-            else
-            {
-                #region Find predefined operandes for one byte instructions
-                int first = opcodeLoc >> 4;
-                int sec = opcodeLoc & 0x0F;
-                if ((first < 4) || (first == 0xE))
-                {
-                    switch (sec)
-                    {
-                        case 0x04:
-                        case 0x0C:
-                            opers[0] = "al";
-                            operandes.Add("al");
-                            break;
-                        case 0x05:
-                        case 0x0D:
-                            opers[0] = "eax";
-                            operandes.Add("eax");
-                            break;
-                    }
-                }
-                else if (first == 0xA)
-                {
-                    switch (sec)
-                    {
-                        case 0x00:
-                        case 0x08:
-                        case 0x0c:
-                            opers[0] = "al";
-                            operandes.Add("al");
-                            break;
-                        case 0x02:
-                            opers[1] = "al";
-                            operandes.Add("al");//second
-                            break;
-                        case 0x01:
-                        case 0x09:
-                        case 0x0D:
-                            opers[0] = "eax";
-                            operandes.Add("eax");
-                            break;
-                        case 0x03:
-                            opers[1] = "eax";
-                            operandes.Add("eax");//second
-                            break;
-                    }
-                }
-                else if (first == 0xC)
-                {
-                    switch (sec)
-                    {
-                        case 4:
-                            opers[0] = "es";
-                            operandes.Add("es");
-                            break;
-                        case 5:
-                            opers[0] = "ds";
-                            operandes.Add("ds");
-                            break;
-                        case 8:
-                        case 9:
-                            opers[0] = "ebp";
-                            operandes.Add("ebp");
-                            break;
-                    }
-                }
-                switch (opcodeLoc)
-                {
-                    case 0x9E:
-                    case 0x9F:
-                        opers[0] = "ah";
-                        operandes.Add("ah");
-                        break;
-                    case 0xD4:
-                    case 0xD5:
-                        opers[0] = "al";
-                        opers[0] = "ah";
-                        operandes.Add("al");
-                        operandes.Add("ah");
-                        break;
-                    case 0xD6:
-                    case 0xD7:
-                        opers[0] = "al";
-                        operandes.Add("al");
-                        break;
-                }
-
-                operandes = new List<string>();
-                foreach (string s in opers)
-                    operandes.Add(s);
-                if (operandes.Count > 0)
-                {
-                }
-                #endregion
-            }
-            #region Prefix
-            this.prefix = prefix;
-            if (prefix != 0)
-            {
-                switch (prefix)
-                {
-                    case 0x2E: // CS segment override 
-                        pref = "cs:";
-                        break;
-                    case 0x36: // SS segment override 
-                        pref = "ss:";
-                        break;
-                    case 0x3E: // DS segment override 
-                        pref = "ds:";
-                        break;
-                    case 0x26: // ES segment override 
-                        pref = "es:";
-                        break;
-                    case 0x64: // FS segment override 
-                        pref = "fs:";
-                        break;
-                    case 0x65: // GS segment override 
-                        pref = "gs:";
-                        break;
-                    case 0x66: // Operand-size override prefix : 16 bits operand
-                        break;
-                    case 0x67: // Address-size override prefix 
-                        break;
-                    case 0xF0: // LOCK prefix 
-                        break;
-                    case 0xF2: // REPNE/REPNZ prefix 
-                        break;
-                    case 0xF3: // REP or REPE/REPZ prefix 
-                        break;
-                }
-            }
-            #endregion
-            int directionBit = (opcodeLoc & 2) >> 1;//Direction. 1 = Register is Destination, 0 = Register is source.
-            int wordBit = (opcodeLoc & 1);//Operation size. 1 = Word, 0 = byte
+            //Direction. 1 = Register is Destination, 0 = Register is source.
+            int directionBit = (opcodeLoc & 2) >> 1;
+            direction = (Direction)directionBit;
+            //Operation size. 1 = Word, 0 = byte
+            int wordBit = (opcodeLoc & 1);
+            wordSize = (WordSize)wordBit;
             #region Parse ModRm
             short imOperandInt = 0;
-            if (isDisplacement)
+            if (isJumpOrCall)
             {
                 if (displacement != null)
                     displaceInt = operandToInt(displacement);
@@ -2088,9 +2279,8 @@ namespace Code
             }
             if (immediateOperand != null)
             {
-                if (isDisplacement)
+                if (isJumpOrCall)
                 {
-                    //      imOperandInt = (int)position + BinaryCode.Length / 2 + imOperandInt + (int)offsetToCode;
                     if ((BinaryCode.Length % 2) == 1)
                         imOperandInt++;
                 }
@@ -2104,42 +2294,185 @@ namespace Code
                     else
                     {
                         imOperandInt = immediateOperand[0];
-                        operandes.Add(pref + immediateOperand[0].ToString("x2"));
                     }
                 }
-             }
+            }
+
+            if (HasModRM)
+            {
+                string op = ParseModRm(modRM, Scale_Index_Base, wordBit, directionBit, displacement, immediateOperand, "");
+                operandes.Add(op);
+            }
+            else
+            {
+                #region Find predefined operandes for one byte instructions with no ModRM
+                int first = opcodeLoc >> 4;
+                int sec = opcodeLoc & 0x0F;
+                if ((first < 4) || (first == 0xE))
+                {
+                    switch (sec)
+                    {
+                        case 0x04:
+                        case 0x0C:
+                            opers[0] = "al";
+                            break;
+                        case 0x05:
+                        case 0x0D:
+                            opers[0] = "eax";
+                            break;
+                    }
+                }
+                switch (first)
+                {
+                    case 0x1:
+                    case 0x0:
+                        if ((sec == 0x06) || (sec == 0x07))
+                            opers[0] = "es";
+                        if ((sec == 0x0E) || (sec == 0x0F))
+                            opers[0] = "ds";
+                        break;
+                    case 0x4:
+                    case 0x5:
+                        opers[0] = reg32ascii[sec & 0x7];
+                        break;
+                    case 0x7:
+                        opers[0] = operandToText(immediateOperand);
+                        // (sw.Position+immediateOperand[0]).ToString("x2");
+                        break;
+                    case 0xA:
+                        switch (sec)
+                        {
+                            case 0x00:
+                            case 0x08:
+                            case 0x0c:
+                                opers[0] = "al";
+                                break;
+                            case 0x02:
+                                opers[1] = "al";
+                                break;
+                            case 0x04:
+                                opers[1] = "ah";
+                                break;
+                            case 0x01:
+                            case 0x09:
+                            case 0x0D:
+                                opers[0] = "eax";
+                                break;
+                            case 0x03:
+                                opers[1] = "eax";
+                                break;
+                        }
+                        break;
+                    case 0xB:
+                        if (sec < 0x8)
+                        {
+                            opers[0] = reg8ascii[sec];
+                            opers[1] = operandToText(immediateOperand);
+                        }
+                        else
+                        {
+                            opers[0] = reg32ascii[sec & 0x7];
+                            opers[1] = operandToText(immediateOperand);
+                        }
+                        break;
+                    case 0xC:
+                        switch (sec)
+                        {
+                            case 4:
+                                opers[0] = "es";
+                             //   operandes.Add("es");
+                                break;
+                            case 5:
+                                opers[0] = "ds";
+                              //  operandes.Add("ds");
+                                break;
+                            case 8:
+                            case 9:
+                                opers[0] = "ebp";
+                              //  operandes.Add("ebp");
+                                break;
+                            case 0xd:
+                                opers[0] = operandToText(immediateOperand);
+                                break;
+                        }
+                        break;
+                }
+                switch (opcodeLoc)
+                {
+                    case 0x9E:
+                    case 0x9F:
+                        opers[0] = "ah";
+                //        operandes.Add("ah");
+                        break;
+                    case 0xD4:
+                    case 0xD5:
+                        opers[0] = "al";
+                        opers[0] = "ah";
+                  //      operandes.Add("al");
+                   //     operandes.Add("ah");
+                        break;
+                    case 0xD6:
+                    case 0xD7:
+                        opers[0] = "al";
+                 //       operandes.Add("al");
+                        break;
+                }
+
+                foreach (string s in opers)
+                    if (s != null)
+                        operandes.Add(s);
+                if (operandes.Count > 0)
+                {
+                }
+                #endregion
+            }
             #endregion
             #region select op
             int rightSyntax = 0;
-            if (inst.entries[selectedEntry].syntax[rightSyntax].src.Count > 0)
+            if (instruction.entries[selectedEntry].syntax[rightSyntax].src.Count > 0)
             {
                 string op = "";
-                if (inst.entries[selectedEntry].syntax[rightSyntax].src[0].nr != null)
-                    op += inst.entries[selectedEntry].syntax[rightSyntax].src[0].nr;
+                if (instruction.entries[selectedEntry].syntax[rightSyntax].src[0].nr != null)
+                    op += instruction.entries[selectedEntry].syntax[rightSyntax].src[0].nr;
             }
-            if (inst.entries[selectedEntry].syntax[rightSyntax].dest.Count > 0)
+            if (instruction.entries[selectedEntry].syntax[rightSyntax].dest.Count > 0)
             {
                 string op = "";
-                if (inst.entries[selectedEntry].syntax[rightSyntax].dest[0].nr != null)
-                    op += inst.entries[selectedEntry].syntax[rightSyntax].dest[0].nr;
+                if (instruction.entries[selectedEntry].syntax[rightSyntax].dest[0].nr != null)
+                    op += instruction.entries[selectedEntry].syntax[rightSyntax].dest[0].nr;
             }
             #endregion
             #region Opcode extension
-            if (opCodeExtension != 0xff)
+            if (opcodeExtension != 0xff)
             {
             }
             #endregion
         }
-        private string ParseModRm(int modRM, int sib, int wordSize, int direction, byte[] displacement, byte[] immediateOp, string function)
+        private string ParseModRm(byte modRM, byte scale_Index_base, int wordSize, int direction, byte[] displacement, byte[] immediateOp, string function)
         {
             int Mod = (modRM & 0xC0) >> 6;//Register mode
             int reg = (modRM & 0x38) >> 3;//Reg, if wordBit = 0 ; wordBit = 1 double word
-            int RorM = (modRM & 0x07);//Register/Memory immediateOperand                
+            int RorM = (modRM & 0x07);//Register/Memory immediateOperand     
+            switch (Mod)
+            {
+                case 0:
+                    addressing_Mode = "Indirect addressing mode";
+                    break;
+                case 1:
+                    addressing_Mode = "Indirect addressing mode -  8-bit displacement added ";
+                    break;
+                case 2:
+                    addressing_Mode = "Indirect addressing mode -  32-bit displacement added ";
+                    break;
+                case 3:
+                    addressing_Mode = "Direct addressing mode reg <-> R/M";
+                    break;
+            }
             string op = "";
-            string SIB = "";
-            string  disp8 = "";
+            string Scale_Index_Base = "";
+            string disp8 = "";
             string disp32 = "";
-            if(displacement!=null)
+            if (displacement != null)
                 switch (displacement.Length)
                 {
                     case 1:
@@ -2160,21 +2493,21 @@ namespace Code
                             a = (int)(0xffffffff - a) + 1;
                         }
                         disp32 = "0x" + a.ToString("x8");
-                        if((function != null)&&(function!=""))
+                        if ((function != null) && (function != ""))
                             disp32 = function;
                         break;
                 }
-            if (sib != -1)
+            if (scale_Index_base != 0xff)
             {
-                int scale = (sib & 0xC0) >> 6;
-                int index = (sib & 0x38) >> 3;
-                int sibbase = (sib & 0x07);
-                //SIB mode
-                SIB += reg32ascii[index];
+                int scale = (scale_Index_base & 0xC0) >> 6;
+                int index = (scale_Index_base & 0x38) >> 3;
+                int sibbase = (scale_Index_base & 0x07);
+                //Scale_Index_Base mode
+                Scale_Index_Base += reg32ascii[index];
                 if (index != sibbase)
-                    SIB += "," + reg32ascii[sibbase];
+                    Scale_Index_Base += "," + reg32ascii[sibbase];
                 if (scale > 0)
-                    SIB += "*" + scale.ToString();
+                    Scale_Index_Base += "*" + scale.ToString();
             }
             if (immediateOperand != null)
             {
@@ -2185,21 +2518,15 @@ namespace Code
                 case 0:
                     switch (RorM)
                     {
-                        case 0: op = "[eax]";
-                            break;
-                        case 1: op = "[ecx]";
-                            break;
-                        case 2: op = "[edx]";
-                            break;
-                        case 3: op = "[ebx]";
-                            break;
-                        case 4: op = SIB;
+                        case 4: op = Scale_Index_Base;
                             break;
                         case 5: op = disp32;
                             break;
-                        case 6: op = "[esi]";
-                            break;
-                        case 7: op = "[edi]";
+                        default:
+                            if (wordSize == 0)
+                                op = reg8ascii[RorM];
+                            else
+                                op = reg32ascii[RorM];
                             break;
                     }
                     if (immediateOperand != null)
@@ -2213,46 +2540,35 @@ namespace Code
                 case 1:
                     switch (RorM)
                     {
-                        case 0: op = "[eax" + disp8 + "]";
+                        case 4: op = Scale_Index_Base + disp8;
                             break;
-                        case 1: op = "[ecx" + disp8 + "]";
-                            break;
-                        case 2: op = "[edx" + disp8 + "]";
-                            break;
-                        case 3: op = "[ebx" + disp8 + "]";
-                            break;
-                        case 4: op = SIB + disp8;
-                            break;
-                        case 5: op = "[ebp" + disp8 + "]";
-                            break;
-                        case 6: op = "[esi" + disp8 + "]";
-                            break;
-                        case 7: op = "[edi" + disp8 + "]";
+                        default:
+                            if (wordSize == 0)
+                                op = "[" + reg32ascii[RorM]  + disp8+ "]";
+                            else
+                                op = "[" + reg32ascii[RorM]  + disp32+ "]";
+
                             break;
                     }
                     if (immediateOperand != null)
-                        op += "," + operandToText(immediateOperand);
+                        if (direction == 1)
+                            op += "," + operandToText(immediateOperand);
+                        else
+                            op = operandToText(immediateOperand) + "," + op;
                     else
-                        op = reg32ascii[reg] + "," + op;
+                        if (direction == 1)
+                            op = reg8ascii[reg] + "," + op;
+                        else
+                            op = op + "," + reg8ascii[reg];
+
                     break;
                 case 2:
                     switch (RorM)
                     {
-                        case 0: op = "[eax" + disp32 + "]";
+                        case 4: op = Scale_Index_Base + disp32.ToString();
                             break;
-                        case 1: op = "[ecx" + disp32 + "]";
-                            break;
-                        case 2: op = "[edx" + disp32 + "]";
-                            break;
-                        case 3: op = "[ebx" + disp32 + "]";
-                            break;
-                        case 4: op = SIB + disp32.ToString();
-                            break;
-                        case 5: op = "[ebp" + disp32 + "]";
-                            break;
-                        case 6: op = "[esi" + disp32 + "]";
-                            break;
-                        case 7: op = "[edi" + disp32 + "]";
+                        default:
+                            op = "[" + reg32ascii[RorM] + disp32 + "]";
                             break;
                     }
                     if (immediateOperand != null)
@@ -2261,35 +2577,503 @@ namespace Code
                 case 3:
                     switch (RorM)
                     {
-                        case 0: op = "eax";
+                        default:
+                            if (wordSize == 0)
+                            {
+                                op = reg16ascii[RorM];
+                            }
+                            else
+                            {
+                                op = reg32ascii[RorM];
+                            }
                             break;
-                        case 1: op = "ecx";
-                            break;
-                        case 2: op = "edx";
-                            break;
-                        case 3: op = "ebx";
-                            break;
-                        case 4: op = "esp";
-                            break;
-                        case 5: op = "ebp";
-                            break;
-                        case 6: op = "esi";
-                            break;
-                        case 7: op = "edi";
-                            break;
-                     }
+                    }
                     if (immediateOperand != null)
                         op += "," + operandToText(immediateOperand);
                     else
-                        if (direction == 1)
-                            op = reg32ascii[reg] + "," + op;
+                    {
+                        string op2 = "";
+                        if (wordSize == 0)
+                        {
+                            op2 = regsascii[reg];
+                        }
                         else
-                            op += "," + reg32ascii[reg];
-
+                        {
+                            op2 = reg32ascii[reg];
+                        }
+                        if (direction == 1)
+                            op = op2 + "," + op;
+                        else
+                            op += "," + op2;
+                    }
                     break;
             }
             #endregion
             return op;
+        }
+        /// <summary>
+        /// Text line
+        /// </summary>
+        /// <param name="offset"></param>
+        /// <param name="data"></param>
+        /// <param name="text"></param>
+        /// <param name="positionInSource"></param>
+        public CodeLine(long offset, long data, string text, long positionInSource)
+        {
+            this.PositionOfStructureInFile = offset + 0x400;
+
+            this.dtaInt = data;
+            this.text = text;
+        }
+        /// <summary>
+        /// Line Text
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="offset"></param>
+        /// <param name="text"></param>
+        /// <param name="positionInSource"></param>
+        public CodeLine(byte[] data, long offset, string text, long positionInSource)
+        {
+            this.PositionOfStructureInFile = offset + 0x400;
+            LengthInFile = data.Length;
+            this.data = data;
+            this.text = text;
+        }
+        /// <summary>
+        /// Main method : ParseFollows Calls
+        /// </summary>
+        /// <param name="position"></param>
+        /// <param name="offsetToCode"></param>
+        /// <param name="ins"></param>
+        /// <param name="prefix"></param>
+        /// <param name="FPU"></param>
+        /// <param name="opCode"></param>
+        /// <param name="hasModRm"></param>
+        /// <param name="modRM"></param>
+        /// <param name="Scale_Index_Base"></param>
+        /// <param name="displacement"></param>
+        /// <param name="immediateOperand"></param>
+        /// <param name="function"></param>
+        /// <param name="opCodeExtension"></param>
+        /// <param name="regNum"></param>
+        /// <param name="selectedEntry"></param>
+        /// <param name="positionInSource"></param>
+        public CodeLine(long position, long offsetToCode, Instruction ins, List<byte> prefix, byte FPU, byte opCode, bool hasModRm, byte modRM, byte Scale_Index_Base, byte[] displacement, byte[] immediateOperand, string function, byte opCodeExtension, int regNum, int selectedEntry, long positionInSource)
+        {
+            this.PositionOfStructureInFile = positionInSource + 0x400;
+            string[] opers = new string[4];
+            string pref = "";
+            operandes = new List<string>();
+            this.rightSyntax = 0;
+            this.Floating_Point_Préfix = FPU;
+            this.opCode = opCode;
+            this.instruction = ins;
+            this.selectedEntry = selectedEntry;
+            int opcodeLoc = opCode;
+            this.displacement = displacement;
+            this.immediateOperand = immediateOperand;
+            this.modRM = (byte)modRM;
+            this.Scale_Index_Base = (byte)Scale_Index_Base;//http://wiki.osdev.org/X86_Instruction_Encoding
+            string functionName = "";
+            if (function != null)
+            {
+                functionName = function;
+                if ((functionName == "") & (displacement != null))
+                    if (displacement.Length == 4)
+                        functionName = "0x" + BitConverter.ToInt32(displacement, 0).ToString("x8");
+            }
+            #region Prefixes
+            if (FPU > 0)
+                opcodeLoc = FPU;
+            else
+            {
+                #region Find predefined operandes for one byte instructions
+                int first = opcodeLoc >> 4;
+                int sec = opcodeLoc & 0x0F;
+                if ((first < 4) || (first == 0xE))
+                {
+                    switch (sec)
+                    {
+                        case 0x04:
+                        case 0x0C:
+                            opers[0] = "al";
+                            operandes.Add("al");
+                            break;
+                        case 0x05:
+                        case 0x0D:
+                            opers[0] = "eax";
+                            operandes.Add("eax");
+                            break;
+                    }
+                }
+                else if (first == 0xA)
+                {
+                    switch (sec)
+                    {
+                        case 0x00:
+                        case 0x08:
+                        case 0x0c:
+                            opers[0] = "al";
+                            operandes.Add("al");
+                            break;
+                        case 0x02:
+                            opers[1] = "al";
+                            operandes.Add("al");//second
+                            break;
+                        case 0x01:
+                        case 0x09:
+                        case 0x0D:
+                            opers[0] = "eax";
+                            operandes.Add("eax");
+                            break;
+                        case 0x03:
+                            opers[1] = "eax";
+                            operandes.Add("eax");//second
+                            break;
+                    }
+                }
+                else if (first == 0xC)
+                {
+                    switch (sec)
+                    {
+                        case 4:
+                            opers[0] = "es";
+                            operandes.Add("es");
+                            break;
+                        case 5:
+                            opers[0] = "ds";
+                            operandes.Add("ds");
+                            break;
+                        case 8:
+                        case 9:
+                            opers[0] = "ebp";
+                            operandes.Add("ebp");
+                            break;
+                    }
+                }
+                switch (opcodeLoc)
+                {
+                    case 0x9E:
+                    case 0x9F:
+                        opers[0] = "ah";
+                        operandes.Add("ah");
+                        break;
+                    case 0xD4:
+                    case 0xD5:
+                        opers[0] = "al";
+                        opers[0] = "ah";
+                        operandes.Add("al");
+                        operandes.Add("ah");
+                        break;
+                    case 0xD6:
+                    case 0xD7:
+                        opers[0] = "al";
+                        operandes.Add("al");
+                        break;
+                }
+
+                operandes = new List<string>();
+                foreach (string s in opers)
+                    if(s!=null)
+                    operandes.Add(s);
+                if (operandes.Count > 0)
+                {
+                }
+                #endregion
+            }
+            #endregion
+        /*    #region Prefix
+              if (prefix != null)
+            {
+                switch (prefix[0])
+                {
+                    case 0x2E: // CS segment override 
+                        pref = "cs:";
+                        break;
+                    case 0x36: // SS segment override 
+                        pref = "ss:";
+                        break;
+                    case 0x3E: // DS segment override 
+                        pref = "ds:";
+                        break;
+                    case 0x26: // ES segment override 
+                        pref = "es:";
+                        break;
+                    case 0x64: // FS segment override 
+                        pref = "fs:";
+                        break;
+                    case 0x65: // GS segment override 
+                        pref = "gs:";
+                        break;
+                    case 0x66: // Operand-size override prefix : 16 bits operand
+                        break;
+                    case 0x67: // Address-size override prefix 
+                        break;
+                    case 0xF0: // LOCK prefix 
+                        break;
+                    case 0xF2: // REPNE/REPNZ prefix 
+                        break;
+                    case 0xF3: // REP or REPE/REPZ prefix 
+                        break;
+                }
+            }
+            #endregion*/
+            string[] reg32ascii = new string[] { "eax", "ecx", "edx", "ebx", "esp", "ebp", "esi", "edi" };
+            int directionBit = (opcodeLoc & 2) >> 1;//Direction. 1 = Register is Destination, 0 = Register is source.
+            int wordBit = (opcodeLoc & 1);//Operation size. 1 = Word, 0 = byte
+            if (opCodeExtension == 0xff)
+                if (regNum != -1)
+                    operandes.Add(reg32ascii[regNum]);
+            #region Parse ModRm
+            if (isJumpOrCall)
+            {
+                if (displacement != null)
+                    displaceInt = operandToInt(displacement);
+                if (immediateOperand != null)
+                    imOperandInt = operandToInt(immediateOperand);
+            }
+            if (position == 0x16D)
+            {
+            }
+            if (hasModRm)
+            {
+                string aa = ParseModRm(modRM, Scale_Index_Base, wordBit, directionBit, displacement, immediateOperand, function);
+                operandes.Add(aa);
+            }
+            else
+            {
+                if (immediateOperand != null)
+                {
+                    if (isJumpOrCall)
+                    {
+                        imOperandInt = (int)position + BinaryCode.Length / 2 + imOperandInt + (int)offsetToCode;
+                        if ((BinaryCode.Length % 2) == 1)
+                            imOperandInt++;
+                    }
+                    else
+                    {
+                        imOperandInt = operandToInt(immediateOperand);
+                    }
+                    operandes.Add(pref + imOperandInt.ToString("x8"));
+                }
+            }
+            #endregion
+            #region select op
+            int rightSyntax = 0;
+            if (instruction.entries[selectedEntry].syntax[rightSyntax].src.Count > 0)
+            {
+                string op = "";
+                if (instruction.entries[selectedEntry].syntax[rightSyntax].src[0].nr != null)
+                    op += instruction.entries[selectedEntry].syntax[rightSyntax].src[0].nr;
+            }
+            if (instruction.entries[selectedEntry].syntax[rightSyntax].dest.Count > 0)
+            {
+                string op = "";
+                if (instruction.entries[selectedEntry].syntax[rightSyntax].dest[0].nr != null)
+                    op += instruction.entries[selectedEntry].syntax[rightSyntax].dest[0].nr;
+            }
+            #endregion
+            #region Opcode extension
+            string[] regfascii = new string[] { "st(0)", "st(1)", "st(2)", "st(3)", "st(4)", "st(5)", "st(6)", "st(7)" };
+
+            if (opCodeExtension != 0xff)
+            {
+                if (regNum != -1)
+                    operandes.Add(regfascii[regNum]);
+            }
+            #endregion
+        }
+        /// <summary>
+        ///  ParseStub
+        /// </summary>
+        /// <param name="ins"></param>
+        /// <param name="prefix"></param>
+        /// <param name="FPU"></param>
+        /// <param name="modRM"></param>
+        /// <param name="displacement"></param>
+        /// <param name="immediateOperand"></param>
+        /// <param name="opCodeExtension"></param>
+        /// <param name="position"></param>
+        public CodeLine(Instruction ins, List<byte> prefix, byte FPU, byte modRM, byte[] displacement, byte[] immediateOperand, byte opCodeExtension, long position)
+        {
+            PositionOfStructureInFile = position;
+            LengthInFile = 1;
+            if (immediateOperand != null)
+                LengthInFile += immediateOperand.Length;
+            string[] opers = new string[4];
+            string pref = "";
+            operandes = new List<string>();
+            this.rightSyntax = 0;
+            this.Floating_Point_Préfix = FPU;
+            this.opCode = ins.shortOpCode;// int.Parse(ins.opCode, System.Globalization.NumberStyles.HexNumber); //opCode; ;
+            this.instruction = ins;
+            int opcodeLoc = opCode;
+            this.displacement = displacement;
+            this.immediateOperand = immediateOperand;
+            if (FPU > 0)
+                opcodeLoc = FPU;
+            else
+            {
+                #region Find predefined operandes for one byte instructions
+                int first = opcodeLoc >> 4;
+                int sec = opcodeLoc & 0x0F;
+                if ((first < 4) || (first == 0xE))
+                {
+                    switch (sec)
+                    {
+                        case 0x04:
+                        case 0x0C:
+                            opers[0] = "al";
+                            operandes.Add("al");
+                            break;
+                        case 0x03: // ????
+                        case 0x05:
+                        case 0x0D:
+                            opers[0] = "eax";
+                            operandes.Add("eax");
+                            break;
+                    }
+                }
+                else if (first == 0xA)
+                {
+                    switch (sec)
+                    {
+                        case 0x00:
+                        case 0x08:
+                        case 0x0c:
+                            opers[0] = "al";
+                            operandes.Add("al");
+                            break;
+                        case 0x02:
+                            opers[1] = "al";
+                            operandes.Add("al");//second
+                            break;
+                        case 0x01:
+                        case 0x09:
+                        case 0x0D:
+                            opers[0] = "eax";
+                            operandes.Add("eax");
+                            break;
+                        case 0x03:
+                            opers[1] = "eax";
+                            operandes.Add("eax");//second
+                            break;
+                    }
+                }
+                else if (first == 0xC)
+                {
+                    switch (sec)
+                    {
+                        case 4:
+                            opers[0] = "es";//regcascii
+                            operandes.Add("es");
+                            break;
+                        case 5:
+                            opers[0] = "ds";
+                            operandes.Add("ds");
+                            break;
+                        case 8:
+                        case 9:
+                            opers[0] = "ebp";
+                            operandes.Add("ebp");
+                            break;
+                    }
+                }
+                switch (opcodeLoc)
+                {
+                    case 0x9E:
+                    case 0x9F:
+                        opers[0] = "ah";
+                        operandes.Add("ah");
+                        break;
+                    case 0xD4:
+                    case 0xD5:
+                        opers[0] = "al";
+                        opers[0] = "ah";
+                        operandes.Add("al");
+                        operandes.Add("ah");
+                        break;
+                    case 0xD6:
+                    case 0xD7:
+                        opers[0] = "al";
+                        operandes.Add("al");
+                        break;
+                }
+                if (ins.ModRMHasRegister)
+                {
+                    switch (modRM)
+                    {
+                        case 0xC0:
+                            opers[1] = "eax";
+                            break;
+                        case 0xd0:
+                            opers[1] = "ax";
+                            break;
+                    }
+                }
+
+                operandes = new List<string>();
+                foreach (string s in opers)
+                    operandes.Add(s);
+                if (operandes.Count > 0)
+                {
+                }
+                #endregion
+            }
+             int directionBit = (opcodeLoc & 2) >> 1;//Direction. 1 = Register is Destination, 0 = Register is source.
+            int wordBit = (opcodeLoc & 1);//Operation size. 1 = Word, 0 = byte
+            #region Parse ModRm
+            short imOperandInt = 0;
+            if (isJumpOrCall)
+            {
+                if (displacement != null)
+                    displaceInt = operandToInt(displacement);
+                if (immediateOperand != null)
+                    imOperandInt = (short)operandToInt(immediateOperand);
+            }
+            if (immediateOperand != null)
+            {
+                if (isJumpOrCall)
+                {
+                    //      imOperandInt = (int)position + BinaryCode.Length / 2 + imOperandInt + (int)offsetToCode;
+                    if ((BinaryCode.Length % 2) == 1)
+                        imOperandInt++;
+                }
+                else
+                {
+                    if (immediateOperand.Length == 2)
+                    {
+                        imOperandInt = (short)operandToInt(immediateOperand);
+                        operandes.Add(pref + imOperandInt.ToString("x4"));
+                    }
+                    else
+                    {
+                        imOperandInt = immediateOperand[0];
+                        operandes.Add(pref + immediateOperand[0].ToString("x2"));
+                    }
+                }
+            }
+            #endregion
+            #region select op
+            int rightSyntax = 0;
+            if (instruction.entries[selectedEntry].syntax[rightSyntax].src.Count > 0)
+            {
+                string op = "";
+                if (instruction.entries[selectedEntry].syntax[rightSyntax].src[0].nr != null)
+                    op += instruction.entries[selectedEntry].syntax[rightSyntax].src[0].nr;
+            }
+            if (instruction.entries[selectedEntry].syntax[rightSyntax].dest.Count > 0)
+            {
+                string op = "";
+                if (instruction.entries[selectedEntry].syntax[rightSyntax].dest[0].nr != null)
+                    op += instruction.entries[selectedEntry].syntax[rightSyntax].dest[0].nr;
+            }
+            #endregion
+            #region Opcode extension
+            if (opCodeExtension != 0xff)
+            {
+            }
+            #endregion
         }
         private string operandToText(byte[] operand)
         {
@@ -2337,7 +3121,7 @@ namespace Code
                 if (dtaInt != 0)
                 {
                     s = dtaInt.ToString("x8");
-                    LengthInFile = s.Length/2;
+                    LengthInFile = s.Length / 2;
                     return s;
                 }
                 if (data != null)
@@ -2346,7 +3130,7 @@ namespace Code
                     {
                         foreach (byte a in data)
                             s += a.ToString("x2");
-                        LengthInFile = s.Length/2;
+                        LengthInFile = s.Length / 2;
                         return s;
                     }
                     else
@@ -2354,15 +3138,16 @@ namespace Code
                     }
                 }
                 List<byte> codes = new List<byte>();
-                if (prefix != 0)
-                    codes.Add((byte)prefix);
-                if (FPU != 0)
-                    codes.Add((byte)FPU);
+                if (prefix != null)
+                    foreach (byte b in prefix)
+                        codes.Add(b);
+                if (Floating_Point_Préfix != 0)
+                    codes.Add((byte)Floating_Point_Préfix);
                 codes.Add((byte)opCode);
                 if (HasModRM)
                     codes.Add((byte)modRM);
-                if (SIB != -1)
-                    codes.Add((byte)SIB);
+                if (Scale_Index_Base != 0xff)
+                    codes.Add((byte)Scale_Index_Base);
                 if (displacement != null)
                     foreach (byte b in displacement)
                         codes.Add(b);
@@ -2371,7 +3156,7 @@ namespace Code
                         codes.Add(b);
                 foreach (int i in codes)
                     s += i.ToString("x2");
-                LengthInFile = s.Length/2;
+                LengthInFile = s.Length / 2;
                 return s;
             }
         }
@@ -2380,9 +3165,54 @@ namespace Code
             if (text != null)
                 return text;
             string c = "";// PositionOfStructureInFile.ToString("x8") + " : ";
-            if (inst != null)
+            #region Prefix
+            string pref = "";
+            if (prefix != null)
             {
-                c += inst.entries[selectedEntry].syntax[rightSyntax].mnemo + " ";
+                foreach (byte p in prefix)
+                {
+                    switch (p)
+                    {
+                        case 0x2E: // CS segment override 
+                            pref += "cs:";
+                            break;
+                        case 0x36: // SS segment override 
+                            pref += "ss:";
+                            break;
+                        case 0x3E: // DS segment override 
+                            pref += "ds:";
+                            break;
+                        case 0x26: // ES segment override 
+                            pref += "es:";
+                            break;
+                        case 0x64: // FS segment override 
+                            pref += "fs:";
+                            break;
+                        case 0x65: // GS segment override 
+                            pref += "gs:";
+                            break;
+                        case 0x66: // Operand-size override prefix : 16 bits operand
+                            break;
+                        case 0x67: // Address-size override prefix 
+                            break;
+                        case 0xF0: // LOCK prefix 
+                            pref += "LOCK";
+                            break;
+                        case 0xF2: // REPNE/REPNZ prefix 
+                            pref += "REP";
+                            break;
+                        case 0xF3: // REP or REPE/REPZ prefix 
+                            pref += "REP";
+                            break;
+                    }
+                }
+                c += pref;
+            }
+            #endregion
+
+            if (instruction != null)
+            {
+                c += instruction.entries[selectedEntry].syntax[rightSyntax].mnemo + " ";
                 for (int i = 0; i < operandes.Count; i++)
                 {
                     if ((operandes[i] != null) & (operandes[i] != ""))
@@ -2393,6 +3223,12 @@ namespace Code
                                 c += ", ";
                     }
                 }
+     /*           if (immediateOperand != null)
+                {
+                    c += " 0x";
+                    foreach (byte b in immediateOperand)
+                        c += b.ToString("x2");
+                }*/
             }
             else
             {
@@ -2401,4 +3237,6 @@ namespace Code
             return c.Trim();
         }
     }
+    enum Direction {Register_is_Source, Register_is_Destination }
+    enum WordSize { Word, Byte }
 }

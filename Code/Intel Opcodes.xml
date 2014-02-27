@@ -18,11 +18,13 @@
 						<a>G</a>
 						<t>b</t>
 					</src>
-				</syntax> <grp1>gen</grp1><grp2>arith</grp2><grp3>binary</grp3> <modif_f>oszapc</modif_f><def_f>oszapc</def_f> -<note>
+				</syntax> 
+        <grp1>gen</grp1><grp2>arith</grp2><grp3>binary</grp3> <modif_f>oszapc</modif_f><def_f>oszapc</def_f> -<note>
 					<brief>Add</brief>
 				</note>
 			</entry>
-		</pri_opcd> -<pri_opcd value="01">
+		</pri_opcd> 
+    -<pri_opcd value="01">
 			-<entry lock="yes" r="yes" op_size="1" direction="0">
 				-<syntax>
 					<mnem>ADD</mnem>-<dst>
@@ -36,7 +38,8 @@
 					<brief>Add</brief>
 				</note>
 			</entry>
-		</pri_opcd> -<pri_opcd value="02">
+		</pri_opcd> 
+    -<pri_opcd value="02">
 			-<entry r="yes" op_size="0" direction="1">
 				-<syntax>
 					<mnem>ADD</mnem>-<dst>
@@ -50,7 +53,8 @@
 					<brief>Add</brief>
 				</note>
 			</entry>
-		</pri_opcd> -<pri_opcd value="03">
+		</pri_opcd> 
+    -<pri_opcd value="03">
 			-<entry r="yes" op_size="1" direction="1">
 				-<syntax>
 					<mnem>ADD</mnem>-<dst>
@@ -64,7 +68,8 @@
 					<brief>Add</brief>
 				</note>
 			</entry>
-		</pri_opcd> -<pri_opcd value="04">
+		</pri_opcd> 
+    -<pri_opcd value="04">
 			-<entry op_size="0" attr="acc">
 				-<syntax>
 					<mnem>ADD</mnem> <dst type="b" group="gen" nr="0">AL</dst> -<src>
@@ -75,7 +80,8 @@
 					<brief>Add</brief>
 				</note>
 			</entry>
-		</pri_opcd> -<pri_opcd value="05">
+		</pri_opcd> 
+    -<pri_opcd value="05">
 			-<entry op_size="1" attr="acc">
 				-<syntax>
 					<mnem>ADD</mnem><dst type="vqp" group="gen" nr="0">rAX</dst>-<src>
@@ -86,7 +92,8 @@
 					<brief>Add</brief>
 				</note>
 			</entry>
-		</pri_opcd> -<pri_opcd value="06">
+		</pri_opcd> 
+    -<pri_opcd value="06">
 			-<entry>
 				-<syntax>
 					<mnem>PUSH</mnem>
@@ -101,7 +108,8 @@
 					<brief>Invalid Instruction in 64-Bit Mode</brief>
 				</note>
 			</entry>
-		</pri_opcd> -<pri_opcd value="07">
+		</pri_opcd> 
+    <pri_opcd value="07">
 			-<entry>
 				-<syntax>
 					<mnem>POP</mnem>
@@ -116,7 +124,8 @@
 					<brief>Invalid Instruction in 64-Bit Mode</brief>
 				</note>
 			</entry>
-		</pri_opcd> -<pri_opcd value="08">
+		</pri_opcd> -
+    <pri_opcd value="08">
 			-<entry lock="yes" r="yes" op_size="0" direction="0">
 				-<syntax>
 					<mnem>OR</mnem>-<dst>
@@ -158,7 +167,8 @@
 					<brief>Logical Inclusive OR</brief>
 				</note>
 			</entry>
-		</pri_opcd> -<pri_opcd value="0B">
+		</pri_opcd> 
+   -<pri_opcd value="0B">
 			-<entry r="yes" op_size="1" direction="1">
 				-<syntax>
 					<mnem>OR</mnem>-<dst>
@@ -172,7 +182,8 @@
 					<brief>Logical Inclusive OR</brief>
 				</note>
 			</entry>
-		</pri_opcd> -<pri_opcd value="0C">
+		</pri_opcd> 
+    -<pri_opcd value="0C">
 			-<entry op_size="0" attr="acc">
 				-<syntax>
 					<mnem>OR</mnem><dst type="b" group="gen" nr="0">AL</dst>-<src>
@@ -183,7 +194,8 @@
 					<brief>Logical Inclusive OR</brief>
 				</note>
 			</entry>
-		</pri_opcd> -<pri_opcd value="0D">
+		</pri_opcd> -
+    <pri_opcd value="0D">
 			-<entry op_size="1" attr="acc">
 				-<syntax>
 					<mnem>OR</mnem><dst type="vqp" group="gen" nr="0">rAX</dst>-<src>
@@ -1075,7 +1087,8 @@
 			</entry>
 		</pri_opcd> -<pri_opcd value="60">
 			-<entry>
-				<proc_start>01</proc_start> -<syntax>
+				<proc_start>01</proc_start> 
+        -<syntax>
 					<mnem>PUSHA</mnem>
 					<!-- 1.02 <src nr="0" group="gen" type="w" displayed="no">AX</src> <src nr="1" group="gen" type="w" displayed="no">CX</src> <src nr="2" group="gen" type="w" displayed="no">DX</src> <src nr="3" group="gen" type="w" displayed="no">BX</src> <src nr="4" group="gen" type="w" displayed="no">SP</src> <src nr="5" group="gen" type="w" displayed="no">BP</src> <src nr="6" group="gen" type="w" displayed="no">SI</src> <src nr="7" group="gen" type="w" displayed="no">DI</src> -->
 					<dst displayed="no" address="SC">SS:[rSP]</dst>
@@ -1129,7 +1142,8 @@
 					<dst type="wo" group="gen" nr="0" displayed="no">AX</dst>
 					<src displayed="no" address="SC">SS:[rSP]</src>
 					<!-- 1.02 -->
-				</syntax> <grp1>gen</grp1><grp2>stack</grp2> -<note>
+				</syntax> <grp1>gen</grp1><grp2>stack</grp2> 
+        -<note>
 					<brief>Pop All General-Purpose Registers</brief>
 				</note>
 			</entry> -<entry>
@@ -6258,7 +6272,8 @@
 				</note>
 			</entry>
 		</pri_opcd>
-	</one-byte> -<two-byte xml:id="two-byte">
+	</one-byte> 
+  -<two-byte xml:id="two-byte">
 		-<pri_opcd value="00">
 			<proc_start>02</proc_start> -<entry mode="p">
 				<opcd_ext>0</opcd_ext> -<syntax mod="mem">
@@ -14185,7 +14200,8 @@
 		<gen_note id="gen_note_short_near_jmp"/>
 		<gen_note id="gen_note_VMX_vs_SVM"/>
 		<gen_note id="gen_note_SSE4_amd"/>
-	</gen_notes> -<ring_notes>
+	</gen_notes> 
+  -<ring_notes>
 		<ring_note id="rflags_iopl"/>
 		<ring_note id="cr4_tsd"/>
 		<ring_note id="cr4_pce"/>
