@@ -250,25 +250,29 @@ namespace BinHed
             Type t = tn.Tag.GetType();
             if (tn.Tag != null)
             {
+                if ((tn.Text.Contains("Data Start Sector"))||(tn.Text.Contains("DataStartSector")))
+                    if (dataSelected != null)
+                        dataSelected(this, new DataSelectedEventArgs((long)tn.Tag * 0x200, 0x200, null));
+                if(tn.Text.Contains("StartCluster"))
+                    if (dataSelected != null)
+                        dataSelected(this, new DataSelectedEventArgs((long)tn.Tag * 0x200*8, 0x200, null));
                 try
                 {
-                    ILOCALIZED_DATA im = (ILOCALIZED_DATA)tn.Tag;
-                    FillTreeNode(tn, im);
-                    if (dataSelected != null)
-                        dataSelected(this, new DataSelectedEventArgs(im.PositionOfStructureInFile, im.LengthInFile));
-                    if (dataRequested != null)
-                        dataRequested(this, new DataRequestArgs(tn, tn.Tag));
+                    Type[] ts = tn.Tag.GetType().GetInterfaces();
+                    if (ts[0].Name == "ILOCALIZED_DATA")
+                    {
+                        ILOCALIZED_DATA im = (ILOCALIZED_DATA)tn.Tag;
+                        FillTreeNode(tn, im);
+                        if (dataSelected != null)
+                            dataSelected(this, new DataSelectedEventArgs(im.PositionOfStructureInFile, im.LengthInFile));
+                        if (dataRequested != null)
+                            dataRequested(this, new DataRequestArgs(tn, tn.Tag));
+                    }
                 }
                 catch
                 {
-                    if ((tn.Text.Contains("Data Start Sector"))||(tn.Text.Contains("DataStartSector")))
-                        if (dataSelected != null)
-                            dataSelected(this, new DataSelectedEventArgs((long)tn.Tag * 0x200, 0x200, null));
-                    if(tn.Text.Contains("StartCluster"))
-                       if (dataSelected != null)
-                           dataSelected(this, new DataSelectedEventArgs((long)tn.Tag * 0x200*8, 0x200, null));
                 }
-           //     tn.Expand();
+                tn.Expand();
             }
 
         }

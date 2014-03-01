@@ -429,7 +429,7 @@ namespace BookReader
             offset = new ELEMENTARY_TYPE(sw, 0, typeof(int));//(uint)sw.ReadInteger();
             size = new ELEMENTARY_TYPE(sw, 0, typeof(int));//(uint)sw.ReadInteger();
             reserved = new ELEMENTARY_TYPE(sw, 0, typeof(int));//(uint)sw.ReadInteger();
-            int pos = sw.Position;
+            long pos = sw.Position;
             sw.Position = (int)offset.Value;
             bufferE = new ELEMENTARY_TYPE(sw, 0, typeof(byte[]), (int)size.Value);//new byte[size];
             lrfTags = new List<LRFTag>();
@@ -1195,7 +1195,7 @@ namespace BookReader
                             break;
                         default:
                             List<byte> ints = new List<byte>();
-                            int start = sw.Position;
+                            int start = (int)sw.Position;
                             byte x = sw.ReadByte();
                             while (x != 0xF5)
                             {

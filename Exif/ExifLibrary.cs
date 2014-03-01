@@ -285,7 +285,7 @@ namespace ExifLibrary
                     {
                         case "Exif":
                             #region Exif
-                            startTiffHeader = sw.Position;
+                            startTiffHeader = (int) sw.Position;
                             int Pad = sw.ReadByte();
                             #region TIFF Marker
                             byteOrder = new ELEMENTARY_TYPE(sw, 0, Encoding.Default, 2);// sw.ReadString(2);
@@ -397,7 +397,7 @@ namespace ExifLibrary
                             #region XMP
                             try
                             {
-                                int stIndex = sw.Position;
+                                int stIndex = (int)sw.Position;
                                 xmlData = new ELEMENTARY_TYPE(sw, 0, Encoding.Default, (ushort)length.Value);
                                 ParseXMP((string)xmlData.Value, stIndex);
                             }
@@ -412,7 +412,7 @@ namespace ExifLibrary
                     switch (((string)exifIdentifierCode.Value))
                     {
                         case "MPF":
-                            startTiffHeader = sw.Position;
+                            startTiffHeader = (int) sw.Position;
                             byteOrder = new ELEMENTARY_TYPE(sw, 0, Encoding.Default, 2);// sw.ReadString(2);
                             if ((string)byteOrder.Value == "MM")
                                 sw.LittleEndian = true;

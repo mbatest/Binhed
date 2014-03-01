@@ -164,7 +164,7 @@ namespace LowLevel
         public Root16Entry(BitStreamReader sw, Partition p, long offset)
         {
             PositionOfStructureInFile = sw.Position + offset;
-            int start = sw.Position;
+            long start = sw.Position;
             LengthInFile = 0x20;
             entryNumber = sw.ReadByte();
             if (entryNumber < 0x50)

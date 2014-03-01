@@ -29,6 +29,7 @@ namespace Code
             Root.Nodes.Add(h);
             h.Nodes.Add("Magic " + exe.Exeheader.Magic);
             h.Nodes.Add("Address " + exe.Exeheader.AddressOfNewHeader.ToString("x8"));
+            h.Nodes.Add("Stub " + exe.Exeheader.StubProgram.ToString());
             TreeNode nt_h = new TreeNode("NT headers");
             Root.Nodes.Add(nt_h);
             nt_h.Tag = exe.NT_Headers;
@@ -37,7 +38,7 @@ namespace Code
             TreeNode Fh = new TreeNode("File Header");
             Fh.Tag = exe.NT_Headers.FileHeader;
             nt_h.Nodes.Add(Fh);
-            Fh.Nodes.Add(new TreeNode(Encoding.Default.GetString(exe.NT_Headers.FileHeader.Machine)));
+            Fh.Nodes.Add(new TreeNode("Machine : " + Encoding.Default.GetString(exe.NT_Headers.FileHeader.Machine)));
             Fh.Nodes.Add(new TreeNode("Number of Sections : " + exe.NT_Headers.FileHeader.NumberOfSections.ToString()));
             Fh.Nodes.Add(new TreeNode("Time Stamp : " + exe.NT_Headers.FileHeader.TimeDateStamp.ToString()));
             Fh.Nodes.Add(new TreeNode("Pointer to symbol table : " + exe.NT_Headers.FileHeader.PointerToSymbolTable.ToString("x8")));

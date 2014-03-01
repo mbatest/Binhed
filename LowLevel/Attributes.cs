@@ -158,7 +158,7 @@ namespace LowLevel
         public ATTRIBUTE_RECORD_HEADER(BitStreamReader sw, long offset)
         {         
             PositionOfStructureInFile = sw.Position + offset;
-            int start = sw.Position;
+            long start = sw.Position;
             type_Code = new ELEMENTARY_TYPE(sw, offset, typeof(uint));//
             if ((uint)type_Code.Value == 0xffffffff)
                 return;
@@ -901,7 +901,7 @@ namespace LowLevel
             PositionOfStructureInFile = sw.Position + offset;
             header = new MULTI_SECTOR_HEADER(sw, offset);
             vcn = new ELEMENTARY_TYPE(sw, offset, typeof(long));// sw.ReadLong();
-            int start = sw.Position;
+            long start = sw.Position;
             indexHeader = new INDEX_HEADER(sw, offset);
             sw.Position = (int)indexHeader.Offset_to_first_Index_Entry.Value + start;
             while (sw.Position < start + (int)indexHeader.Total_size_of_Index_Entries.Value)
@@ -1016,7 +1016,7 @@ namespace LowLevel
             size_of_Index_Allocation_Entry = new ELEMENTARY_TYPE(sw, offset, typeof(int));//sw.ReadInteger();
             clusters_per_Index_Record = new ELEMENTARY_TYPE(sw, offset, typeof(byte));//sw.ReadByte();
             padding = new ELEMENTARY_TYPE(sw, offset, typeof(byte[]), 3);//sw.ReadBytes(3);
-            int start = sw.Position;
+            long start = sw.Position;
             indexHeader = new INDEX_HEADER(sw, offset);
             if (sw.Position < start + (int)indexHeader.Total_size_of_Index_Entries.Value)
             {
@@ -1064,11 +1064,11 @@ namespace LowLevel
         { get { return (INDEX_FLAGS)(byte)flags.Value; } }
         public INDEX_HEADER(BitStreamReader sw, long offset)
         {
-            int start=sw.Position;
+            long start=sw.Position;
            
             PositionOfStructureInFile = sw.Position + offset;
             offset_to_first_Index_Entry = new ELEMENTARY_TYPE(sw, offset, typeof(int));//sw.ReadInteger();
-            int startentries = sw.Position - 4 + (int)offset_to_first_Index_Entry.Value;
+            long startentries = sw.Position - 4 + (int)offset_to_first_Index_Entry.Value;
             total_size_of_Index_Entries = new ELEMENTARY_TYPE(sw, offset, typeof(int));//sw.ReadInteger();
             allocated_size_of_the_Index_Entries = new ELEMENTARY_TYPE(sw, offset, typeof(int));//sw.ReadInteger();
             flags = new ELEMENTARY_TYPE(sw, offset, typeof(byte));//sw.ReadByte();
@@ -1129,7 +1129,7 @@ namespace LowLevel
         {
            
             PositionOfStructureInFile = sw.Position + offset;
-            int start = sw.Position;
+            long start = sw.Position;
             fileReference = new MFT_SEGMENT_REFERENCE(sw, offset);
             length = new ELEMENTARY_TYPE(sw, offset, typeof(ushort));// (ushort)sw.ReadShort();
             attributeLength = new ELEMENTARY_TYPE(sw, offset, typeof(ushort));// (ushort)sw.ReadShort();

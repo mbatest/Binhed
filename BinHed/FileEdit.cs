@@ -19,6 +19,7 @@ using LowLevel;
 using Utils;
 using BinaryViewer;
 using System.Diagnostics;
+using Exif;
 
 namespace BinHed
 {
@@ -157,12 +158,52 @@ namespace BinHed
                     splitContainer3.Panel2.Controls.Add(p);
                     splitContainer3.Panel2Collapsed = false;
                     break;
+                case ".png":
+                    PNGFile png = new PNGFile(FileName);
+                    exv.Init(png);
+                    p = new PictureBox();
+                    p.SizeMode = PictureBoxSizeMode.StretchImage;
+                    p.Width = 400;// splitContainer1.Panel2.Width;
+                    p.Image = Image.FromFile(FileName);
+                    p.Height = p.Width * p.Image.Height / p.Image.Width;
+                    splitContainer3.Panel2.Controls.Clear();
+                    splitContainer3.Panel2.Controls.Add(p);
+                    splitContainer3.Panel2Collapsed = false;
+                    break;
                 case ".bmp":
-                    BinDecoder bind = new BinDecoder(FileName);
+                    BMPFile bind = new BMPFile(FileName);
                     exv.Init(bind);
                     p = new PictureBox();
-                    p.SizeMode = PictureBoxSizeMode.AutoSize;
+                    p.SizeMode = PictureBoxSizeMode.StretchImage;
+                    p.Width = 400;// splitContainer1.Panel2.Width;
                     p.Image = Image.FromFile(FileName);
+                    p.Height = p.Width * p.Image.Height / p.Image.Width;
+                    splitContainer3.Panel2.Controls.Clear();
+                    splitContainer3.Panel2.Controls.Add(p);
+                    splitContainer3.Panel2Collapsed = false;
+                    break;
+                case ".gif":
+                    GIFFile gif = new GIFFile(FileName);
+                    exv.Init(gif);
+                    p = new PictureBox();
+                    p.SizeMode = PictureBoxSizeMode.StretchImage;
+                    p.Width = 400;// splitContainer1.Panel2.Width;
+                    p.Image = Image.FromFile(FileName);
+                    p.Height = p.Width * p.Image.Height / p.Image.Width;
+                    splitContainer3.Panel2.Controls.Clear();
+                    splitContainer3.Panel2.Controls.Add(p);
+                    splitContainer3.Panel2Collapsed = false;
+                    break;
+                case ".tif":
+                case ".tiff":
+                    TiFFile tif = new TiFFile(FileName);
+                    exv.Init(tif);
+                    p = new PictureBox();
+                    p.SizeMode = PictureBoxSizeMode.StretchImage;
+                    p.Width = 400;// splitContainer1.Panel2.Width;
+                    p.Image = Image.FromFile(FileName);
+                    p.Height = p.Width * p.Image.Height / p.Image.Width;
+                    splitContainer3.Panel2.Controls.Clear();
                     splitContainer3.Panel2.Controls.Add(p);
                     splitContainer3.Panel2Collapsed = false;
                     break;
@@ -281,7 +322,10 @@ namespace BinHed
                     exeViewer.dataSelected += exv_dataSelected;
                     splitContainer3.Panel1.Controls.Add(exeViewer);
                     exeViewer.Dock = DockStyle.Fill;
-                    break;
+ /*
+                  exv.Init(ex);
+*/
+                  break;
                 #endregion
                 case "ITSF"://chm : http://www.russotto.net/chm/chmformat.html
 
@@ -373,7 +417,7 @@ namespace BinHed
                                             break;
                                         case "ITSF":
                                             BinDecoder bid = new BinDecoder(FileName);
-                                            //Microsoft Compiled HTML Help File
+                                            //Microsoft Compiled HTML Help File : Info-Tech Storage Format
                                             break;
                                         case "GIF8":
                                             break;

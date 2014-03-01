@@ -354,8 +354,8 @@ namespace BinHed
                             if ((buf2 < buf) && (fileStruc[streamNumber].fccType == "vids")) buf = buf2;
                             AddLong("xPelsPerMeter"); stSize -= 4;
                             AddLong("yPelsPerMeter"); stSize -= 4;
-                            AddLong("Colors"); stSize -= 4;
-                            AddLong("Important Colors"); stSize -= 4;
+                            AddLong("Color_Table"); stSize -= 4;
+                            AddLong("Important Color_Table"); stSize -= 4;
                             streamNumber++;
                             break;
                         case "auds":

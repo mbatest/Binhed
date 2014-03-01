@@ -66,7 +66,7 @@ namespace Utils
         {
             return (int)BytesToInteger(ReadBytes(4));
         }
-        public long ReadLongInt()
+        public long ReadLongInteger()
         {
             return BytesToInteger(ReadBytes(8));
         }
@@ -85,7 +85,6 @@ namespace Utils
                 default: return 0;
             }
         }
-
         public int FromBCD()
         {
             byte b = (byte)ReadByte();
@@ -131,12 +130,12 @@ namespace Utils
         {
             get { return name; }
         }
-        public int BitPosition
+        public long BitPosition
         {
             get { return currentBit; }
             set { currentBit = value; }
         }
-        public int Position
+        public long Position
         {
             get { return currentBit / 8; }
             set { currentBit = value * 8; }
@@ -179,9 +178,8 @@ namespace Utils
         /// </summary>
         public void Align()
         {
-            int rest = currentBit % 8;
-            if (rest != 0)
-                currentBit += (8 - rest);
+            if (currentBit % 8 != 0)
+                currentBit += (8 - currentBit % 8);
         }
         public void Close()
         {
@@ -225,11 +223,11 @@ namespace Utils
         /// </summary>
         /// <param name="index">index</param>
         /// <returns>value</returns>
-        public int ReadBit(int index)
+        public int ReadBit(long index)
         {
             int value = 0;
-            int byteIndex = index / 8;
-            int bitIndex = index % 8;
+            int byteIndex =(int) index / 8;
+            int bitIndex = (int) index % 8;
             try
             {
                 value = (buffer[byteIndex] & BitMask[bitIndex]) >> (7 - bitIndex);
@@ -255,7 +253,7 @@ namespace Utils
         public List<int> ReadBitRange(int length)
         {
             List<int> bits = new List<int>();
-            int end = currentBit + length;
+            long end = currentBit + length;
             while (currentBit < end)
             {
                 bits.Add(ReadBit());
@@ -285,7 +283,7 @@ namespace Utils
         public List<bool> ReadBools(int length)
         {
             List<bool> bits = new List<bool>();
-            int end = currentBit + length;
+            long end = currentBit + length;
             while (currentBit < end)
             {
                 bits.Add(ReadBit() == 1);
@@ -437,7 +435,7 @@ namespace Utils
         public long ReadPts_dts()
         {
             byte[] pts = new byte[5];
-            Buffer.BlockCopy(buffer, Position, pts, 0, 5);
+            Buffer.BlockCopy(buffer, (int)Position, pts, 0, 5);
             long p = (pts[0] & 0x0E << 29) + ((pts[1] & 0x7F) << 21) + ((pts[2] & 0xFE) << 14) + (pts[3] << 7) + ((pts[4] & 0xFE) >> 1);
             return p / 90;
         }
@@ -538,7 +536,7 @@ namespace Utils
         public byte[] ReadBlock(int length)
         {
             byte[] dat = new byte[length];
-            Buffer.BlockCopy(buffer, Position, dat, 0, length);
+            Buffer.BlockCopy(buffer, (int)Position, dat, 0, length);
             Position += length;
             return dat;
         }
@@ -626,7 +624,7 @@ namespace Utils
             get { return buffer; }
             set { buffer = value; }
         }
-        int currentBit;
+        long currentBit;
         byte[] BitMask = new byte[] { 0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01, 0x00 };
         #endregion
     }

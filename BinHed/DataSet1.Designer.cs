@@ -17,7 +17,7 @@ namespace BinHed {
     ///Represents computerSystem strongly typed in-memory cache of codeBuffer.
     ///</summary>
     [global::System.Serializable()]
-    [global::System.ComponentModel.DesignerCategoryAttribute("code")]
+    [global::System.ComponentModel.DesignerCategoryAttribute("flags")]
     [global::System.ComponentModel.ToolboxItem(true)]
     [global::System.Xml.Serialization.XmlSchemaProviderAttribute("GetTypedDataSetSchema")]
     [global::System.Xml.Serialization.XmlRootAttribute("DataSet1")]

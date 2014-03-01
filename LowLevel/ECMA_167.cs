@@ -979,7 +979,7 @@ namespace LowLevel
             volume_Creation_Date = new ELEMENTARY_TYPE(sw, offset, Encoding.Default, 16);
             volume_Modification_Date = new ELEMENTARY_TYPE(sw, offset, Encoding.Default, 16);
             volume_Expiration_Date = new ELEMENTARY_TYPE(sw, offset, Encoding.Default, 16);
-            structData = new ELEMENTARY_TYPE(sw, offset, typeof(byte[]), 2041 - sw.Position);
+            structData = new ELEMENTARY_TYPE(sw, offset, typeof(byte[]), 2041 - (int)sw.Position);
 
             LengthInFile = sw.Position + offset - PositionOfStructureInFile;
         }

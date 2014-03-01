@@ -65,14 +65,14 @@ namespace LowLevel
             bootCode = new ELEMENTARY_TYPE(sw, offset, typeof(byte[]), 218);
             code = null;
             disk_TimeStamp = new ELEMENTARY_TYPE(sw, offset, typeof(byte[]), 0x6);
-            int start = sw.Position;
+            long start = sw.Position;
             sw.Position = 0;
             byte jump = sw.ReadByte();
             while (jump != 0xC3)
                 jump = sw.ReadByte();
-            int end = sw.Position;
+            long end = sw.Position;
             sw.Position = start;
-            bootCode_Part2 = new ELEMENTARY_TYPE(sw, offset, typeof(byte[]), end - start);
+            bootCode_Part2 = new ELEMENTARY_TYPE(sw, offset, typeof(byte[]), (int)(end - start));
             try
             {
                 code = Disassemble.ParseBloc((byte[])bootCode.Value, PositionOfStructureInFile);

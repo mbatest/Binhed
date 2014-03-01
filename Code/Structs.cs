@@ -257,8 +257,8 @@ namespace Code
             if ((int)buffer[0] == 188 && (int)buffer[1] == 14) { return "EFI byte code"; }
             if ((int)buffer[0] == 65 && (int)buffer[1] == 144) { return "Mitsubishi M32R little endian"; }
             if ((int)buffer[0] == 102 && (int)buffer[1] == 2) { return "MIPS16"; }
-            if ((int)buffer[0] == 102 && (int)buffer[1] == 3) { return "MIPS with Floating_Point_Préfix"; }
-            if ((int)buffer[0] == 102 && (int)buffer[1] == 4) { return "MIPS 16 with Floating_Point_Préfix"; }
+            if ((int)buffer[0] == 102 && (int)buffer[1] == 3) { return "MIPS with FPU"; }
+            if ((int)buffer[0] == 102 && (int)buffer[1] == 4) { return "MIPS 16 with FPU"; }
             if ((int)buffer[0] == 102 && (int)buffer[1] == 1) { return "MIPS little endian / R4000"; }
             if ((int)buffer[0] == 162 && (int)buffer[1] == 1) { return "Hitachi SH3"; }
             if ((int)buffer[0] == 163 && (int)buffer[1] == 1) { return "Hitachi SH3 DSP"; }
@@ -306,6 +306,7 @@ namespace Code
             get
             {
                 string s = "";
+
                 if ((characteristics & 0x001) == 1) s += "Relocs Stripped {0}";
                 if ((characteristics & 0x002) == 2) s += "Executable Image ";
                 if ((characteristics & 0x004) == 0x004) s += "Line Numbers Stripped ";
@@ -424,7 +425,7 @@ namespace Code
                     BaseOfData = sw.ReadInteger();
                     ImageBase = sw.ReadInteger();
                     break;
-                case 0x20b: ImageBase = sw.ReadLongInt();
+                case 0x20b: ImageBase = sw.ReadLongInteger();
                     break;
             }
             SectionAlignment = sw.ReadInteger();
@@ -450,10 +451,10 @@ namespace Code
                     SizeOfHeapCommit = sw.ReadInteger();
                     break;
                 case 0x20b:
-                    SizeOfStackReserve = sw.ReadLongInt();
-                    SizeOfStackCommit = sw.ReadLongInt();
-                    SizeOfHeapReserve = sw.ReadLongInt();
-                    SizeOfHeapCommit = sw.ReadLongInt();
+                    SizeOfStackReserve = sw.ReadLongInteger();
+                    SizeOfStackCommit = sw.ReadLongInteger();
+                    SizeOfHeapReserve = sw.ReadLongInteger();
+                    SizeOfHeapCommit = sw.ReadLongInteger();
                     break;
             }
             LoaderFlags = sw.ReadInteger();//Obsolete
@@ -508,7 +509,7 @@ namespace Code
             byte[] data = null;
             if (Executable.Is64bits)
             {
-                a = sw.ReadLongInt();
+                a = sw.ReadLongInteger();
                 data = BitConverter.GetBytes(a);
             }
             else
@@ -1194,7 +1195,7 @@ namespace Code
             this.baseOffset = baseOffset;
             PositionOfStructureInFile = sw.Position;
             if (Executable.Is64bits)
-                Function = sw.ReadLongInt();
+                Function = sw.ReadLongInteger();
             else
                 Function = (uint)sw.ReadInteger();
             LengthInFile = sw.Position - PositionOfStructureInFile;
@@ -2274,7 +2275,7 @@ namespace Code
     }
     #endregion
     #region Clr
-    /*     * COM+ 2.0 header public classure.    */
+    /*     * COM+ 2.0 header public structure.    */
     public class IMAGE_COR20_HEADER : IMAGE_BASE_DATA
     {
         public int Cb
@@ -2453,6 +2454,7 @@ namespace Code
             LengthInFile = sw.Position - PositionOfStructureInFile;
         }
     }
+
     #endregion
     #region Icons
     public class ICOHEADER : IMAGE_BASE_DATA

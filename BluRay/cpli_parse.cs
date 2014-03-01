@@ -373,7 +373,7 @@ namespace BluRay
             bs.SkipBit(128 * 8);
             // ts type info block
             int len = bs.ReadShort();
-            int pos = bs.Position;
+            int pos = (int) bs.Position;
             if (len > 0)
             {
                 ts_type_info.Validity = bs.ReadByte();
@@ -553,7 +553,7 @@ namespace BluRay
         {
             pid = bs.ReadShort();
             int len = bs.ReadByte();
-            int pos = bs.Position;
+            int pos = (int)bs.Position;
             coding_type = bs.ReadByte();
             switch (coding_type)
             {
@@ -819,7 +819,7 @@ namespace BluRay
 
             bs.SkipBit(12);
             type = (byte)bs.ReadIntFromBits(4);
-            int ep_map_pos = bs.Position;
+            int ep_map_pos = (int)bs.Position;
 
             // EP Map starts here
             bs.SkipBit(8);

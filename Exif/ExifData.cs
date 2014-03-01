@@ -859,7 +859,7 @@ namespace ExifLibrary
                         break;
                     //Eight byte float
                     case EXIFDataType.ExifTypeDouble:
-                        int pso = sw.Position;
+                        int pso = (int) sw.Position;
                         sw.Position = offsetToData;
                         tagData = new ELEMENTARY_TYPE(sw, 0, typeof(byte[]), 8);
                         tagDetails =((int) tagData.Value).ToString("x4");
@@ -869,7 +869,7 @@ namespace ExifLibrary
                     case EXIFDataType.ExifTypeSignedRational:
                     case EXIFDataType.ExifTypeUnsignedRational:
                         #region Rational
-                        pso = sw.Position;
+                        pso = (int)sw.Position;
                         sw.Position = offsetToData;
                         tagData = new ELEMENTARY_TYPE(sw, 0, typeof(byte[]), 8);
                         sw.Position -= 8;
@@ -890,7 +890,7 @@ namespace ExifLibrary
                         }
                         else
                         {
-                            int ps = sw.Position;
+                            int ps = (int) sw.Position;
                             sw.Position = offsetToData;
                             tagData = new ELEMENTARY_TYPE(sw, 0, typeof(byte[]), (int)tagCount.Value);
                             sw.Position -= (int)tagCount.Value;

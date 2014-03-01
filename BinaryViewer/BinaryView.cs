@@ -496,7 +496,7 @@ namespace BinaryViewer
             }
             #endregion
             panelWidth = left;
-            Trace.WriteLine(panelWidth);
+     //       Trace.WriteLine(panelWidth);
             top = lineHeight;
             s = "";
             sbin = "";

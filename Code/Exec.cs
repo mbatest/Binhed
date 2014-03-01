@@ -165,12 +165,9 @@ If RVA for example is 0x30D2 (it's in the .intData sections_Directory) file offs
                         //uninitialized intData starts at the endIAT of the intData segment and contains all global variables and static variables
                         break;
                     case ".rdata":
-                         sw.Position = im.pointerToRawData;
-                             imDir = new IMAGE_RESOURCE_DIRECTORY(sw, im, 0 /*, NT_headers*/);
-                      break;
+                        break;
                     case ".data":
-                           sw.Position = im.pointerToRawData;
-                     break;
+                        break;
                     case ".rsrc":
                         try
                         {
@@ -201,7 +198,6 @@ If RVA for example is 0x30D2 (it's in the .intData sections_Directory) file offs
                         }
                         break;
                     case ".debug":
-                        sw.Position = im.pointerToRawData;
                         break;
                     case ".reloc":
                         sw.Position = im.pointerToRawData;

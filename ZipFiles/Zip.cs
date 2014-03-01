@@ -333,7 +333,7 @@ namespace ZipFiles
             file_name = new ELEMENTARY_TYPE(sw, 0, Encoding.Default, (short)file_name_length.Value);
             if ((short)extra_field_length.Value > 0)
             {
-                int start = sw.Position;
+                long start = sw.Position;
                 extra_fields = new List<Extra_field>();
                 while (sw.Position < start + (short)extra_field_length.Value)
                 {

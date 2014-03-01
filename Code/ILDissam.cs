@@ -351,8 +351,8 @@ namespace Code
             if ((heapsizes & 0x04) == 0x04)
                 offsetblob = 4;
             sw.ReadByte();
-            valid = sw.ReadLongInt();
-            long sorted = sw.ReadLongInt();
+            valid = sw.ReadLongInteger();
+            long sorted = sw.ReadLongInteger();
             rows = new int[64];
             Array.Clear(rows, 0, rows.Length);
             for (int k = 0; k <= 63; k++)

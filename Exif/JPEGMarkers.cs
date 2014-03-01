@@ -392,7 +392,7 @@ namespace ExifLibrary
             tag_Offset = new ELEMENTARY_TYPE(sw, 0, typeof(int));
             tag_Size = new ELEMENTARY_TYPE(sw, 0, typeof(int));
             LengthInFile = sw.Position - PositionOfStructureInFile;
-            int pos = sw.Position;
+            long pos = sw.Position;
             sw.Position = start + (int)Tag_Offset.Value;
             switch ((string)tag_Signature.Value)
             {
@@ -613,7 +613,7 @@ namespace ExifLibrary
             PositionOfStructureInFile = sw.Position;
             bool ltl = sw.LittleEndian;
             tags = new List<EXIFTag>();
-            int makerNoteStart = sw.Position;
+            int makerNoteStart = (int)sw.Position;
             EXIFType exif = EXIFType.Exif;
             switch (manufacturer)
             {
@@ -1123,7 +1123,7 @@ namespace ExifLibrary
             propertyset_header = new FPXR_PROPERTYSET_HEADER(sw);
             fmtId = new ELEMENTARY_TYPE(sw, 0, typeof(byte[]), 16);
             offset_to_properties = new ELEMENTARY_TYPE(sw, 0, typeof(int));
-            int startOfSection = sw.Position;
+            int startOfSection = (int)sw.Position;
             sizeOfSection = new ELEMENTARY_TYPE(sw, 0, typeof(int));
             numberOfItems = new ELEMENTARY_TYPE(sw, 0, typeof(int));
             properties = new List<FPXR_Property>();
@@ -1179,7 +1179,7 @@ namespace ExifLibrary
             propertyId = new ELEMENTARY_TYPE(sw, 0, typeof(int));
             offset = new ELEMENTARY_TYPE(sw, 0, typeof(int));
             LengthInFile = sw.Position - PositionOfStructureInFile;
-            int pos = sw.Position;
+            int pos = (int)sw.Position;
             sw.Position = position + (int)offset.Value;
             propertyType = new ELEMENTARY_TYPE(sw, 0, typeof(int));
             bool isArray = false;

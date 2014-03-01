@@ -89,10 +89,10 @@ namespace LowLevel
         {
             PositionOfStructureInFile = sw.Position + offset;
             mftRecordNumber = i;
-            int start = sw.Position;
+            int start = (int)sw.Position;
             file_record_header = new FILE_RECORD_SEGMENT_HEADER(sw, offset);
             sw.Position = start + (ushort)file_record_header.First_Attribute_Offset.Value;
-            int deb = sw.Position;
+            int deb = (int) sw.Position;
             if ((string)file_record_header.File_record_header.Signature.Value != "FILE")
                 return;
             while (sw.Position < start + 0x400)
@@ -205,7 +205,7 @@ namespace LowLevel
             baseFileRecordSegment = new MFT_SEGMENT_REFERENCE(sw, offset);
             numberOfAttributes = new ELEMENTARY_TYPE(sw, offset, typeof(ushort));//(ushort)sw.ReadShort();
             LengthInFile = sw.Position + offset - PositionOfStructureInFile;
-            int pos = sw.Position;
+            int pos = (int)sw.Position;
             /*           sw.Position = (int)(pos - LengthInFile + multiSectorHeader.UpdateSequenceArrayOffset);
                        for (int i = 0; i < multiSectorHeader.UpdateSequenceArraySize - 1; i++)
                            UpdateSequenceArray.Add(sw.ReadShort());*/
@@ -335,7 +335,7 @@ namespace LowLevel
         public ATTRIBUTE_DEFINITION_DATA(BitStreamReader sw, long offset)
         {
             PositionOfStructureInFile = sw.Position + offset;
-            int start = sw.Position;
+            int start = (int) sw.Position;
             name = new ELEMENTARY_TYPE(sw, offset, Encoding.Unicode);
             sw.Position = start + 0x80;
             number = new ELEMENTARY_TYPE(sw, offset, typeof(int));//sw.ReadInteger();

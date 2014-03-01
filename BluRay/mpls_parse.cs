@@ -492,7 +492,7 @@ namespace BluRay
         public MPLS_STREAM(BitStreamReader bs)
         {
             int len = bs.ReadByte();
-            int pos = bs.Position;
+            int pos = (int) bs.Position;
             position = bs.Position;
             stream_type = bs.ReadByte();
             /*         MPID = BufferConvert.ReadShortInteger(buf1, 1);
@@ -524,7 +524,7 @@ namespace BluRay
             bs.BitPosition = (pos + len) * 8;
 
             len = bs.ReadByte();
-            pos = bs.Position;
+            pos = (int)bs.Position;
             lang = "";
             coding_type = bs.ReadByte();
             #region
@@ -710,7 +710,7 @@ namespace BluRay
         {
             position = bs.Position;
             int len = bs.ReadShort();
-            int pos = bs.Position;
+            int pos = (int) bs.Position;
             // SkipBit 2 reserved bytes
             bs.SkipBit(16);
             #region stream numbers
@@ -948,7 +948,7 @@ namespace BluRay
             position = bs.Position;
             // PlayItem Length
             int len = bs.ReadShort();
-            int pos = bs.Position;
+            int pos = (int)bs.Position;
             // Primary Clip identifer
             clip_id = bs.ReadString(5);
             codec_id = bs.ReadString(4);
@@ -1142,7 +1142,7 @@ namespace BluRay
         public MPLS_AI(BitStreamReader bs)
         {
             position = bs.Position;
-            int pos = bs.Position;
+            int pos = (int)bs.Position;
             int len = bs.ReadInteger();
 
             // Reserved
@@ -1231,7 +1231,7 @@ namespace BluRay
             position = bs.Position;
             // PlayItem Length
             len = bs.ReadShort();
-            pos = bs.Position;
+            pos = (int)bs.Position;
 
             // Primary Clip identifer
             clip_id = bs.ReadString(5);
@@ -1314,7 +1314,7 @@ namespace BluRay
         {
             position = bs.Position;
             int len = bs.ReadInteger();
-            int pos = bs.Position;
+            int pos = (int)bs.Position;
 
             bs.SkipBit(8);
             Type = bs.ReadByte();
