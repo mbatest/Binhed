@@ -6,129 +6,15 @@ using System.Drawing;
 
 namespace Utils
 {
-    /// <summary>
-    /// Reads a large file in a bytewise manner, handling bid endianness
-    /// </summary>
-    public class BinaryFileReader : FileStream
+    /*
+    public class BitStreamReader2 : BinaryReader
     {
-        bool littleEndian = true;
-        public BinaryFileReader(string path, FileMode fm, FileAccess fa, FileShare ff, bool isLittleEndian)
-            : base(path, fm, fa, ff)
-        {
-            littleEndian = isLittleEndian;
-        }
-        public BinaryFileReader(string path, bool isLittleEndian)
-            : base(path,FileMode.Open, FileAccess.Read, FileShare.ReadWrite)
-        {
-            littleEndian = isLittleEndian;
-        }
-        public string ReadString(int length)
-        {
-            return Encoding.Default.GetString(ReadBytes(length));
-        }
-        public string ReadString(int length, Encoding enc)
-        {
-            return enc.GetString(ReadBytes(length));
-        }
-        public string ReadStringZ(Encoding eng)
-        {
-            List<byte> bytes = new List<byte>();
-            if (eng == Encoding.Unicode)
-            {
-                byte[] a = ReadBytes(2);
-                while (a[0]!= 0)
-                {
-                    bytes.Add(a[0]);
-                    bytes.Add(a[1]);
-                    a = ReadBytes(2);
-                }
-            }
-            else
-            {
-                byte[] a = ReadBytes(1);
-                while (a[0] != 0)
-                {
-                    bytes.Add(a[0]);
-                    a = ReadBytes(1);
-                }
-            }
-            return eng.GetString(bytes.ToArray());
-        }
-        /// <summary>
-        /// Read short integer (int16)
-        /// </summary>
-        /// <returns></returns>
-        public short ReadShort()
-        {
-            return (short)BytesToInteger(ReadBytes(2));
-        }
-        public int ReadInteger()
-        {
-            return (int)BytesToInteger(ReadBytes(4));
-        }
-        public long ReadLongInteger()
-        {
-            return BytesToInteger(ReadBytes(8));
-        }
-        public byte[] ReadBytes(int length)
-        {
-            byte[] buffer = new byte[length];
-            Read(buffer, 0, buffer.Length);
-            return buffer;
-        }
-        public int ReadIndex(int offType)
-        {
-            switch (offType)
-            {
-                case 2: return ReadShort();
-                case 4: return ReadInteger();
-                default: return 0;
-            }
-        }
-        public int FromBCD()
-        {
-            byte b = (byte)ReadByte();
-            int digit1 = b >> 4;
-            int digit2 = b & 0x0f;
-            return digit1 * 10 + digit2;
-        }
-        public long BytesToInteger(byte[] c)
-        {
-            ulong data = 0;
-            if (littleEndian)
-            {
-                for (int w = 0; w < c.Length; w++)
-                {
-                    data = 256 * data + (uint)c[c.Length - 1 - w];
-                }
-            }
-            else
-            {
-                for (int w = c.Length - 1; w >= 0; w--)
-                {
-                    data = 256 * data + (uint)c[c.Length - 1 - w];
-                }
-            }
-            return (long)data;
-        }
-    }
-    /// <summary>
-    /// class to parse a buffer of bytes in a bitwise manner 
-    /// </summary>
-    public class BitStreamReader
-    {
-        FileStream fs;
         private long length;
-        private string name;
         #region Properties
         public long Length
         {
-            get { return length; }
+            get { return BaseStream.Length; }
             set { length = value; }
-        }
-        public string Name
-        {
-            get { return name; }
         }
         public long BitPosition
         {
@@ -146,14 +32,6 @@ namespace Utils
         /// </summary>
         /// <param name="buffer">data to be parsed</param>
         /// <param name="littleEndian">True if integer are coded in little endian</param>
-        public BitStreamReader(byte[] buffer, bool littleEndian)
-        {
-            this.buffer = buffer;
-            length = buffer.Length;
-            name = "";
-            this.littleEndian = littleEndian;
-            currentBit = 0;
-        }
         /// <summary>
         /// Bitwise reading of a filestream
         /// </summary>
@@ -162,16 +40,11 @@ namespace Utils
         /// <param name="fa"></param>
         /// <param name="ff"></param>
         /// <param name="isBigEndian"></param>
-        public BitStreamReader(string path, bool isBigEndian)
+        public BitStreamReader2(string FileName, bool littleEndian)
+            : base(File.Open(FileName, FileMode.Open))
         {
-            fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-            length = fs.Length;
-            name = fs.Name;
-            littleEndian = isBigEndian;
-  //          BufferConvert.littleEndian = littleEndian;
-            this.buffer = new byte[(int)fs.Length];
-            fs.Read(this.buffer, 0, (int)fs.Length);
-            fs.Close();
+            this.littleEndian = littleEndian;
+            currentBit = 0;
         }
         /// <summary>
         /// Align along the next byte
@@ -181,6 +54,7 @@ namespace Utils
             if (currentBit % 8 != 0)
                 currentBit += (8 - currentBit % 8);
         }
+        public bool Eof { get { return Position >= Length; } }
         public void Close()
         {
             //          fs.Close();
@@ -190,8 +64,8 @@ namespace Utils
             char[] d = pattern.ToCharArray();
             while (currentBit < Length)
             {
-                Position=(int) start;
-                for (long i = start; i <Length; i++)
+                Position = (int)start;
+                for (long i = start; i < Length; i++)
                 {
                     string a = ReadBit().ToString();
                     if (a == d[0].ToString())
@@ -226,11 +100,13 @@ namespace Utils
         public int ReadBit(long index)
         {
             int value = 0;
-            int byteIndex =(int) index / 8;
-            int bitIndex = (int) index % 8;
+            long byteIndex = index / 8;
+            int bitIndex = (int)(index % 8);
             try
             {
-                value = (buffer[byteIndex] & BitMask[bitIndex]) >> (7 - bitIndex);
+                base.BaseStream.Position = byteIndex;
+                value = base.ReadByte() & BitMask[bitIndex];
+                value = value >> (7 - bitIndex);
             }
             catch { }
             return value;
@@ -365,6 +241,7 @@ namespace Utils
             }
             return i;
         }
+        /// <summary>
         /// Reads an integer encoded in exponential Golomb code
         /// </summary>
         /// <returns></returns>
@@ -406,7 +283,7 @@ namespace Utils
 
             }
         }
-        public int ue() // Golomb
+        private int ue() // Golomb
         {
             int r = 0;
             int i = 0;
@@ -419,7 +296,7 @@ namespace Utils
             r += (1 << i) - 1;
             return r;
         }
-        public int se()
+        private int se()
         {
             int r = ue();
             if ((r & 0x01) == 0x01)
@@ -432,6 +309,10 @@ namespace Utils
             }
             return r;
         }
+        /// <summary>
+        /// PTDS for bluray
+        /// </summary>
+        /// <returns></returns>
         public long ReadPts_dts()
         {
             byte[] pts = new byte[5];
@@ -455,6 +336,27 @@ namespace Utils
         {
             currentBit += i * 8;
         }
+        /// <summary>
+        /// Read EBML encoded integer
+        /// </summary>
+        /// <returns></returns>
+        public ELEMENTARY_TYPE ReadVint()
+        {
+            ELEMENTARY_TYPE ret = null;
+            int x = ReadBit();
+            if (x == 1)
+            {
+                BitPosition--;
+                //     ret = new ELEMENTARY_TYPE(this, 0, typeof(byte));
+            }
+            else
+            {
+                x = ReadBit();
+                BitPosition -= 2;
+                //    ret = new ELEMENTARY_TYPE(this, 0, typeof(byte));
+            }
+            return ret;
+        }
         #endregion
         #region byte reading
         /// <summary>
@@ -468,21 +370,36 @@ namespace Utils
             int digit2 = b & 0x0f;
             return digit1 * 10 + digit2;
         }
+        public byte ReadByte()
+        {
+            currentBit += 8;
+            return base.ReadByte();
+        }
+        public byte[] ReadBytes(int count)
+        {
+            currentBit += 8 * count;
+            return base.ReadBytes(count);
+        }
         /// <summary>
         /// Read a byte starting from current bit position
         /// </summary>
         /// <returns></returns>
-        public byte ReadByte()
+        public byte ReadByteFromBits()
         {
             List<int> bits = ReadBitRange(8);
             return (byte)RangeToInt(bits);
         }
+        /// <summary>
+        /// Reads an integer from a range of byte
+        /// </summary>
+        /// <param name="length"></param>
+        /// <returns></returns>
         public long ReadIntegerFromBytes(int length)
         {
             List<byte> b = new List<byte>();
             for (int u = 0; u < length; u++)
             {
-                b.Add(buffer[Position]);
+                b.Add(ReadByte());
                 BitPosition += 8;
             }
             byte[] bytes = b.ToArray();
@@ -524,12 +441,12 @@ namespace Utils
         /// </summary>
         /// <param name="length">Number of bytes to be read</param>
         /// <returns></returns>
-        public byte[] ReadBytes(int length)
+        public byte[] ReadBytesFromBits(int length)
         {
             List<byte> b = new List<byte>();
             for (int u = 0; u < length; u++)
             {
-                b.Add(ReadByte());
+                b.Add(ReadByteFromBits());
             }
             return b.ToArray();
         }
@@ -553,7 +470,7 @@ namespace Utils
         {
             List<byte> bs = new List<byte>();
             byte b = ReadByte();
-            while ((b != 0x0a)& Position<Length)
+            while ((b != 0x0a) & Position < Length)
             {
                 bs.Add(b);
             }
@@ -570,7 +487,7 @@ namespace Utils
             int a = ReadByte();
             while (a != 0)
             {
-                b.Add((byte) a);
+                b.Add((byte)a);
                 a = ReadByte();
             }
             return Encoding.Default.GetString(b.ToArray());
@@ -628,6 +545,8 @@ namespace Utils
         byte[] BitMask = new byte[] { 0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01, 0x00 };
         #endregion
     }
+    */
+    #region Event Handling
     public class ScrollArgs
     {
         long secteur;
@@ -696,6 +615,7 @@ namespace Utils
         }
     }
     public delegate void TabSelectedEventHandler(object sender, TabSelectedArgs e);
+    #endregion
     public class BinPosition
     {
         public long bitPosition;
@@ -708,230 +628,6 @@ namespace Utils
             name = n;
             type = t;
             value = v;
-        }
-    }
-    public interface ILOCALIZED_DATA
-    {
-        long PositionOfStructureInFile { get; set; }
-        long LengthInFile { get; set; }
-    }
-    public class LOCALIZED_DATA : ILOCALIZED_DATA
-    {
-        private long position;
-        private long length;
-        public long PositionOfStructureInFile
-        {
-            get { return position; }
-            set { position = value; }
-        }
-        public long LengthInFile
-        {
-            get { return length; }
-            set { length = value; }
-        }
-        public override string ToString()
-        {
-            return "";
-        }
-    }
-    [Serializable]
-    public class ELEMENTARY_TYPE : LOCALIZED_DATA
-    {
-        object value = "";
-        Type t;
-        public object Value
-        {
-            get { return this.value; }
-            set { this.value = value; }
-        }
-        /// <summary>
-        /// Reads a given type
-        /// </summary>
-        /// <param name="sw">Stream</param>
-        /// <param name="offset">Offset : used in raw access to refer to the origin of the disk</param>
-        /// <param name="t">Type to read</param>
-        public ELEMENTARY_TYPE(BitStreamReader sw, long offset, Type t)
-        {
-            PositionOfStructureInFile = sw.Position + offset;
-            this.t = t;
-            switch (t.Name)
-            {
-                case "Byte":
-                    byte ub = sw.ReadByte();
-                    value = ub;
-                    break;
-                case "Int16":
-                    short us = sw.ReadShort();
-                    value = us;
-                    break;
-                case "UInt16":
-                    ushort u = (ushort)sw.ReadShort();
-                    value = u;
-                    break;
-                case "Int32":
-                    int uis = sw.ReadInteger();
-                    value = uis;
-                    break;
-                case "UInt32":
-                    uint ui = (uint)sw.ReadInteger();
-                    value = ui;
-                    break;
-                case "UInt64":
-                    ulong ulb = (ulong)sw.ReadLong();
-                    value = ulb;
-                    break;
-                case "Int64":
-                    long ul = sw.ReadLong();
-                    value = ul;
-                    break;
-                case "DateTime":
-                    long ud = sw.ReadLong();
-                    value = ToDateTime(ud);
-                    break;
-                case "Guid":
-                    Guid g = new Guid(sw.ReadBytes(0x10));
-                    value = g;
-                    break;
-            }
-            LengthInFile = sw.Position + offset - PositionOfStructureInFile;
-        }
-        /// <summary>
-        /// Reads a given number of bytes into a given type
-        /// </summary>
-        /// <param name="sw">Stream</param>
-        /// <param name="offset">Offset : used in raw access to refer to the origin of the disk</param>
-        /// <param name="t">Type to read</param>
-        /// <param name="length">Number of bytes</param>
-        public ELEMENTARY_TYPE(BitStreamReader sw, long offset, Type t, int length)
-        {
-            PositionOfStructureInFile = sw.Position + offset;
-            this.t = t;
-            switch (t.Name)
-            {
-                case "Int32":
-                    int uis = (int)sw.ReadIntegerFromBytes(length);
-                    value = uis;
-                    break;
-                case "UInt32":
-                    uint ui = (uint)sw.ReadIntegerFromBytes(length);
-                    value = ui;
-                    break;
-                case "UInt64":
-                    ulong ulb = (ulong)sw.ReadIntegerFromBytes(length);
-                    value = ulb;
-                    break;
-                case "Int64":
-                    long ul = sw.ReadIntegerFromBytes(length);
-                    value = ul;
-                    break;
-                case "Byte[]":
-                    byte[] b = sw.ReadBlock(length);
-                    value = b;
-                    break;
-                case "Bitmap":
-                    byte[] im = sw.ReadBlock(length);
-                    using (MemoryStream ts = new MemoryStream(im, 0, length))
-                    {
-                        Image thumbnail = Image.FromStream(ts);
-                        value = thumbnail;
-                    }
-                    break;
-                /*               case "Short[]":
-                                   short[] bs = sw.ReadBytes(length);
-                                   value = bs;
-                                   break;
-                               case "Int32[]":
-                                   int[] bi = sw.ReadBytes(length);
-                                   value = bi;
-                                   break;
-                               case "Int64[]":
-                                   long[] bl = sw.ReadBytes(length);
-                                   value = bl;
-                                   break;*/
-            }
-            LengthInFile = length;
-        }
-        /// <summary>
-        /// Reads a string of given length
-        /// </summary>
-        /// <param name="sw">Stream</param>
-        /// <param name="offset">Offset : used in raw access to refer to the origin of the disk</param>
-        /// <param name="enc">Encoding</param>
-        /// <param name="length">Length of string</param>
-        public ELEMENTARY_TYPE(BitStreamReader sw, long offset, Encoding enc, int length)
-        {
-            PositionOfStructureInFile = sw.Position + offset;
-            this.t = typeof(string);
-            value = sw.ReadString(length, enc);
-            LengthInFile = sw.Position + offset - PositionOfStructureInFile;
-        }
-        /// <summary>
-        /// Reads zero terminated string 
-        /// </summary>
-        /// <param name="sw">Stream</param>
-        /// <param name="offset">offset</param>
-        /// <param name="enc">Encoding</param>
-        public ELEMENTARY_TYPE(BitStreamReader sw, long offset, Encoding enc)
-        {
-            PositionOfStructureInFile = sw.Position + offset;
-            this.t = typeof(string);
-            value = sw.ReadStringZ(enc);
-            LengthInFile = sw.Position + offset - PositionOfStructureInFile;
-        }
-        public ELEMENTARY_TYPE(string s, long offset)
-        {
-            PositionOfStructureInFile = offset;
-            this.t = typeof(string);
-            value = s;
-            LengthInFile = s.Length;
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="s"></param>
-        /// <param name="offset">used in raw access to refer to the origin of the disk</param>
-        /// <param name="length"></param>
-        public ELEMENTARY_TYPE(string s, long offset, long length)
-        {
-            PositionOfStructureInFile = offset;
-            this.t = typeof(string);
-            value = s;
-            LengthInFile = length;
-        }
-        public override string ToString()
-        {
-            switch (t.Name)
-            {
-                case "Byte":
-                    return ((byte)Value).ToString("x2");
-                case "Int16":
-                    return ((short)Value).ToString("x4");
-                case "UInt16":
-                    return ((ushort)Value).ToString("x4");
-                case "Int32":
-                    return ((int)Value).ToString("x8");
-                case "UInt32":
-                    return ((uint)Value).ToString("x8");
-                case "UInt64":
-                    return ((ulong)Value).ToString("x16");
-                case "Int64":
-                    return ((long)Value).ToString("x16");
-                case "DateTime":
-                    return ((DateTime)Value).ToShortDateString() + " " + ((DateTime)Value).ToShortTimeString();
-                case "String":
-                    return (string)Value;
-                case "Guid":
-                    return ((Guid)Value).ToString();
-                default:
-                    return "";
-            }
-        }
-        public DateTime ToDateTime(long shift)
-        {
-            DateTime d = new DateTime(1601, 1, 1, 1, 0, 1);//"12:00 A.M. January 1, 1601 ";
-            TimeSpan ts = new TimeSpan(shift);
-            d = d + ts;
-            return d;
         }
     }
 }

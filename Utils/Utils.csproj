@@ -50,9 +50,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BinaryFileReader.cs" />
+    <Compile Include="BitStreamReader2.cs" />
+    <Compile Include="BitStreamReader.cs" />
     <Compile Include="Convert.cs" />
+    <Compile Include="ElemantaryType.cs" />
     <Compile Include="FileReaders.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utils.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

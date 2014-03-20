@@ -907,7 +907,7 @@ namespace BinHed
             get { return fileSize; }
             set { fileSize = value; }
         }
-        [CategoryAttribute("AVI Header"), DescriptionAttribute("Av")]
+        [CategoryAttribute("AVI Header"), DescriptionAttribute("MainAviHeader")]
         public string Av
         {
             get { return av; }

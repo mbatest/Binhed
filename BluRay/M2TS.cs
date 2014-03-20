@@ -42,8 +42,14 @@ namespace BluRay
         DataStream CurrentAudioStream;
         private List<int> progIds = new List<int>();
         List<IM2TSPacket> blocs = new List<IM2TSPacket>();
-        List<byte> tags = new List<byte>();
 
+        public List<IM2TSPacket> Blocs
+        {
+            get { return blocs; }
+            set { blocs = value; }
+        }
+        List<byte> tags = new List<byte>();
+        public static int PacketSize = 0xC0;//Packet size 192 (0xC0) bytes
         public List<byte> Tags
         {
             get { return tags; }
@@ -52,139 +58,142 @@ namespace BluRay
         public M2TS(string Filename)
         {
             BinaryFileReader sw = new BinaryFileReader(Filename, FileMode.Open, FileAccess.Read, FileShare.Read, false);
+            int b = sw.ReadByte();
+            if (b == 0x47)
+                PacketSize = 0xBC;
+            sw.Position--;
             byte[] buffer;
-            while (sw.Position < sw.Length)
+            #region First bloc, Program association table;
+            long start = sw.Position;
+            buffer = sw.ReadBytes(PacketSize);
+            PAT pat = new PAT(buffer, start);
+            blocs.Add(pat);
+            Program p = new Program(pat.PID, "Program Association Table", pat);
+            programs.Add(p);
+            progIds.Add(p.PID);
+            foreach (Program u in pat.Programs)
             {
-
-                #region First bloc, Program association table;
-                buffer = sw.ReadBytes(0xC0);   //Packet size 192 (0xC0) bytes
-                PAT pat = new PAT(buffer, sw.Position);
-                blocs.Add(pat);
-                Program p = new Program(pat.PID, "Program Association Table", pat);
+                programs.Add(u);
+                progIds.Add(u.PID);
+            }
+            start = sw.Position;
+            PMT pmt = new PMT(sw.ReadBytes(PacketSize), start);
+            p = new Program(pmt.PCR_PID, "PCR", null);
+            programs.Add(p);
+            progIds.Add(p.PID);
+            foreach (ElementaryStream u in pmt.ElementaryStreams)
+            {
+                programs.Add(new Program(u.PID, u.Stream, null));
+                progIds.Add(u.PID);
+            }
+            blocs.Add(pmt);
+            NIT Nit = new NIT(sw.ReadBytes(PacketSize), sw.Position);
+            blocs.Add(Nit);
+            int ind = progIds.IndexOf(Nit.PID);
+            if (ind < 0)
+            {
+                p = new Program(Nit.PID, "Network Information Table", Nit);
                 programs.Add(p);
                 progIds.Add(p.PID);
-                foreach (Program u in pat.Programs)
+            }
+            {
+                //   programs[ind].Blocs.Add(Nit);
+            }
+            #endregion
+            #region
+            while ((sw.Position < sw.Length))
+            {
+                start = sw.Position;
+                buffer = sw.ReadBytes(PacketSize);
+                int PID = FinPid(buffer);
+                string t = null;
+                foreach (Program pp in programs)
                 {
-                    programs.Add(u);
-                    progIds.Add(u.PID);
+                    if (pp.PID == PID)
+                    {
+                        t = pp.ProgType;
+                        break;
+                    }
                 }
-                PMT pmt = new PMT(sw.ReadBytes(0xC0), sw.Position);
-                p = new Program(pmt.PCR_PID, "PCR", null);
-                programs.Add(p);
-                progIds.Add(p.PID);
-                foreach (ElementaryStream u in pmt.ElementaryStreams)
+                IM2TSPacket bl = null;
+                switch (PID)
                 {
-                    programs.Add(new Program(u.PID, u.Stream, null));
-                    progIds.Add(u.PID);
+                    case 0x000:
+                        bl = new PAT(buffer, start);
+                        break;
+                    case 0x100:
+                        bl = new PMT(buffer, start);
+                        break;
+                    case 0x01F:
+                        bl = new NIT(buffer, start);
+                        break;
+                    default:
+                        #region Generic case
+                        switch (t)
+                        {
+                            case "PCR":
+                                bl = new PCR(buffer, start);
+                                break;
+                            case "Video":
+                                if (sw.Position >= 0x6C0)
+                                {
+                                }
+                                bl = new VideoPacket(buffer, start);
+                                if (((VideoPacket)bl).FrameDate != null)
+                                    dates.Add(((VideoPacket)bl).FrameDate);
+                                if (((VideoPacket)bl).startPacket)
+                                {
+                                    CurrentVideoStream = new DataStream();
+                                    videostreams.Add(CurrentVideoStream);
+                                }
+                                if (CurrentVideoStream != null)
+                                    CurrentVideoStream.AddPacket(bl);
+                                break;
+                            case "Audio":
+                                try
+                                {
+                                    bl = new AudioPacket(buffer, start);
+                                    if (((AudioPacket)bl).startPacket)
+                                    {
+                                        CurrentAudioStream = new DataStream();
+                                        audiostreams.Add(CurrentAudioStream);
+                                    }
+                                    if (CurrentAudioStream != null)
+                                        CurrentAudioStream.AddPacket(bl);
+                                }
+                                catch { }
+                                break;
+                            default:
+                                bl = new M2TSPacket(buffer, start);
+                                break;
+                        }
+                        #endregion
+                        break;
                 }
-                blocs.Add(pmt);
-                NIT Nit = new NIT(sw.ReadBytes(0xC0), sw.Position);
-                blocs.Add(Nit);
-                int ind = progIds.IndexOf(Nit.PID);
+                blocs.Add(bl);
+                //      Trace.WriteLine(bl);
+                ind = progIds.IndexOf(bl.PID);
                 if (ind < 0)
                 {
-                    p = new Program(Nit.PID, "Network Information Table", Nit);
+                    string blocType = "";
+                    p = new Program(bl.PID, blocType, bl);
                     programs.Add(p);
-                    progIds.Add(p.PID);
+                    progIds.Add(bl.PID);
                 }
+                else
                 {
-                    programs[ind].Blocs.Add(Nit);
+                    programs[ind].Blocs.Add(bl);
                 }
-                while ((sw.Position < sw.Length))
-                {
-                    buffer = sw.ReadBytes(0xC0);
-                    int PID = FinPid(buffer);
-                    string t = null;
-                    foreach (Program pp in programs)
-                    {
-                        if (pp.PID == PID)
-                        {
-                            t = pp.ProgType;
-                            break;
-                        }
-                    }
-                    IM2TSPacket bl = null;
-                    switch (PID)
-                    {
-                        case 0x000:
-                            bl = new PAT(buffer, sw.Position);
-                            break;
-                        case 0x100:
-                            bl = new PMT(buffer, sw.Position);
-                            break;
-                        case 0x01F:
-                            bl = new NIT(buffer, sw.Position);
-                            break;
-                        default:
-                            #region Generic case
-                            switch (t)
-                            {
-                                case "PCR":
-                                    bl = new PCR(buffer, sw.Position);
-                                    break;
-                                case "Video":
-                                    if (sw.Position >= 0x6C0)
-                                    {
-                                    }
-                                    bl = new VideoPacket(buffer, sw.Position);
-                                    if (((VideoPacket)bl).FrameDate != null)
-                                        dates.Add(((VideoPacket)bl).FrameDate);
-                                    if (((VideoPacket)bl).startPacket)
-                                    {
-                                        CurrentVideoStream = new DataStream();
-                                        videostreams.Add(CurrentVideoStream);
-                                    }
-                                    if (CurrentVideoStream != null)
-                                        CurrentVideoStream.AddPacket(bl);
-                                    break;
-                                case "Audio":
-                                    try
-                                    {
-                                        bl = new AudioPacket(buffer, sw.Position);
-                                        if (((AudioPacket)bl).startPacket)
-                                        {
-                                            CurrentAudioStream = new DataStream();
-                                            audiostreams.Add(CurrentAudioStream);
-                                        }
-                                        if (CurrentAudioStream != null)
-                                            CurrentAudioStream.AddPacket(bl);
-                                    }
-                                    catch (Exception ex) { }
-                                    break;
-                                default:
-                                    bl = new M2TSPacket(buffer, sw.Position);
-                                    break;
-                            }
-                            #endregion
-                            break;
-                    }
-                    blocs.Add(bl);
-              //      Trace.WriteLine(bl);
-                    ind = progIds.IndexOf(bl.PID);
-                    if (ind < 0)
-                    {
-                        string blocType = "";
-                        p = new Program(bl.PID, blocType, bl);
-                        programs.Add(p);
-                        progIds.Add(bl.PID);
-                    }
-                    else
-                    {
-                        programs[ind].Blocs.Add(bl);
-                    }
-                }
-                #endregion
+                //           return;
             }
-            FileInfo f = new FileInfo(Filename);
-            //          long frameSize = f.Length / blocNb.Count;
+            #endregion
         }
         private int FinPid(byte[] b)
         {
             int syncByte = b[4];
             return ((b[5] & 0x1F) << 8) + b[6];
         }
-
-     }
+    }
     /*
      * Access unit delimiter 0x00000109
      * 0x000001 NAL start prefix 
@@ -246,7 +255,7 @@ namespace BluRay
                 if ((code >= 0xe0) && (code <= 0xef))
                     return  "Video stream";
                 else
-                if ((code >= 0xc0) && (code <= 0xcf))
+                if ((code >=0xc0) && (code <= 0xcf))
                     return  "Audio stream";
                 else
                 switch(code)
@@ -283,11 +292,11 @@ namespace BluRay
         }
         public NetworkAbstractionLayer(int offset, int blocNumber, byte[] s, byte[] data)
         {
-            PositionOfStructureInFile = (blocNumber-1) * 0xC0 + offset;
+            PositionOfStructureInFile = (blocNumber - 1) * M2TS.PacketSize + offset;
             LengthInFile= 10;
             int offCode = 4;
             startCode = s;
-            if ((startCode[offCode] >= 0xC0))
+            if ((startCode[offCode] >= M2TS.PacketSize))
                 code = startCode[offCode];
             else
                 code = startCode[offCode] & 0x1F;
@@ -345,7 +354,7 @@ namespace BluRay
                 case 0x07: //SPS http://www.cardinalpeak.com/blog/?p=878 h264bitstream
                     try
                     {
-                        SPS sp = new SPS(buffer);
+                        Sequence_Parameter_Set sp = new Sequence_Parameter_Set(buffer);
                         AddAttribute(new MAttribute("Sequence parameters set", sp));
                     }
                     catch { }
@@ -353,7 +362,7 @@ namespace BluRay
                 case 0x08: //PPS
                     try
                     {
-                        PPS pp = new PPS(buffer);
+                        Picture_Parameter_Set pp = new Picture_Parameter_Set(buffer);
                         AddAttribute(new MAttribute("Picture parameters set", pp));
                     }
                     catch { }
@@ -371,7 +380,7 @@ namespace BluRay
             attributes.Add(attr);
         }
     }
-    public class SPS : LOCALIZED_DATA
+    public class Sequence_Parameter_Set : LOCALIZED_DATA
     {
         private int profile_idc;
         public int Profile_idc
@@ -469,7 +478,7 @@ namespace BluRay
             public int dpb_output_delay_length_minus1;
             public int time_offset_length;
         }
-        public SPS(byte[] buffer)
+        public Sequence_Parameter_Set(byte[] buffer)
         {
             bitreader = new BitStreamReader(buffer, false);
             int i;
@@ -661,7 +670,7 @@ namespace BluRay
             hrd.time_offset_length = bs_read_u( 5);*/
         }
     }
-    public class PPS : LOCALIZED_DATA
+    public class Picture_Parameter_Set : LOCALIZED_DATA
     {
         public int pic_parameter_set_id;
         public int seq_parameter_set_id;
@@ -694,7 +703,7 @@ namespace BluRay
         public int[] ScalingList8x8 = new int[2];
         public bool[] UseDefaultScalingMatrix8x8Flag = new bool[2];
         public int second_chroma_qp_index_offset;
-        public PPS(byte[] buffer)
+        public Picture_Parameter_Set(byte[] buffer)
         {            int i;
             int i_group;
             BitStreamReader bitreader = new BitStreamReader(buffer, false);
@@ -820,6 +829,7 @@ namespace BluRay
             get { return ints; }
             set { ints = value; }
         }
+
         public PAT(byte[] b, long o)
             : base(b, o)
         {
@@ -834,7 +844,7 @@ namespace BluRay
             Section_Number = breader.ReadByte();
             Last_Section_Number = breader.ReadByte();
             long u = breader.Position;
-            while (breader.Position <  u + section_length - 9)
+            while ((breader.Position<breader.Length)&& (breader.Position <  u + section_length - 9))
             {
                 int ProgNb = breader.ReadShort();
                 byte[] bb = breader.ReadBytes(2);
@@ -881,6 +891,7 @@ namespace BluRay
         public PMT(byte[] b, long o)
             : base(b, o)
         {
+            PositionOfStructureInFile = breader.Position+o;
             blocType = "Program Map Table";
             int flags = breader.ReadByte();
             Section_Syntax_Indicator = (flags & 0x80) == 0x80;
@@ -920,20 +931,26 @@ namespace BluRay
 
                 int elPid = ((breader.ReadByte() & 0x1F) << 8) + breader.ReadByte();
                 ElementaryStream st = new ElementaryStream(streamType, elPid);
+                st.PositionOfStructureInFile = breader.Position - 3;
                 elementaryStreams.Add(st);
                 int elprogInfoLength = ((breader.ReadByte() & 0x0F) << 8) + breader.ReadByte();
                 if (elprogInfoLength > 0)
                 {
                    long v = breader.Position;
-                    while (breader.Position < v+elprogInfoLength)
+                    while (breader.Position < v+elprogInfoLength -4)
                     {
                         int tag = breader.ReadByte();
                         int length = breader.ReadByte();
                         byte[] dt = breader.ReadBytes(length);
-                        st.descriptors.Add(new Descriptor(tag, dt));
+                        Descriptor ds = new Descriptor(tag, dt);
+                        ds.PositionOfStructureInFile = breader.Position - length - 2;
+                        ds.LengthInFile = breader.Position - ds.PositionOfStructureInFile;
+                        st.descriptors.Add(ds);
                     }
+                    st.LengthInFile = breader.Position - st.PositionOfStructureInFile; ;
 
                 }
+                LengthInFile = breader.Position;
             }
         }
         public override string ToString()
@@ -960,7 +977,7 @@ namespace BluRay
             : base(buf, o)
         {
             BitStreamReader bs = new BitStreamReader(buf, true);
-            long pcrBase = (long)bs.ReadLongIntegerFromBits(32);
+            long pcrBase = (long)bs.ReadIntegerFromBits(32);
             int pcrExt = bs.ReadShort();
             long endTime = 300 * (2 * pcrBase + (pcrExt >> 15)) + (pcrExt & 0x01ff);
             double st = (double)300 * (2 * pcrBase + (pcrExt >> 15)) / (double)90000;
@@ -1102,7 +1119,7 @@ namespace BluRay
             for (int k = 0; k < nalOccurences.Count; k++)
             {
                 int j = nalOccurences[k];
-                int end = 0xC0 - 1;
+                int end = M2TS.PacketSize - 1;
                 if (k < nalOccurences.Count - 1)
                     end = nalOccurences[k + 1];
                 breader.BitPosition = j * 8;
@@ -1291,7 +1308,7 @@ namespace BluRay
             PositionOfStructureInFile = offset;
             LengthInFile = buffer.Length;
             blocType = "Standard";
-            packetNumber = (int) offset / 0xC0;
+            packetNumber = (int)offset / M2TS.PacketSize;
             this.buffer = buffer;
             this.offset = offset;
             breader = new BitStreamReader(buffer, true);
@@ -1313,19 +1330,19 @@ namespace BluRay
                 byte data = breader.ReadByte();
                 AddAttribute(new MAttribute("Discontinuity_indicator", (data & 0x80) == 0x80));
                 Discontinuity_indicator = (data & 0x80) == 0x80; // Set to 1 if current TS packet is in a discontinuity state with respect to either the continuity counter or the program clock reference
-                AddAttribute(new MAttribute("Random_Access_indicator", (data & 0x40) == 0x40));
                 Random_Access_indicator = (data & 0x40) == 0x40; //Set to 1 if the PES packet in this TS packet starts a video/audio sequence
-                AddAttribute(new MAttribute("Elementary_stream_priority_indicator", (data & 0x20) == 0x40));
                 Elementary_stream_priority_indicator = (data & 0x20) == 0x40;// 1 = higher priority
-                AddAttribute(new MAttribute("PCR_flag", (data & 0x10) == 0x10));
-                PCR_flag = (data & 0x10) == 0x10; //1 means adaptation field does contain a pcrBuff field
-                AddAttribute(new MAttribute("OPCR_flag", (data & 0x08) == 0x08));
-                OPCR_flag = (data & 0x08) == 0x08;//1 means adaptation field does contain an opcrBuf field
-                AddAttribute(new MAttribute("Splicing_point_flag", (data & 0x04) == 0x04));
-                Splicing_point_flag = (data & 0x04) == 0x04;//1 means presence of splice countdown field in adaptation field
-                AddAttribute(new MAttribute("Transport_private_data_flag", (data & 0x02) == 0x02));
+                 PCR_flag = (data & 0x10) == 0x10; //1 means adaptation field does contain a pcrBuff field
+                 OPCR_flag = (data & 0x08) == 0x08;//1 means adaptation field does contain an opcrBuf field
+                 Splicing_point_flag = (data & 0x04) == 0x04;//1 means presence of splice countdown field in adaptation field
                 Transport_private_data_flag = (data & 0x02) == 0x02;// 1 means presence of private buffer bytes in adaptation field
                 Adaptation_field_extension_flag = (data & 0x01) == 0x01;//1 means presence of adaptation field extension
+                AddAttribute(new MAttribute("Random_Access_indicator", (data & 0x40) == 0x40));
+                AddAttribute(new MAttribute("Elementary_stream_priority_indicator", (data & 0x20) == 0x40));
+                AddAttribute(new MAttribute("PCR_flag", (data & 0x10) == 0x10));
+                AddAttribute(new MAttribute("OPCR_flag", (data & 0x08) == 0x08));
+                AddAttribute(new MAttribute("Splicing_point_flag", (data & 0x04) == 0x04));
+                AddAttribute(new MAttribute("Transport_private_data_flag", (data & 0x02) == 0x02));
                 if (PCR_flag)
                 {                   
                     pcrBuff = breader.ReadBytes(6);
@@ -1349,7 +1366,7 @@ namespace BluRay
             PositionOfStructureInFile = sw.Position;
             blocType = "Standard";
             LengthInFile = 0xC0;
-            packetNumber = (int)sw.Position / 0xC0;
+            packetNumber = (int)sw.Position / M2TS.PacketSize;
             /*        breader = new BitStreamReader(buffer, true);
                       #region header
                       DecodeHeader();
@@ -1409,11 +1426,11 @@ namespace BluRay
         /// </summary>
         private void DecodeHeader()
         {
-            m2TS_Copy_Permission_Indicator = breader.ReadIntFromBits(2);
-      //      byte[] c = breader.ReadBytes(4); 
-      //      m2TS_Copy_Permission_Indicator = (c[0] & 0xC0); // 2 bits
-      //      c[0] = (byte)(c[0] & 0x3F);
-            m2TSArrivalTime = breader.ReadIntFromBits(30);// sur 30 bits
+            if (breader.InnerBuffer[0] == 0x00)
+            {
+                m2TS_Copy_Permission_Indicator = breader.ReadIntFromBits(2);
+                m2TSArrivalTime = breader.ReadIntFromBits(30);// sur 30 bits
+            }
             syncByte = breader.ReadByte();
             byte data = breader.ReadByte(); //byte 6
             transport_Error_Indicator = (data & 0x80) == 0x80;
@@ -1447,6 +1464,7 @@ namespace BluRay
             {
                 case 0x1b: return "Video";
                 case 0x81: return "Audio";
+
                default: return "";
             }
        }}
@@ -1576,6 +1594,29 @@ namespace BluRay
             progType = pType;
             if (b != null)
                 blocs.Add(b);
+        }
+        ELEMENTARY_TYPE progNb;
+        ELEMENTARY_TYPE bb1;
+
+        public ELEMENTARY_TYPE pid_Data
+        {
+            get { return bb1; }
+            set { bb1 = value; }
+        }
+        public ELEMENTARY_TYPE ProgNb
+        {
+            get { return progNb; }
+            set { progNb = value; }
+        }
+        public Program (BitStreamReader sw)
+        {
+            PositionOfStructureInFile = sw.Position;
+            progNb = new ELEMENTARY_TYPE(sw,0,typeof(short));
+            programNumber = (short)progNb.Value;
+            bb1= new ELEMENTARY_TYPE(sw,0, typeof(byte[]), 2);
+            byte[] bb = (byte[])bb1.Value;
+            PID = ((bb[0] & 0x1F) << 8) + bb[1];
+            LengthInFile = sw.Position - PositionOfStructureInFile;
         }
         public override string ToString()
         {

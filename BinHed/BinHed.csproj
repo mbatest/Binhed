@@ -116,6 +116,7 @@
     <Compile Include="MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Mp4File.cs" />
     <Compile Include="NativeMethods.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -228,9 +229,9 @@
       <Project>{5321DCF7-433C-4E83-8446-E779DE9B7482}</Project>
       <Name>MP3LibraryTag</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Mpeg2\Mpeg2.csproj">
+    <ProjectReference Include="..\Mpeg2\Video.csproj">
       <Project>{B9E33E99-47B3-4B9D-A64D-1EA3FD297648}</Project>
-      <Name>Mpeg2</Name>
+      <Name>Video</Name>
     </ProjectReference>
     <ProjectReference Include="..\Navigateur\Navigateur.csproj">
       <Project>{E88C83CB-D191-40EC-B7AF-5B358051F026}</Project>
@@ -247,6 +248,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="descriptions.txt" />
+    <None Include="Resources\Expand_24.bmp" />
+    <None Include="Resources\XSLTTransformfile_829.ico" />
     <None Include="Resources\Refresh.bmp" />
     <None Include="Resources\UnknownDrive.png" />
     <None Include="Resources\search.png" />

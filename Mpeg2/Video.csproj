@@ -8,7 +8,7 @@
     <ProjectGuid>{B9E33E99-47B3-4B9D-A64D-1EA3FD297648}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Mpeg2Files</RootNamespace>
+    <RootNamespace>VideoFiles</RootNamespace>
     <AssemblyName>Mpeg2</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -41,6 +41,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AVIFile.cs" />
+    <Compile Include="ebml.cs" />
+    <Compile Include="FlvFile.cs" />
+    <Compile Include="Mkv.cs" />
+    <Compile Include="MkvElements.cs" />
     <Compile Include="Mpeg.cs" />
     <Compile Include="Ifo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -17,6 +17,12 @@ namespace BinHed
         public event DataRequestEventHandler dataRequested;
         ImageList iml;
         ILOCALIZED_DATA im;
+        private bool autoExpand;
+        public bool AutoExpand
+        {
+            get { return autoExpand; }
+            set { autoExpand = value; }
+        }
         public FileViewer()
         {
             InitializeComponent();
@@ -40,6 +46,11 @@ namespace BinHed
             Type t = currentNode.GetType();
             root.Nodes.Clear();
             System.Reflection.PropertyInfo[] p = t.GetProperties();
+            foreach (System.Reflection.PropertyInfo v in p)
+            {
+               // object x = v.GetValue(currentNode, null);
+                Type tx = v.GetType();
+            }
             foreach (System.Reflection.PropertyInfo v in p)
             {
                 try
@@ -115,15 +126,18 @@ namespace BinHed
                                             else
                                             {
                                                 string details = "";
-                                                if ((x.GetType().Name == "String")||(x.GetType().Name == "CodeLine"))
+                                                if ((x.GetType().Name == "String") || (x.GetType().Name == "CodeLine"))
 
                                                     details = x.ToString();
                                                 else
+                                                {
                                                     details = x.GetType().Name;
-
+                                                    details += " : " + x.ToString();
+                                                }
                                                 TreeNode ta = new TreeNode(details, 0, 1);
                                                 ta.Tag = x;
                                                 ts.Nodes.Add(ta);
+                                                if (ts.Nodes.Count > 0x1000) break;
                                             }
 
                                         }
@@ -162,6 +176,10 @@ namespace BinHed
                                     case "UInt16":
                                         ushort u = (ushort)currentNode.GetType().GetProperty(v.Name).GetValue(currentNode, null);
                                         s += "0x" + u.ToString("x4");
+                                        break;
+                                    case "Single":
+                                        Single sw = (Single)currentNode.GetType().GetProperty(v.Name).GetValue(currentNode, null);;
+                                        s += sw.ToString();
                                         break;
                                     case "Int32":
                                         int uis = (int)currentNode.GetType().GetProperty(v.Name).GetValue(currentNode, null);
@@ -247,9 +265,9 @@ namespace BinHed
         private void treeView1_AfterSelect(object sender, TreeViewEventArgs e)
         {
             TreeNode tn = Propriétés.SelectedNode;
-            Type t = tn.Tag.GetType();
             if (tn.Tag != null)
             {
+            Type t = tn.Tag.GetType();
                 if ((tn.Text.Contains("Data Start Sector"))||(tn.Text.Contains("DataStartSector")))
                     if (dataSelected != null)
                         dataSelected(this, new DataSelectedEventArgs((long)tn.Tag * 0x200, 0x200, null));
@@ -259,20 +277,38 @@ namespace BinHed
                 try
                 {
                     Type[] ts = tn.Tag.GetType().GetInterfaces();
-                    if (ts[0].Name == "ILOCALIZED_DATA")
+                    if (ts.Length > 0)
                     {
-                        ILOCALIZED_DATA im = (ILOCALIZED_DATA)tn.Tag;
-                        FillTreeNode(tn, im);
-                        if (dataSelected != null)
-                            dataSelected(this, new DataSelectedEventArgs(im.PositionOfStructureInFile, im.LengthInFile));
-                        if (dataRequested != null)
-                            dataRequested(this, new DataRequestArgs(tn, tn.Tag));
+                        if (ts[0].Name == "ILOCALIZED_DATA")
+                        {
+                            ILOCALIZED_DATA im = (ILOCALIZED_DATA)tn.Tag;
+                            FillTreeNode(tn, im);
+                            if (dataSelected != null)
+                                dataSelected(this, new DataSelectedEventArgs(im.PositionOfStructureInFile, im.LengthInFile));
+                            if (dataRequested != null)
+                                dataRequested(this, new DataRequestArgs(tn, tn.Tag));
+                        }
+                    }
+                    else
+                    {
+                        if (tn.Nodes.Count == 0)
+                        {
+                            System.Reflection.PropertyInfo[] properties = t.GetProperties();
+                            foreach (System.Reflection.PropertyInfo pr in properties)
+                            {
+                                var x = t.GetProperty(pr.Name).GetValue(tn.Tag, null).ToString();
+                                TreeNode tn1 = new TreeNode(pr.Name + " " + x.ToString());
+                                tn1.Tag = x;
+                                tn.Nodes.Add(tn1);
+                            }
+                        }
                     }
                 }
                 catch
                 {
                 }
-                tn.Expand();
+               if(autoExpand)
+                   tn.Expand();
             }
 
         }

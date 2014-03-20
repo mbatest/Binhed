@@ -63,6 +63,7 @@
             this.searchButton = new System.Windows.Forms.ToolStripButton();
             this.suiteFichier = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
+            this.autoExpand = new System.Windows.Forms.ToolStripButton();
             this.prcButton = new System.Windows.Forms.ToolStripButton();
             this.nextPage = new System.Windows.Forms.ToolStripButton();
             this.fileNameLabel = new System.Windows.Forms.ToolStripLabel();
@@ -229,6 +230,7 @@
             this.searchButton,
             this.suiteFichier,
             this.toolStripSeparator2,
+            this.autoExpand,
             this.prcButton,
             this.nextPage,
             this.fileNameLabel,
@@ -484,6 +486,17 @@
             this.toolStripSeparator2.Name = "toolStripSeparator2";
             this.toolStripSeparator2.Size = new System.Drawing.Size(6, 25);
             // 
+            // auoExpand
+            // 
+            this.autoExpand.CheckOnClick = true;
+            this.autoExpand.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.autoExpand.Image = global::BinHed.Properties.Resources.Expand_24;
+            this.autoExpand.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.autoExpand.Name = "auoExpand";
+            this.autoExpand.Size = new System.Drawing.Size(23, 22);
+            this.autoExpand.Text = "Auto expand";
+            this.autoExpand.Click += new System.EventHandler(this.autoExpand_Click);
+            // 
             // prcButton
             // 
             this.prcButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
@@ -719,5 +732,6 @@
         private System.Windows.Forms.SplitContainer splitContainer3;
         private BinHed.TabControlEx mftEntries;
         private FileViewer exv;
+        private System.Windows.Forms.ToolStripButton autoExpand;
     }
 }

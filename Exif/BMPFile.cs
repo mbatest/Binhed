@@ -10,13 +10,11 @@ namespace Exif
         BITMAPFILEHEADER head;
         BITMAPINFOHEADER infoHeader;
         List<Bmp_Line> lines = new List<Bmp_Line>();
-
         public BITMAPFILEHEADER Head
         {
             get { return head; }
             set { head = value; }
         }
-
         public BITMAPINFOHEADER InfoHeader
         {
             get { return infoHeader; }
@@ -42,6 +40,7 @@ namespace Exif
                 lines.Add(line);
             }
             #endregion
+            LengthInFile = sw.Length;
             sw.Close();
         }
     }

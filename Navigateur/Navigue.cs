@@ -16,7 +16,6 @@ namespace Navigateur
         public class SelectedIndexEventArg : EventArgs
         {
             private string fileName;
-
             public string FileName
             {
                 get { return fileName; }
@@ -32,7 +31,6 @@ namespace Navigateur
         public Navigue()
         {
             InitializeComponent();
-
         }
         public bool Init()
         {
@@ -59,26 +57,6 @@ namespace Navigateur
             }
             
             return true;
-        }
-
-        private void FillTree(string path, TreeNode T)
-        {
-            string[] dirs = Directory.GetDirectories(path);
-            foreach (string d in dirs)
-            {
-                string dir = d.Substring(d.LastIndexOf(@"\") + 1);
-                TreeNode tn = new TreeNode(dir, 0, 1);
-                tn.Tag = d;
-                T.Nodes.Add(tn);
-            }
-            string[] files = Directory.GetFiles(path);
-            foreach (string d in files)
-            {
-                string name = Path.GetFileName(d);
-                TreeNode tn = new TreeNode(Path.GetFileName(d), 2, 2);
-                tn.Tag = d;
-                T.Nodes.Add(tn);
-            }
         }
         private void repertoire_AfterSelect(object sender, TreeViewEventArgs e)
         {

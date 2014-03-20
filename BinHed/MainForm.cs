@@ -22,6 +22,7 @@ namespace BinHed
         public Editor()
         {
             InitializeComponent();
+            Utils.Utils.Init();
             #region Extensions informations
             RegistryKey rkRoot = Registry.ClassesRoot;
             string[] keyNames = rkRoot.GetSubKeyNames();
@@ -38,12 +39,52 @@ namespace BinHed
             navigator.Init();
             ShowExplorer();
             tabs.TabPages.Clear();
+            FileSystemWatcher watcher = new FileSystemWatcher();
+            watcher.Path = @"E:\";
+            watcher.IncludeSubdirectories = true;
+            watcher.NotifyFilter = NotifyFilters.LastAccess | NotifyFilters.LastWrite
+           | NotifyFilters.FileName | NotifyFilters.DirectoryName;
+            watcher.Changed += watcher_Changed;
+            watcher.Created += watcher_Created;
+            watcher.Deleted += watcher_Deleted;
+            #region uncomment to watch file system events
+            //        watcher.EnableRaisingEvents = true;
+            #endregion
         }
+        #region Gestion des événements du FileSystemWatche
+        void watcher_Deleted(object sender, FileSystemEventArgs e)
+        {
+            //     throw new NotImplementedException();
+        }
+
+        void watcher_Created(object sender, FileSystemEventArgs e)
+        {
+            //            throw new NotImplementedException();
+        }
+
+        void watcher_Changed(object sender, FileSystemEventArgs e)
+        {
+            Navigator_Init(navigator);
+        }
+        public delegate void SetNavigatorCallBack(Navigateur.Navigue nav);
+        public void Navigator_Init(Navigue nav)
+        {
+            if (this.InvokeRequired)
+            {
+                SetNavigatorCallBack d = new SetNavigatorCallBack(Navigator_Init);
+                this.Invoke(d, new object[] { nav });
+            }
+            else
+            {
+                navigator.Init();
+            }
+        }
+        #endregion
+        #region Menu events handling
         private void refresh_Click(object sender, EventArgs e)
         {
             navigator.Init();
         }
-
         private void navigator_NavIndexChanged(Navigue.SelectedIndexEventArg ev)
         {
             splitContainer4.Panel1Collapsed = true;
@@ -79,7 +120,6 @@ namespace BinHed
                 }
             }
         }
-
         private void OpenFile(string f)
         {
             TabPage tp = new TabPage();
@@ -95,17 +135,6 @@ namespace BinHed
         private void ouvrirToolStripButton_Click(object sender, EventArgs e)
         {
             ShowExplorer();
-        }
-        private void ShowHardware()
-        {
-            TabPage tp = new TabPage();
-            tp.Text = "Computer data";
-            HardwareViewer hd = new HardwareViewer();
-            tp.Controls.Add(hd);
-            hd.Dock = DockStyle.Fill;
-            tabs.TabPages.Add(tp);
-            tabs.SelectedTab = tp;
-
         }
         private void fileEdit_DataEvent(object sender, DataEventArgs e)
         {
@@ -128,7 +157,13 @@ namespace BinHed
         }
         private void hardwareToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            ShowHardware();
+            TabPage tp = new TabPage();
+            tp.Text = "Computer data";
+            HardwareViewer hd = new HardwareViewer();
+            tp.Controls.Add(hd);
+            hd.Dock = DockStyle.Fill;
+            tabs.TabPages.Add(tp);
+            tabs.SelectedTab = tp;
         }
         private void rawDiskAccessToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -142,8 +177,6 @@ namespace BinHed
                 proc.WorkingDirectory = Environment.CurrentDirectory;
                 proc.FileName = Application.ExecutablePath;
                 proc.Verb = "runas";
-
-
                 try
                 {
                     Process.Start(proc);
@@ -158,7 +191,6 @@ namespace BinHed
             }
             else
             {
-      //          MessageBox.Show("The process is running as administrator", "UAC");
                 splitContainer4.Panel1Collapsed = true;
                 TabPage tp = new TabPage();
                 FileEdit f = new FileEdit();
@@ -170,26 +202,17 @@ namespace BinHed
                 tabs.SelectedTab = tp;
                 f.RawDiskAccess();
             }
-
             #endregion
-
         }
-
         private void nouveauToolStripButton_Click(object sender, EventArgs e)
         {
             OpenFileDialog opfd = new OpenFileDialog();
-            if(opfd.ShowDialog()== System.Windows.Forms.DialogResult.OK)
+            if (opfd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 OpenFile(opfd.FileName);
             }
 
         }
-
-        private void toolStrip1_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
-        {
-
-        }
-
- 
+        #endregion
     }
 }

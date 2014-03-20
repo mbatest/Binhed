@@ -8,7 +8,7 @@ using System.ComponentModel;
 using Utils;
 using System.Diagnostics;
 
-namespace Mpeg2Files
+namespace VideoFiles
 {
     public class Mpeg2 : LOCALIZED_DATA
     {

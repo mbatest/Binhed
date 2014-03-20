@@ -1,6 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 2013
+VisualStudioVersion = 12.0.21005.1
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BinHed", "BinHed\BinHed.csproj", "{341E66FC-B3D3-47DE-904F-256448516500}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExifLibrary", "Exif\ExifLibrary.csproj", "{AACF7499-93FE-4D5D-A31D-7F2495DC01DA}"
@@ -19,7 +21,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BookReader", "BookReader\Bo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaInfo", "MediaInfo\MediaInfo.csproj", "{A1EEBC6B-69A6-4DD8-B68E-FE0B028FF10E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mpeg2", "Mpeg2\Mpeg2.csproj", "{B9E33E99-47B3-4B9D-A64D-1EA3FD297648}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Video", "Mpeg2\Video.csproj", "{B9E33E99-47B3-4B9D-A64D-1EA3FD297648}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Code", "Code\Code.csproj", "{C9C11E83-A021-46EE-8038-B67CBC082EBC}"
 EndProject

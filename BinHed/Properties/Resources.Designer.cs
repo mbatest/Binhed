@@ -63,6 +63,16 @@ namespace BinHed.Properties {
         /// <summary>
         ///   Recherche une ressource localisée de type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap Expand_24 {
+            get {
+                object obj = ResourceManager.GetObject("Expand_24", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une ressource localisée de type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap Laptop {
             get {
                 object obj = ResourceManager.GetObject("Laptop", resourceCulture);
@@ -96,6 +106,16 @@ namespace BinHed.Properties {
         internal static System.Drawing.Bitmap UnknownDrive {
             get {
                 object obj = ResourceManager.GetObject("UnknownDrive", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une ressource localisée de type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap XSLTTransformfile_829 {
+            get {
+                object obj = ResourceManager.GetObject("XSLTTransformfile_829", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

@@ -64,14 +64,18 @@
     </Compile>
     <Compile Include="cpli_parse.cs" />
     <Compile Include="Definitions.cs" />
+    <Compile Include="Elements.cs" />
     <Compile Include="Enums.cs" />
     <Compile Include="IM2TSPacket.cs" />
     <Compile Include="Bdmv_parse.cs" />
+    <Compile Include="ITS_Packet.cs" />
     <Compile Include="M2TS.cs" />
     <Compile Include="mobj_parse.cs" />
     <Compile Include="mobj_print.cs" />
+    <Compile Include="Mp4File.cs" />
     <Compile Include="mpls_parse.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TSFile.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Utils\Utils.csproj">

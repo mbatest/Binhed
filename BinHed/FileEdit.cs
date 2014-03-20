@@ -12,7 +12,7 @@ using BookReader;
 using ExifLibrary;
 using MP3Library;
 using ZipFiles;
-using Mpeg2Files;
+using VideoFiles;
 using BluRay;
 using Code;
 using LowLevel;
@@ -62,12 +62,15 @@ namespace BinHed
             this.parseBlock.Visible = false;
             this.FileName = FileName;
             FileInfo fi = new FileInfo(FileName);
-            
-            fileNameLabel.Text = FileName + " : Length = " + fi.Length.ToString();
-            binaryView.Init(FileName);
-            Analyse(FileName);
-            splitContainer1.SplitterDistance = binaryView.PanelWidth;
-            tabControl1.TabPages[0].Text = fi.Name;
+            try
+            {
+                Analyse(FileName);
+                fileNameLabel.Text = FileName + " : Length = " + fi.Length.ToString();
+                binaryView.Init(FileName);
+                splitContainer1.SplitterDistance = binaryView.PanelWidth;
+                tabControl1.TabPages[0].Text = fi.Name;
+            }
+            catch (Exception ex) { MessageBox.Show("Erreur d'analyse du fichier " + FileName + "\r" + ex.Message); }
         }
         /// <summary>
         /// Makes specific analysis of known type files
@@ -76,392 +79,426 @@ namespace BinHed
         private void Analyse(string FileName)
         {
             #region Tests file.extension
-            splitContainer3.Panel2Collapsed = true;
             BinaryFileReader fs = new BinaryFileReader(FileName, false);
             hdr = new FileHeader(fs.ReadBytes(20), Path.GetExtension(FileName));
+            fs.Close();
+            splitContainer3.Panel2Collapsed = true;
             exv.Visible = true;
-            switch (Path.GetExtension(FileName).ToLower())
+            string ext = Path.GetExtension(FileName).ToLower();
+            FileType ft;
+            if (Utils.Utils.types.TryGetValue(ext, out ft))
             {
-                #region Web
-                case ".htm":
-                case ".html":
-                case ".xml":
-                    webBrowser1.Url = new Uri(FileName);
-                    splitContainer3.Panel2.Controls.Clear();
-                    splitContainer3.Panel2.Controls.Add(webBrowser1);
-                    splitContainer3.Panel2Collapsed = false;
-                    webBrowser1.Dock = DockStyle.Fill;
-                    break;
-                #endregion
-                #region Microsoft Office
-                case ".xls":
-                case ".xslx":
-                    #region Excel
-                    if (Path.GetExtension(FileName).ToLower() == ".xslx")
-                    {
-                        Zip zx = new Zip(FileName);
-                        exv.Init(zx);
-                    }
-                    /*                  ExcelControl xls = new ExcelControl(); 
-                                        xls.LoadDocument(FileName);
-                                        xls.Dock = DockStyle.Fill;
-                                        tabControl1.TabPages[2].Controls.Add(xls);
-                                        xls.Visible = true;*/
-                    break;
+
+                switch (ext)
+                {
+                    #region Web
+                    case ".htm":
+                    case ".html":
+                    case ".xml":
+                        webBrowser1.Url = new Uri(FileName);
+                        splitContainer3.Panel2.Controls.Clear();
+                        splitContainer3.Panel2.Controls.Add(webBrowser1);
+                        splitContainer3.Panel2Collapsed = false;
+                        webBrowser1.Dock = DockStyle.Fill;
+                        break;
                     #endregion
-                case ".doc":
-                case ".docx":
-                    #region Word
-                    if (Path.GetExtension(FileName).ToLower() == ".docx")
-                    {
-                        Zip zx = new Zip(FileName);
-                        exv.Init(zx);
-                    }
-  /*                  WinWordControl winWordControl1 = new WinWordControl();
-                    splitContainer3.Panel2.Controls.Clear();
-                    splitContainer3.Panel2.Controls.Add(winWordControl1);
-                    splitContainer3.Panel2Collapsed = false;
-                    winWordControl1.Dock = DockStyle.Fill;
-                    winWordControl1.Visible = true;
-                    winWordControl1.LoadDocument(FileName);*/
-                    break;
-                    #endregion
-                #endregion
-                #region ebooks
-                case ".prc":
-                    MobiFileReader mob = new MobiFileReader(FileName);
-                    exv.Init(mob);
-                    webBrowser1.Visible = true;
-                    webBrowser1.DocumentText = mob.text;
-                    splitContainer3.Panel2.Controls.Clear();
-                    splitContainer3.Panel2.Controls.Add(webBrowser1);
-                    splitContainer3.Panel2Collapsed = false;
-                    webBrowser1.Dock = DockStyle.Fill;
-                    prcButton.Visible = true;
-                    nextPage.Visible = true;
-                    break;
-                case ".lrf":
-                    LRFFileReader vr = new LRFFileReader(FileName);
-                    exv.Init(vr);
-                    break;
-                #endregion
-                #region Images
-                case ".jpg":
-                    JPGFileData jpg = new JPGFileData(FileName);
-                    exv.Init(jpg);
-                    PictureBox p = new PictureBox();
-                    p.SizeMode = PictureBoxSizeMode.StretchImage;
-                    p.Width = 400;// splitContainer1.Panel2.Width;
-                    p.Image = Image.FromFile(FileName);
-                    p.Height = p.Width * p.Image.Height / p.Image.Width;
-                    splitContainer3.Panel2.Controls.Clear();
-                    splitContainer3.Panel2.Controls.Add(p);
-                    splitContainer3.Panel2Collapsed = false;
-                    break;
-                case ".png":
-                    PNGFile png = new PNGFile(FileName);
-                    exv.Init(png);
-                    p = new PictureBox();
-                    p.SizeMode = PictureBoxSizeMode.StretchImage;
-                    p.Width = 400;// splitContainer1.Panel2.Width;
-                    p.Image = Image.FromFile(FileName);
-                    p.Height = p.Width * p.Image.Height / p.Image.Width;
-                    splitContainer3.Panel2.Controls.Clear();
-                    splitContainer3.Panel2.Controls.Add(p);
-                    splitContainer3.Panel2Collapsed = false;
-                    break;
-                case ".bmp":
-                    BMPFile bind = new BMPFile(FileName);
-                    exv.Init(bind);
-                    p = new PictureBox();
-                    p.SizeMode = PictureBoxSizeMode.StretchImage;
-                    p.Width = 400;// splitContainer1.Panel2.Width;
-                    p.Image = Image.FromFile(FileName);
-                    p.Height = p.Width * p.Image.Height / p.Image.Width;
-                    splitContainer3.Panel2.Controls.Clear();
-                    splitContainer3.Panel2.Controls.Add(p);
-                    splitContainer3.Panel2Collapsed = false;
-                    break;
-                case ".gif":
-                    GIFFile gif = new GIFFile(FileName);
-                    exv.Init(gif);
-                    p = new PictureBox();
-                    p.SizeMode = PictureBoxSizeMode.StretchImage;
-                    p.Width = 400;// splitContainer1.Panel2.Width;
-                    p.Image = Image.FromFile(FileName);
-                    p.Height = p.Width * p.Image.Height / p.Image.Width;
-                    splitContainer3.Panel2.Controls.Clear();
-                    splitContainer3.Panel2.Controls.Add(p);
-                    splitContainer3.Panel2Collapsed = false;
-                    break;
-                case ".tif":
-                case ".tiff":
-                    TiFFile tif = new TiFFile(FileName);
-                    exv.Init(tif);
-                    p = new PictureBox();
-                    p.SizeMode = PictureBoxSizeMode.StretchImage;
-                    p.Width = 400;// splitContainer1.Panel2.Width;
-                    p.Image = Image.FromFile(FileName);
-                    p.Height = p.Width * p.Image.Height / p.Image.Width;
-                    splitContainer3.Panel2.Controls.Clear();
-                    splitContainer3.Panel2.Controls.Add(p);
-                    splitContainer3.Panel2Collapsed = false;
-                    break;
-                #endregion
-                #region Audio
-                case ".mp3":
-                case ".wma":
-                    MusicFileClass mf = new MusicFileClass(FileName);
-                    exv.Init(mf);
-                    break;
-                #endregion
-                case ".zip":
-                    Zip z = new Zip(FileName);
-                    exv.Init(z);
-                    break;
-                case ".ttf":
-                    // Font file
-                    break;
-                case ".avi":
-                    break;
-                #region Mpeg2 endCode video
-                case ".mpg":
-                case ".mpeg":
-                case ".vob":
-                    Mpeg2 mpg = new Mpeg2(FileName);
-                    exv.Init(mpg);
-                    break;
-                case ".ifo":
-                case ".bup":
-                    IFO ifo = new IFO(FileName);
-                    exv.Init(ifo);
-                    break;
-                #endregion
-                #region BD video
-                case ".m2ts":
-                    M2TS mts = new M2TS(FileName);
-                    exv.Init((ILOCALIZED_DATA)mts);
-                    break;
-                case ".mpls":
-                    MPLS mp = new MPLS(FileName);
-                    exv.Init((ILOCALIZED_DATA)mp);
-                    break;
-                case ".clpi":
-                    CLPI cp = new CLPI(FileName);
-                    exv.Init((ILOCALIZED_DATA)cp);
-                    break;
-                case ".bdmv":
-                    if (FileName.IndexOf("index") >= 0)
-                    {
-                        exv.Visible = false;
-                        INDEX_BDMV bd = new INDEX_BDMV(FileName);
-                        BDViewer bdv = new BDViewer();
-                        bdv.tabSelected += new TabSelectedEventHandler(bdv_tabSelected);
-                        bdv.Init(bd);
-                        splitContainer3.Panel1.Controls.Add(bdv);
-                        bdv.Dock = DockStyle.Fill;
-                        bdv.dataSelected += new DataSelectedEventHandler(exv_dataSelected);
-                        TabPage tp = new TabPage(Path.GetFileName(bd.MovieObject.fileName));
-                        tabControl1.TabPages.Add(tp);
-                        BinaryView bn = new BinaryView();
-                        bn.Init(bd.MovieObject.fileName);
-                        tp.Controls.Add(bn);
-                        bn.Dock = DockStyle.Fill;
-                        foreach (MPLS mpl in bd.MplsList)
+                    #region Microsoft Office
+                    case ".xls":
+                    case ".xslx":
+                        #region Excel
+                        if (Path.GetExtension(FileName).ToLower() == ".xslx")
                         {
-                            tp = new TabPage(Path.GetFileName(mpl.LongName));
+                            Zip zx = new Zip(FileName);
+                            exv.Init(zx);
+                        }
+                        /*                  ExcelControl xls = new ExcelControl(); 
+                                            xls.LoadDocument(FileName);
+                                            xls.Dock = DockStyle.Fill;
+                                            tabControl1.TabPages[2].Controls.Add(xls);
+                                            xls.Visible = true;*/
+                        break;
+                        #endregion
+                    case ".doc":
+                    case ".docx":
+                        #region Word
+                        if (Path.GetExtension(FileName).ToLower() == ".docx")
+                        {
+                            Zip zx = new Zip(FileName);
+                            exv.Init(zx);
+                        }
+                        /*                  WinWordControl winWordControl1 = new WinWordControl();
+                                          splitContainer3.Panel2.Controls.Clear();
+                                          splitContainer3.Panel2.Controls.Add(winWordControl1);
+                                          splitContainer3.Panel2Collapsed = false;
+                                          winWordControl1.Dock = DockStyle.Fill;
+                                          winWordControl1.Visible = true;
+                                          winWordControl1.LoadDocument(FileName);*/
+                        break;
+                        #endregion
+                    #endregion
+                    #region ebooks
+                    case ".prc":
+                        MobiFileReader mob = new MobiFileReader(FileName);
+                        exv.Init(mob);
+                        webBrowser1.Visible = true;
+                        webBrowser1.DocumentText = mob.text;
+                        splitContainer3.Panel2.Controls.Clear();
+                        splitContainer3.Panel2.Controls.Add(webBrowser1);
+                        splitContainer3.Panel2Collapsed = false;
+                        webBrowser1.Dock = DockStyle.Fill;
+                        prcButton.Visible = true;
+                        nextPage.Visible = true;
+                        break;
+                    case ".lrf":
+                        LRFFileReader vr = new LRFFileReader(FileName);
+                        exv.Init(vr);
+                        break;
+                    #endregion
+                    #region Images
+                    case ".jpg":
+                        JPGFileData jpg = new JPGFileData(FileName);
+                        exv.Init(jpg);
+                        PictureBox p = new PictureBox();
+                        p.SizeMode = PictureBoxSizeMode.StretchImage;
+                        p.Width = 400;// splitContainer1.Panel2.Width;
+                        p.Image = Image.FromFile(FileName);
+                        p.Height = p.Width * p.Image.Height / p.Image.Width;
+                        splitContainer3.Panel2.Controls.Clear();
+                        splitContainer3.Panel2.Controls.Add(p);
+                        splitContainer3.Panel2Collapsed = false;
+                        break;
+                    case ".png":
+                        PNGFile png = new PNGFile(FileName);
+                        exv.Init(png);
+                        p = new PictureBox();
+                        p.SizeMode = PictureBoxSizeMode.StretchImage;
+                        p.Width = 400;// splitContainer1.Panel2.Width;
+                        p.Image = Image.FromFile(FileName);
+                        p.Height = p.Width * p.Image.Height / p.Image.Width;
+                        splitContainer3.Panel2.Controls.Clear();
+                        splitContainer3.Panel2.Controls.Add(p);
+                        splitContainer3.Panel2Collapsed = false;
+                        break;
+                    case ".bmp":
+                        BMPFile bind = new BMPFile(FileName);
+                        exv.Init(bind);
+                        p = new PictureBox();
+                        p.SizeMode = PictureBoxSizeMode.StretchImage;
+                        p.Width = 400;// splitContainer1.Panel2.Width;
+                        p.Image = Image.FromFile(FileName);
+                        p.Height = p.Width * p.Image.Height / p.Image.Width;
+                        splitContainer3.Panel2.Controls.Clear();
+                        splitContainer3.Panel2.Controls.Add(p);
+                        splitContainer3.Panel2Collapsed = false;
+                        break;
+                    case ".gif":
+                        GIFFile gif = new GIFFile(FileName);
+                        exv.Init(gif);
+                        p = new PictureBox();
+                        p.SizeMode = PictureBoxSizeMode.StretchImage;
+                        p.Width = 400;// splitContainer1.Panel2.Width;
+                        p.Image = Image.FromFile(FileName);
+                        p.Height = p.Width * p.Image.Height / p.Image.Width;
+                        splitContainer3.Panel2.Controls.Clear();
+                        splitContainer3.Panel2.Controls.Add(p);
+                        splitContainer3.Panel2Collapsed = false;
+                        break;
+                    case ".tif":
+                    case ".tiff":
+                        TiFFile tif = new TiFFile(FileName);
+                        exv.Init(tif);
+                        p = new PictureBox();
+                        p.SizeMode = PictureBoxSizeMode.StretchImage;
+                        p.Width = 400;// splitContainer1.Panel2.Width;
+                        p.Image = Image.FromFile(FileName);
+                        p.Height = p.Width * p.Image.Height / p.Image.Width;
+                        splitContainer3.Panel2.Controls.Clear();
+                        splitContainer3.Panel2.Controls.Add(p);
+                        splitContainer3.Panel2Collapsed = false;
+                        break;
+                    #endregion
+                    #region Audio
+                    case ".mp3":
+                    case ".wma":
+                        MusicFileClass mf = new MusicFileClass(FileName);
+                        exv.Init(mf);
+                        break;
+                    #endregion
+                    case ".zip":
+                        Zip z = new Zip(FileName);
+                        exv.Init(z);
+                        break;
+                    case ".ttf":
+                        // Font file
+                        break;
+                    #region Video
+                    case ".divx":
+                    case ".avi":
+                        AVIFile avi = new AVIFile(FileName);
+                        exv.Init(avi);
+                        break;
+                    case ".mkv":
+                        MkvFile mkv = new MkvFile(FileName);
+                        exv.Init(mkv);
+                        break;
+                    case ".flv":
+                        FlvFile flv = new FlvFile(FileName);
+                        exv.Init(flv);
+                        break;
+                    case ".mp4":
+                        Mp4File mp4 = new Mp4File(FileName);
+                        exv.Init(mp4);
+                        break;
+                    #endregion
+                    #region Mpeg2 endCode video
+                    case ".mpg":
+                    case ".mpeg":
+                    case ".vob":
+                        Mpeg2 mpg = new Mpeg2(FileName);
+                        exv.Init(mpg);
+                        break;
+                    case ".ifo":
+                    case ".bup":
+                        IFO ifo = new IFO(FileName);
+                        exv.Init(ifo);
+                        break;
+                    #endregion
+                    #region BD video
+                    case ".m2ts":
+         /*               M2TS mts = new M2TS(FileName);
+                        exv.Init(mts);
+                        break;*/
+                    case ".ts":
+                        TS_File ts = new TS_File(FileName);
+                        exv.Init(ts);
+                        break;
+                    case ".mpls":
+                        MPLS mp = new MPLS(FileName);
+                        exv.Init((ILOCALIZED_DATA)mp);
+                        break;
+                    case ".clpi":
+                        CLPI cp = new CLPI(FileName);
+                        exv.Init((ILOCALIZED_DATA)cp);
+                        break;
+                    case ".bdmv":
+                        if (FileName.IndexOf("index") >= 0)
+                        {
+                            exv.Visible = false;
+                            INDEX_BDMV bd = new INDEX_BDMV(FileName);
+                            BDViewer bdv = new BDViewer();
+                            bdv.tabSelected += new TabSelectedEventHandler(bdv_tabSelected);
+                            bdv.Init(bd);
+                            splitContainer3.Panel1.Controls.Add(bdv);
+                            bdv.Dock = DockStyle.Fill;
+                            bdv.dataSelected += new DataSelectedEventHandler(exv_dataSelected);
+                            TabPage tp = new TabPage(Path.GetFileName(bd.MovieObject.fileName));
                             tabControl1.TabPages.Add(tp);
-                            bn = new BinaryView();
-                            bn.Init(mpl.LongName);
+                            BinaryView bn = new BinaryView();
+                            bn.Init(bd.MovieObject.fileName);
                             tp.Controls.Add(bn);
                             bn.Dock = DockStyle.Fill;
+                            foreach (MPLS mpl in bd.MplsList)
+                            {
+                                tp = new TabPage(Path.GetFileName(mpl.LongName));
+                                tabControl1.TabPages.Add(tp);
+                                bn = new BinaryView();
+                                bn.Init(mpl.LongName);
+                                tp.Controls.Add(bn);
+                                bn.Dock = DockStyle.Fill;
+                            }
                         }
-                    }
-                    else if (FileName.IndexOf("Movie") >= 0)
-                    {
-                        MOBJ_BDMV mo = new MOBJ_BDMV(FileName);
-                        exv.Init((ILOCALIZED_DATA)mo);
-                    }
-                    break;
-                #endregion
-                #region Text like files
-                case ".ps":
-                    PostScriptReader ps = new PostScriptReader(FileName);
-                    exv.Init(ps);
-                    break;
-                case ".pdf":
-                    PdfViewer pdf = new PdfViewer();
-                    pdf.Init(FileName);
-                    exv.Visible = false;
-                    splitContainer3.Panel1.Controls.Add(pdf);
-                    pdf.Dock = DockStyle.Fill;
-                    break;
-                case ".log":
-                case ".ini":
-                case ".cs":
-                case ".txt":
-                case ".bat":
-                    exv.Visible = false;
-                    TextBox t = new TextBox();
-                    t.Multiline = true;
-                    t.ScrollBars = ScrollBars.Both;
-                    StreamReader sr = new StreamReader(FileName);
-                    t.Text = sr.ReadToEnd();
-                    sr.Close();
-                    splitContainer3.Panel1.Controls.Add(t);
-                    t.Dock = DockStyle.Fill;
-                    break;
-                #endregion
-                #region PE files
-                case ".exe":
-                case ".dll":
-                    exv.Visible = false;
-                    Executable ex = new Executable(FileName);
-                    ExeViewer exeViewer = new ExeViewer();
-                    exeViewer.Init(ex);
-                    exeViewer.dataSelected += exv_dataSelected;
-                    splitContainer3.Panel1.Controls.Add(exeViewer);
-                    exeViewer.Dock = DockStyle.Fill;
- /*
-                  exv.Init(ex);
-*/
-                  break;
-                #endregion
-                case "ITSF"://chm : http://www.russotto.net/chm/chmformat.html
-
-                default:
-                    #region Analyse header and try to identify file type
-                    switch (hdr.HeaderBinarySt)
-                    {
-                        case "5346504B"://SFKP Sound Forge (Peak Data File) 
-                            break;
-                        case "44564456":
-                            //DVD IFO (or BUP)
-                            ifo = new IFO(FileName);
-                            break;
-                        case "47494638"://Gif
-                            break;
-                        case "89504e47":
-                            //PNG
-                            break;
-                        case "4d534346":
-                            //CAB
-                            break;
-                        case "49545346":
-                        case "31be0000"://wri ?
-                            break;
-                        case "00010000":
-                            //ttf, mdb
-                            break;
-                        case "00000100":
-                            // ico
-                            break;
-                        case "504b0304":
-                            Zip zi = new Zip(FileName);
-                            exv.Init(zi);
-                            break;
-                        case "52617221":
-                            break;
-                        case "ffd8ffe0":
-                            //Jpg
-                            break;
-                        case "d0cf11e0":
-                            //office
-                            break;
-                        case "3f5f0300":
-                            //help
-                            break;
-                        case "000001ba":
-                            mpg = new Mpeg2(FileName);
-                            exv.Init(mpg);
-                            break;
-                        default:
-                            if (hdr.HeaderBinarySt.StartsWith("1f8b"))
-                            {
-                                //gz file
-                                MessageBox.Show("gz file, to do");
-                                byte compressionMethods = hdr.header[2];
-                                if (compressionMethods == 0x08)
-                                {
-                                    //deflate
-                                }
-                                byte flags = hdr.header[3];
-                                if (flags != 0x00)
-                                {
-                                }
-                                Gzip gz = new Gzip(FileName);
-                                exv.Init(gz);
-                            }
-                            #region binary header
-                            switch (hdr.ShortHeaderString)
-                            {
-                                case "BM":// BMP
-                                    BinDecoder bi = new BinDecoder(FileName);
-                                    exv.Init(bi);
-                                    break;
-                                case "MK":
-                                    break;
-                                case "PK":
-                                    //Zip, jar
-                                    break;
-                                case "MZ":
-                                    //exe, dll
-                                    break;
-                                default:
-                                    #region text header
-                                    switch (hdr.HeaderString)
-                                    {
-                                        case "DVDV":
-                                            //DVD IFO (or BUP)
-                                            ifo = new IFO(FileName);
-                                            break;
-                                        case "ITSF":
-                                            BinDecoder bid = new BinDecoder(FileName);
-                                            //Microsoft Compiled HTML Help File : Info-Tech Storage Format
-                                            break;
-                                        case "GIF8":
-                                            break;
-                                        case "MSCF"://Microsoft cabinet file
-                                            break;
-                                        case "Rar!":
-                                            break;
-                                        case "RIFF":
-                                            //avi
-                                            AviAnalyze av = new AviAnalyze(FileName);
-                                            exv.Init(av);
-                                            break;
-                                        case "%PDF":
-                                            break;
-                                        case "‰PNG":
-                                            break;
-                                        case "<?xm"://xml
-                                            break;
-                                        case "ID3":
-                                            //mp3
-                                            break;
-                                        case "L\0R\0":
-                                            //lrf
-                                            break;
-                                        case "ÐÏà":
-                                            //office
-                                            break;
-                                        case "BZh9":
-                                            //tar.gz
-                                            break;
-                                        case "\0 \0\0":
-                                            break;
-                                        default:
-                                            break;
-                                    }
-                                    #endregion
-                                    break;
-                            }
-                            #endregion
-                            break;
-                    }
+                        else if (FileName.IndexOf("Movie") >= 0)
+                        {
+                            MOBJ_BDMV mo = new MOBJ_BDMV(FileName);
+                            exv.Init((ILOCALIZED_DATA)mo);
+                        }
+                        break;
                     #endregion
-                    break;
+                    #region Text like files
+                    case ".ps":
+                        PostScriptReader ps = new PostScriptReader(FileName);
+                        exv.Init(ps);
+                        break;
+                    case ".pdf":
+                        PdfViewer pdf = new PdfViewer();
+                        pdf.Init(FileName);
+                        exv.Visible = false;
+                        splitContainer3.Panel1.Controls.Add(pdf);
+                        pdf.Dock = DockStyle.Fill;
+                        break;
+                    case ".log":
+                    case ".ini":
+                    case ".cs":
+                    case ".txt":
+                    case ".bat":
+                        exv.Visible = false;
+                        TextBox t = new TextBox();
+                        t.Multiline = true;
+                        t.ScrollBars = ScrollBars.Both;
+                        StreamReader sr = new StreamReader(FileName);
+                        t.Text = sr.ReadToEnd();
+                        sr.Close();
+                        splitContainer3.Panel1.Controls.Add(t);
+                        t.Dock = DockStyle.Fill;
+                        break;
+                    #endregion
+                    #region PE files
+                    case ".exe":
+                    case ".dll":
+                        exv.Visible = false;
+                        Executable ex = new Executable(FileName);
+                        ExeViewer exeViewer = new ExeViewer();
+                        exeViewer.Init(ex);
+                        exeViewer.dataSelected += exv_dataSelected;
+                        splitContainer3.Panel1.Controls.Add(exeViewer);
+                        exeViewer.Dock = DockStyle.Fill;
+                        /*
+                                         exv.Init(ex);
+                       */
+                        break;
+                    #endregion
+                    case ".chm"://chm : http://www.russotto.net/chm/chmformat.html
+                        break;
+                    default:
+                        #region Analyse header and try to identify file type
+                        switch (hdr.HeaderBinarySt)
+                        {
+                            case "5346504B"://SFKP Sound Forge (Peak Data File) 
+                                break;
+                            case "44564456":
+                                //DVD IFO (or BUP)
+                                ifo = new IFO(FileName);
+                                break;
+                            case "47494638"://Gif
+                                break;
+                            case "89504e47":
+                                //PNG
+                                break;
+                            case "4d534346":
+                                //CAB
+                                break;
+                            case "49545346"://ITSF chm
+                                break;
+                            case "31be0000"://wri ?
+                                break;
+                            case "00010000":
+                                //ttf, mdb
+                                break;
+                            case "00000100":
+                                // ico
+                                break;
+                            case "504b0304":
+                                Zip zi = new Zip(FileName);
+                                exv.Init(zi);
+                                break;
+                            case "52617221":
+                                break;
+                            case "ffd8ffe0":
+                                //Jpg
+                                break;
+                            case "d0cf11e0":
+                                //office
+                                break;
+                            case "3f5f0300":
+                                //help
+                                break;
+                            case "000001ba":
+                                mpg = new Mpeg2(FileName);
+                                exv.Init(mpg);
+                                break;
+                            default:
+                                if (hdr.HeaderBinarySt.StartsWith("1f8b"))
+                                {
+                                    //gz file
+                                    MessageBox.Show("gz file, to do");
+                                    byte compressionMethods = hdr.header[2];
+                                    if (compressionMethods == 0x08)
+                                    {
+                                        //deflate
+                                    }
+                                    byte flags = hdr.header[3];
+                                    if (flags != 0x00)
+                                    {
+                                    }
+                                    Gzip gz = new Gzip(FileName);
+                                    exv.Init(gz);
+                                }
+                                #region binary header
+                                switch (hdr.ShortHeaderString)
+                                {
+                                    case "BM":// BMP
+                                        BinDecoder bi = new BinDecoder(FileName);
+                                        exv.Init(bi);
+                                        break;
+                                    case "MK":
+                                        break;
+                                    case "PK":
+                                        //Zip, jar
+                                        break;
+                                    case "MZ":
+                                        //exe, dll
+                                        break;
+                                    default:
+                                        #region text header
+                                        switch (hdr.HeaderString)
+                                        {
+                                            case "DVDV":
+                                                //DVD IFO (or BUP)
+                                                ifo = new IFO(FileName);
+                                                break;
+                                            case "ITSF":
+                                                BinDecoder bid = new BinDecoder(FileName);
+                                                //Microsoft Compiled HTML Help File : Info-Tech Storage Format
+                                                break;
+                                            case "GIF8":
+                                                break;
+                                            case "MSCF"://Microsoft cabinet file
+                                                break;
+                                            case "Rar!":
+                                                break;
+                                            case "RIFF":
+                                                //avi
+                                                AviAnalyze av = new AviAnalyze(FileName);
+                                                exv.Init(av);
+                                                break;
+                                            case "%PDF":
+                                                break;
+                                            case "‰PNG":
+                                                break;
+                                            case "<?xm"://xml
+                                                break;
+                                            case "ID3":
+                                                //mp3
+                                                break;
+                                            case "L\0R\0":
+                                                //lrf
+                                                break;
+                                            case "ÐÏà":
+                                                //office
+                                                break;
+                                            case "BZh9":
+                                                //tar.gz
+                                                break;
+                                            case "\0 \0\0":
+                                                break;
+                                            default:
+                                                break;
+                                        }
+                                        #endregion
+                                        break;
+                                }
+                                #endregion
+                                break;
+                        }
+                        #endregion
+                        break;
+                }
             }
+            else
+            {
+
+            }
+
             #endregion
         }
         #region Event handlers
@@ -759,6 +796,10 @@ namespace BinHed
             }
         }
         #endregion
+        private void autoExpand_Click(object sender, EventArgs e)
+        {
+            exv.AutoExpand = autoExpand.Checked;
+        }
     }
     public class FileHeader
     {
